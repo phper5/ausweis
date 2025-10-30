@@ -8,7 +8,6 @@
 
 #include <QCoreApplication>
 #include <QList>
-#include <QPair>
 #include <QString>
 
 #ifdef Q_OS_ANDROID
@@ -17,7 +16,7 @@
 #endif
 
 #include <functional>
-
+#include <utility>
 
 namespace governikus
 {
@@ -40,7 +39,7 @@ class BuildHelper
 		[[nodiscard]] static bool fetchUserInteractive();
 
 	public:
-		static QList<QPair<QLatin1String, QString>> getInformationHeader();
+		static QList<std::pair<QLatin1String, QString>> getInformationHeader();
 		static void processInformationHeader(const std::function<void(const QString&, const QString&)>& pFunc, bool pTranslate = true);
 
 		[[nodiscard]] static CertificateType getCertificateType();

@@ -41,7 +41,6 @@ Item {
 		id: mainText
 
 		Accessible.ignored: true
-		activeFocusOnTab: false
 		anchors.fill: parent
 
 		Behavior on text {
@@ -93,7 +92,6 @@ Item {
 		id: tempText
 
 		Accessible.ignored: true
-		activeFocusOnTab: false
 		color: mainText.color
 		elide: mainText.elide
 		font: mainText.font

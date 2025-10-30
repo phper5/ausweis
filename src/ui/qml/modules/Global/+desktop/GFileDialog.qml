@@ -1,17 +1,21 @@
 /**
  * Copyright (c) 2021-2025 Governikus GmbH & Co. KG, Germany
  */
-import QtQuick
-import Qt.labs.platform as Labs
 
-Labs.FileDialog {
+import QtCore
+import QtQuick
+import QtQuick.Dialogs
+
+FileDialog {
 	function selectFile(pDefaultFilename) {
-		currentFile = folder + "/" + pDefaultFilename;
+		let isFileUrl = /^file:\/\//;
+		let folder = isFileUrl.test(currentFolder) ? currentFolder : "file://" + currentFolder;
+		selectedFile = folder + "/" + pDefaultFilename;
 		open();
 	}
 
-	fileMode: Labs.FileDialog.SaveFile
-	folder: Labs.StandardPaths.writableLocation(Labs.StandardPaths.DocumentsLocation)
+	currentFolder: StandardPaths.writableLocation(StandardPaths.DocumentsLocation)
+	fileMode: FileDialog.SaveFile
 
 	Component.onDestruction: reject()
 }

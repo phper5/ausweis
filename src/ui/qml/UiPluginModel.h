@@ -31,15 +31,17 @@ class UiPluginModel
 	Q_PROPERTY(bool dominated READ isDominated NOTIFY fireDominatorChanged)
 	Q_PROPERTY(QVariantMap safeAreaMargins READ getSafeAreaMargins NOTIFY fireSafeAreaMarginsChanged)
 	Q_PROPERTY(bool highContrastEnabled READ isHighContrastEnabled NOTIFY fireHighContrastEnabledChanged)
-	Q_PROPERTY(bool osDarkModeSupported READ isOsDarkModeSupported CONSTANT)
 	Q_PROPERTY(bool darkModeEnabled READ isDarkModeEnabled NOTIFY fireDarkModeEnabledChanged)
 	Q_PROPERTY(QString fixedFontFamily READ getFixedFontFamily CONSTANT)
 	Q_PROPERTY(QSize initialWindowSize READ getInitialWindowSize CONSTANT)
 	Q_PROPERTY(bool showFocusIndicator READ getShowFocusIndicator NOTIFY fireShowFocusIndicator)
 	Q_PROPERTY(qreal scaleFactor READ getScaleFactor WRITE setScaleFactor NOTIFY fireScaleFactorChanged)
 	Q_PROPERTY(qreal fontScaleFactor READ getFontScaleFactor NOTIFY fireFontScaleFactorChanged)
+	Q_PROPERTY(int fontWeightAdjustment READ getFontWeightAdjustment NOTIFY fireFontWeightAdjustmentChanged)
 	Q_PROPERTY(bool isChromeOS READ isChromeOS CONSTANT)
 	Q_PROPERTY(bool isUpdatePending READ isUpdatePending NOTIFY fireIsUpdatePendingChanged)
+	Q_PROPERTY(bool a11yButtonShapeActive READ isA11yButtonShapeActive NOTIFY fireA11yButtonShapeActiveChanged)
+	Q_PROPERTY(bool a11yOnOffSwitchLabelActive READ isA11yOnOffSwitchLabelActive NOTIFY fireA11yOnOffSwitchLabelActiveChanged)
 
 	bool mUpdateInformationPending;
 
@@ -57,7 +59,6 @@ class UiPluginModel
 		[[nodiscard]] virtual bool isDominated() const = 0;
 		[[nodiscard]] virtual QVariantMap getSafeAreaMargins() const = 0;
 		[[nodiscard]] virtual bool isHighContrastEnabled() const = 0;
-		[[nodiscard]] virtual bool isOsDarkModeSupported() const = 0;
 		[[nodiscard]] virtual bool isDarkModeEnabled() const = 0;
 		[[nodiscard]] virtual QString getFixedFontFamily() const = 0;
 		[[nodiscard]] virtual QSize getInitialWindowSize() const = 0;
@@ -65,7 +66,10 @@ class UiPluginModel
 		[[nodiscard]] virtual qreal getScaleFactor() const = 0;
 		virtual void setScaleFactor(qreal pScaleFactor) = 0;
 		[[nodiscard]] virtual qreal getFontScaleFactor() const = 0;
+		[[nodiscard]] virtual int getFontWeightAdjustment() const = 0;
 		[[nodiscard]] virtual bool isChromeOS() const = 0;
+		[[nodiscard]] virtual bool isA11yButtonShapeActive() const = 0;
+		[[nodiscard]] virtual bool isA11yOnOffSwitchLabelActive() const = 0;
 
 		Q_INVOKABLE virtual void hideFromTaskbar() const = 0;
 		Q_INVOKABLE virtual void doRefresh() = 0;
@@ -87,7 +91,10 @@ class UiPluginModel
 		void fireShowFocusIndicator();
 		void fireScaleFactorChanged();
 		void fireFontScaleFactorChanged();
+		void fireFontWeightAdjustmentChanged();
 		void fireIsUpdatePendingChanged();
+		void fireA11yButtonShapeActiveChanged();
+		void fireA11yOnOffSwitchLabelActiveChanged();
 };
 
 } // namespace governikus

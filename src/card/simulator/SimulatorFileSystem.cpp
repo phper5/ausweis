@@ -157,16 +157,6 @@ void SimulatorFileSystem::parseKey(const QJsonObject& pKey)
 {
 	const auto& keyId = pKey[QLatin1String("id")].toInt(0);
 	auto privateKey = pKey[QLatin1String("content")].toString();
-	if (privateKey.isNull()) // Migration: With 2.2.0 the name and format of the private key was changed
-	{
-		if (const auto& rawKey = pKey[QLatin1String("private")].toString(); !rawKey.isNull())
-		{
-			privateKey = QStringView(u"308188020100301406072a8648ce3d020106092b2403030208010107046d306b02010104"
-									 "20%1a1440342000483dd43a94436965ab3048c66d2932e200055b5d3448cdaebd5f3814d"
-									 "1ba6fc213dccd45fd48e18303d6625f5831e9a9efb6747481209d440588c046f2d188b5b").arg(rawKey);
-			qCWarning(card_simulator) << "'private' is deprecated and was replaced by 'content'";
-		}
-	}
 	if (keyId == 0 || privateKey.isNull())
 	{
 		qCWarning(card_simulator) << "Skipping key entry. Expected JSON object with 'id' and 'content', got" << pKey;

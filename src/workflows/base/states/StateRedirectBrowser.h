@@ -26,6 +26,7 @@ class StateRedirectBrowser
 	private:
 		explicit StateRedirectBrowser(const QSharedPointer<WorkflowContext>& pContext);
 
+		void onEntry(QEvent* pEvent) override;
 		void run() override;
 
 		static QUrl addMajorMinor(const QUrl& pUrl, const ECardApiResult& pResult);

@@ -16,7 +16,6 @@ using namespace governikus;
 
 namespace
 {
-VALUE_NAME(SLOT_HANDLE, "SlotHandle")
 VALUE_NAME(INPUT_DATA, "InputData")
 VALUE_NAME(EXPECTED_PIN_LENGTH, "ExpectedPINLength")
 } // namespace
@@ -59,8 +58,7 @@ void IfdEstablishPaceChannel::parseInputData(const QJsonObject& pMessageObject)
 
 
 IfdEstablishPaceChannel::IfdEstablishPaceChannel(const QString& pSlotHandle, const EstablishPaceChannel& pInputData, int pExpectedPinLength)
-	: IfdMessage(IfdMessageType::IFDEstablishPACEChannel)
-	, mSlotHandle(pSlotHandle)
+	: IfdSlotHandle<IfdMessage>(IfdMessageType::IFDEstablishPACEChannel, pSlotHandle)
 	, mInputData(pInputData)
 	, mExpectedPinLength(pExpectedPinLength)
 {
@@ -68,13 +66,10 @@ IfdEstablishPaceChannel::IfdEstablishPaceChannel(const QString& pSlotHandle, con
 
 
 IfdEstablishPaceChannel::IfdEstablishPaceChannel(const QJsonObject& pMessageObject)
-	: IfdMessage(pMessageObject)
-	, mSlotHandle()
+	: IfdSlotHandle<IfdMessage>(pMessageObject)
 	, mInputData()
 	, mExpectedPinLength(0)
 {
-	mSlotHandle = getStringValue(pMessageObject, SLOT_HANDLE());
-
 	parseInputData(pMessageObject);
 
 	if (pMessageObject.contains(EXPECTED_PIN_LENGTH()))
@@ -83,12 +78,6 @@ IfdEstablishPaceChannel::IfdEstablishPaceChannel(const QJsonObject& pMessageObje
 	}
 
 	ensureType(IfdMessageType::IFDEstablishPACEChannel);
-}
-
-
-const QString& IfdEstablishPaceChannel::getSlotHandle() const
-{
-	return mSlotHandle;
 }
 
 
@@ -108,7 +97,6 @@ QByteArray IfdEstablishPaceChannel::toByteArray(IfdVersion::Version pIfdVersion,
 {
 	QJsonObject result = createMessageBody(pContextHandle);
 
-	result[SLOT_HANDLE()] = mSlotHandle;
 	if (pIfdVersion >= IfdVersion::Version::v2)
 	{
 		result[INPUT_DATA()] = QString::fromLatin1(mInputData.createInputData().toHex());

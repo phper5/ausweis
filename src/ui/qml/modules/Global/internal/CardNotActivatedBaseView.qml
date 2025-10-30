@@ -29,7 +29,7 @@ ResultView {
 	}
 
 	animationSymbol: Symbol.Type.BLOCK
-	animationType: AnimationLoader.CARD_RESULT
+	animationType: AnimationLoader.Type.CARD_RESULT
 	buttonText: ""
 	//: LABEL ALL_PLATFORMS
 	header: qsTr("eID function is not activated")
@@ -122,6 +122,8 @@ ResultView {
 				text: qsTr("Enter your activation code of your present PIN reset letter into the following website.")
 			}
 			GButton {
+				Accessible.description: Utils.platformAgnosticLinkOpenText(PinResetInformationModel.pinResetActivationUrl, Accessible.name)
+				Accessible.role: Accessible.Link
 				Layout.alignment: Qt.AlignHCenter
 				icon.source: "qrc:///images/open_website.svg"
 				//: LABEL ALL_PLATFORMS
@@ -143,25 +145,23 @@ ResultView {
 				Layout.fillWidth: true
 				//: LABEL ALL_PLATFORMS
 				buttonText: qsTr("Request action code")
+				linkToOpen: PinResetInformationModel.pinResetUrl
 				//: LABEL ALL_PLATFORMS
 				text: qsTr("You can request a PIN reset letter with an activation code on the following website.")
 				//: LABEL ALL_PLATFORMS
 				title: qsTr("Online via PIN reset service")
 				visible: PinResetInformationModel.hasPinResetService
-
-				onClicked: Qt.openUrlExternally(PinResetInformationModel.pinResetUrl)
 			}
 			Hint {
 				Layout.alignment: Qt.AlignHCenter
 				Layout.fillWidth: true
 				//: LABEL ALL_PLATFORMS
 				buttonText: qsTr("Find competent authority")
+				linkToOpen: PinResetInformationModel.administrativeSearchUrl
 				//: LABEL ALL_PLATFORMS
 				text: qsTr("You can activate the eID function directly at your competent authority.")
 				//: LABEL ALL_PLATFORMS
 				title: qsTr("At your competent authority")
-
-				onClicked: Qt.openUrlExternally(PinResetInformationModel.administrativeSearchUrl)
 			}
 			GContinueButton {
 				//: LABEL ALL_PLATFORMS

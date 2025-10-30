@@ -37,7 +37,7 @@ class IfdConnectorImpl
 		explicit IfdConnectorImpl(int pConnectTimeoutMs = 5000);
 		~IfdConnectorImpl() override = default;
 
-		void onConnectRequest(const IfdDescriptor& pIfdDescriptor, const QByteArray& pPsk) override;
+		void onConnectRequest(const Discovery& pDiscovery, const QByteArray& pPsk) override;
 
 };
 

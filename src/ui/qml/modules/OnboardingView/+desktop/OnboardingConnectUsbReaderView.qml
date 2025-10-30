@@ -16,39 +16,27 @@ import Governikus.Type
 BaseOnboardingView {
 	id: root
 
-	function continueWhenReaderFound() {
-		if (readerView.hasConnectedReader)
-			root.continueOnboarding();
-	}
-
 	spacing: Style.dimens.pane_spacing
 
 	titleBarSettings: TitleBarSettings {
-		navigationAction: NavigationAction.Back
+		navigationAction: NavigationAction.Action.Back
 		startEnabled: false
 
 		onNavigationActionClicked: root.leaveView()
 	}
 
-	Keys.onEnterPressed: root.continueWhenReaderFound()
-	Keys.onEscapePressed: root.leaveView()
-	Keys.onReturnPressed: root.continueWhenReaderFound()
-
 	ReaderScanEnabler {
 		pluginType: ReaderManagerPluginType.PCSC
 	}
-	GText {
-		Layout.alignment: Qt.AlignHCenter
+	Heading {
 		Layout.bottomMargin: Style.dimens.pane_spacing
-		horizontalAlignment: Text.AlignHCenter
+		Layout.topMargin: -root.spacing
 		//: LABEL DESKTOP
 		text: qsTr("Set up card reader")
-		textStyle: Style.text.headline
 	}
-	GText {
+	Subheading {
 		//: LABEL DESKTOP
 		text: qsTr("Connect an USB card reader")
-		textStyle: Style.text.subline
 	}
 	GText {
 		text: readerView.hintTextBase

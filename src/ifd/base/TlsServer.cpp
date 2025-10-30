@@ -27,6 +27,7 @@ TlsServer::~TlsServer()
 	if (mSocket)
 	{
 		mSocket->deleteLater();
+		mSocket.clear();
 	}
 }
 
@@ -78,7 +79,8 @@ void TlsServer::incomingConnection(qintptr pSocketDescriptor)
 		else
 		{
 			qCDebug(ifd) << "Failed to set the socket descriptor";
-			delete mSocket.data();
+			mSocket->deleteLater();
+			mSocket.clear();
 		}
 	}
 	else
@@ -102,6 +104,7 @@ void TlsServer::onError(QAbstractSocket::SocketError pSocketError)
 {
 	qCDebug(ifd) << "Socket error:" << pSocketError << mSocket->errorString();
 	mSocket->deleteLater();
+	mSocket.clear();
 	Q_EMIT fireSocketError(pSocketError);
 }
 

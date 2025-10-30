@@ -4,7 +4,6 @@
 
 #include "IfdModifyPinResponse.h"
 
-#include <QJsonObject>
 #include <QLoggingCategory>
 
 
@@ -16,36 +15,25 @@ using namespace governikus;
 
 namespace
 {
-VALUE_NAME(SLOT_HANDLE, "SlotHandle")
 VALUE_NAME(OUTPUT_DATA, "OutputData")
 } // namespace
 
 
 IfdModifyPinResponse::IfdModifyPinResponse(const QString& pSlotHandle, const QByteArray& pOutputData, ECardApiResult::Minor pResultMinor)
-	: IfdMessageResponse(IfdMessageType::IFDModifyPINResponse, pResultMinor)
-	, mSlotHandle(pSlotHandle)
+	: IfdSlotHandle<IfdMessageResponse>(IfdMessageType::IFDModifyPINResponse, pSlotHandle, pResultMinor)
 	, mOutputData(pOutputData)
 {
 }
 
 
 IfdModifyPinResponse::IfdModifyPinResponse(const QJsonObject& pMessageObject)
-	: IfdMessageResponse(pMessageObject)
-	, mSlotHandle()
+	: IfdSlotHandle<IfdMessageResponse>(pMessageObject)
 	, mOutputData()
 {
-	mSlotHandle = getStringValue(pMessageObject, SLOT_HANDLE());
-
 	const QString& inputData = getStringValue(pMessageObject, OUTPUT_DATA());
 	mOutputData = QByteArray::fromHex(inputData.toUtf8());
 
 	ensureType(IfdMessageType::IFDModifyPINResponse);
-}
-
-
-const QString& IfdModifyPinResponse::getSlotHandle() const
-{
-	return mSlotHandle;
 }
 
 
@@ -96,7 +84,6 @@ QByteArray IfdModifyPinResponse::toByteArray(IfdVersion::Version, const QString&
 {
 	QJsonObject result = createMessageBody(pContextHandle);
 
-	result[SLOT_HANDLE()] = mSlotHandle;
 	result[OUTPUT_DATA()] = QString::fromLatin1(mOutputData.toHex());
 
 	return IfdMessage::toByteArray(result);

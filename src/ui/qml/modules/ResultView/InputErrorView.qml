@@ -26,10 +26,6 @@ FlickableSectionPage {
 
 	spacing: Style.dimens.pane_spacing
 
-	Keys.onEnterPressed: continueClicked()
-	Keys.onEscapePressed: continueClicked()
-	Keys.onReturnPressed: continueClicked()
-
 	MultiInfoData {
 		id: infoData
 
@@ -58,27 +54,25 @@ FlickableSectionPage {
 			case CardReturnCode.INVALID_PIN:
 			case CardReturnCode.INVALID_PIN_2:
 			case CardReturnCode.INVALID_PIN_3:
-				return root.isTransportPin ? AnimationLoader.TRANSPORT_PIN : AnimationLoader.PIN;
+				return root.isTransportPin ? AnimationLoader.Type.TRANSPORT_PIN : AnimationLoader.Type.PIN;
 			case CardReturnCode.INVALID_CAN:
-				return AnimationLoader.CAN;
+				return AnimationLoader.Type.CAN;
 			case CardReturnCode.INVALID_PUK:
-				return AnimationLoader.PUK;
+				return AnimationLoader.Type.PUK;
 			}
 			switch (root.passwordType) {
 			case NumberModel.PasswordType.NEW_PIN_CONFIRMATION:
 			case NumberModel.PasswordType.NEW_PIN:
 			case NumberModel.PasswordType.NEW_SMART_PIN:
 			case NumberModel.PasswordType.NEW_SMART_PIN_CONFIRMATION:
-				return AnimationLoader.NEW_PIN;
+				return AnimationLoader.Type.NEW_PIN;
 			}
-			return AnimationLoader.NONE;
+			return AnimationLoader.Type.NONE;
 		}
 	}
-	GText {
+	Heading {
 		id: title
 
-		Layout.alignment: Qt.AlignHCenter
-		horizontalAlignment: Text.AlignHCenter
 		text: {
 			switch (root.returnCode) {
 			case CardReturnCode.INVALID_CAN:
@@ -110,7 +104,6 @@ FlickableSectionPage {
 			}
 			return "";
 		}
-		textStyle: Style.text.headline
 	}
 	GText {
 		Layout.alignment: Qt.AlignHCenter

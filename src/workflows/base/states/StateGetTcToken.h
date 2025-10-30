@@ -29,7 +29,7 @@ class StateGetTcToken
 
 		void parseTcToken();
 		void sendRequest(const QUrl& pUrl);
-		bool isValidRedirectUrl(const QUrl& pUrl);
+		bool isValidRedirectUrl(const QUrl& pUrl) const;
 		void run() override;
 
 		explicit StateGetTcToken(const QSharedPointer<WorkflowContext>& pContext);

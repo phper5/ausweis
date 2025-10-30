@@ -46,7 +46,7 @@ class EstablishPaceChannel
 		QByteArray mPassword;
 
 	public:
-		EstablishPaceChannel(
+		explicit EstablishPaceChannel(
 			PacePasswordId pPasswordId = PacePasswordId::UNKNOWN,
 			const QByteArray& pChat = QByteArray(),
 			const QByteArray& pCertificateDescription = QByteArray());

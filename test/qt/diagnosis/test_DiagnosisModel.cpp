@@ -66,7 +66,7 @@ class test_DiagnosisModel
 
 		void test_newDiagnosisModel()
 		{
-			QCOMPARE(mModel->rowCount(), mModel->mSections.size());
+			QCOMPARE(mModel->rowCount(QModelIndex()), mModel->mSections.size());
 
 			QCOMPARE(mModel->getSectionName(DiagnosisModel::Section::GENERAL), QCoreApplication::applicationName());
 			QCOMPARE(mModel->getSectionName(DiagnosisModel::Section::READER), "Card reader"_L1);

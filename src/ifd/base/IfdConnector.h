@@ -5,8 +5,8 @@
 #pragma once
 
 #include "EnumHelper.h"
-#include "IfdDescriptor.h"
 #include "IfdDispatcherClient.h"
+#include "messages/Discovery.h"
 
 #include <QObject>
 
@@ -32,11 +32,11 @@ class IfdConnector
 		static GlobalStatus errorToGlobalStatus(IfdErrorCode pErrorCode);
 
 	public Q_SLOTS:
-		virtual void onConnectRequest(const IfdDescriptor& pIfdDescriptor, const QByteArray& pPsk) = 0;
+		virtual void onConnectRequest(const Discovery& pDiscovery, const QByteArray& pPsk) = 0;
 
 	Q_SIGNALS:
-		void fireDispatcherCreated(const IfdDescriptor& pIfdDescriptor, const QSharedPointer<IfdDispatcherClient>& pClientDispatcher);
-		void fireDispatcherError(const IfdDescriptor& pIfdDescriptor, IfdErrorCode pErrorCode);
+		void fireDispatcherCreated(const QByteArray& pIfdId, const QSharedPointer<IfdDispatcherClient>& pClientDispatcher);
+		void fireDispatcherError(const QByteArray& pIfdId, IfdErrorCode pErrorCode);
 
 };
 

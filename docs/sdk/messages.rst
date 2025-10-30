@@ -1,3 +1,5 @@
+.. _messages:
+
 Messages
 --------
 The |AppName| (server) will send some proper
@@ -162,7 +164,7 @@ Also it indicates the **current** selected API level.
    Level **2** added.
 
 
-  - **error**: Optional error message if :ref:`SET_API_LEVEL` failed.
+  - **error**: Optional error message if :ref:`set_api_level` failed.
 
   - **available**: List of supported API level by this version.
 

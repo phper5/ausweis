@@ -12,7 +12,7 @@ ResultView {
 	required property string errorMessage
 
 	animationSymbol: Symbol.Type.ERROR
-	animationType: AnimationLoader.SAC_CONNECTION
+	animationType: AnimationLoader.Type.SAC_CONNECTION
 	//: LABEL ALL_PLATFORMS
 	header: qsTr("Pairing failed")
 	//: LABEL ALL_PLATFORMS

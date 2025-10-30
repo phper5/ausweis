@@ -6,17 +6,18 @@
 
 #include "EnumHelper.h"
 
-#include <functional>
-
 #include <QCoreApplication>
 #include <QDateTime>
 #include <QJsonObject>
 #include <QJsonValue>
 #include <QList>
 #include <QMap>
-#include <QPair>
 #include <QSharedData>
 #include <QString>
+
+#include <functional>
+#include <utility>
+
 
 namespace governikus
 {
@@ -56,7 +57,7 @@ defineEnumType(SelfAuthData,
 class SelfAuthenticationData
 {
 	public:
-		using OrderedSelfData = QList<QPair<QString, QString>>;
+		using OrderedSelfData = QList<std::pair<QString, QString>>;
 
 	private:
 		class SelfData

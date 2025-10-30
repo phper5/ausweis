@@ -113,12 +113,13 @@ bool CVCertificate::isIssuedBy(const CVCertificate& pIssuer) const
 QDebug operator <<(QDebug pDbg, const governikus::CVCertificate& pCvc)
 {
 	QDebugStateSaver saver(pDbg);
-	pDbg.nospace() << "CVC(type=" << pCvc.getBody().getCHAT().getAccessRole()
-				   << ", car=" << pCvc.getBody().getCertificationAuthorityReference()
-				   << ", chr=" << pCvc.getBody().getCertificateHolderReference()
-				   << ", valid=[" << pCvc.getBody().getCertificateEffectiveDate().toString(Qt::ISODate)
-				   << "," << pCvc.getBody().getCertificateExpirationDate().toString(Qt::ISODate) << "]="
-				   << pCvc.isValidOn(QDateTime::currentDateTime()) << ")";
+	pDbg.nospace().noquote() << pCvc.getBody().getCHAT().getAccessRole() << "("
+							 << pCvc.getBody().getCertificateHolderReference()
+							 << ", authority=" << pCvc.getBody().getCertificationAuthorityReference()
+							 << ", " << pCvc.getBody().getCertificateEffectiveDate().toString(Qt::ISODate)
+							 << " - " << pCvc.getBody().getCertificateExpirationDate().toString(Qt::ISODate)
+							 << ", " << (pCvc.isValidOn(QDateTime::currentDateTime()) ? "valid" : "invalid")
+							 << ")";
 	return pDbg;
 }
 
@@ -138,21 +139,20 @@ QDebug operator<<(QDebug pDbg, const QSharedPointer<const governikus::CVCertific
 }
 
 
-QDebug operator<<(QDebug pDbg, const QSharedPointer<governikus::CVCertificate>& pCvc)
+QDebug operator<<(QDebug pDbg, const QList<QSharedPointer<const governikus::CVCertificate>>& pCvcs)
 {
-	pDbg << QSharedPointer<const governikus::CVCertificate>(pCvc);
-	return pDbg;
-}
-
-
-QDebug operator<<(QDebug pDbg, const QList<QSharedPointer<governikus::CVCertificate>>& pCvcs)
-{
-	QDebugStateSaver saver(pDbg);
-	pDbg.nospace() << "QList(";
+	QByteArrayList names;
 	for (const auto& cvc : pCvcs)
 	{
-		pDbg.nospace() << cvc << ",";
+		QByteArray holder = cvc->getBody().getCertificateHolderReference();
+		if (cvc->isIssuedBy(*cvc))
+		{
+			holder.prepend("(Self Signed) ");
+		}
+		names << holder;
 	}
-	pDbg.nospace() << ")";
+
+	QDebugStateSaver saver(pDbg);
+	pDbg.noquote().nospace() << "[" << names.join(", ") << "]";
 	return pDbg;
 }

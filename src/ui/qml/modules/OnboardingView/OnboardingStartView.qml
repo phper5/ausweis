@@ -18,13 +18,9 @@ BaseOnboardingView {
 	//: LABEL ALL_PLATFORMS Headline
 	title: qsTr("Setup")
 
-	GText {
-		Layout.alignment: Qt.AlignHCenter
-		horizontalAlignment: Text.AlignHCenter
-
+	Heading {
 		//: LABEL ALL_PLATFORMS
 		text: qsTr("Set up the eID function")
-		textStyle: Style.text.headline
 		wrapMode: Text.WordWrap
 	}
 	SiteWithLogoAnimation {
@@ -32,11 +28,10 @@ BaseOnboardingView {
 		Layout.topMargin: Style.dimens.pane_spacing
 		sourceSize.height: Style.dimens.header_icon_size
 	}
-	GText {
+	Subheading {
 		Layout.topMargin: Style.dimens.pane_spacing
 		//: LABEL ALL_PLATFORMS
 		text: qsTr("What can I do with it?")
-		textStyle: Style.text.subline
 	}
 	GText {
 		readonly property string technologyString: Style.is_layout_desktop ?

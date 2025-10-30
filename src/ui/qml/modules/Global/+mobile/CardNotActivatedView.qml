@@ -23,7 +23,7 @@ CardNotActivatedBaseView {
 		id: navigationAction
 
 		NavigationAction {
-			action: NavigationAction.Back
+			action: NavigationAction.Action.Back
 
 			onClicked: root.pop()
 		}

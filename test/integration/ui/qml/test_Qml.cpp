@@ -91,8 +91,10 @@ class test_Qml
 		{
 			QTest::addColumn<QString>("platform");
 
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 9, 0))
 			QTest::newRow("Android") << u"android"_s;
 			QTest::newRow("iOS") << u"ios"_s;
+#endif
 			QTest::newRow("Desktop") << u""_s;
 		}
 

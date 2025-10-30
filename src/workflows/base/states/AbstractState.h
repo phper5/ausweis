@@ -66,7 +66,7 @@ class AbstractState
 
 		void clearConnections();
 		bool isCancellationByUser() const;
-		void updateStatus(const GlobalStatus& pStatus);
+		void updateStatus(const GlobalStatus& pStatus) const;
 		void updateStartPaosResult(const ECardApiResult& pStartPaosResult);
 
 		void stopNfcScanIfNecessary(const QString& pError = QString()) const;

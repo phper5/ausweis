@@ -21,10 +21,11 @@ GText {
 		ApplicationModel.showFeedback(qsTr("The log entry was copied to the clipboard."));
 	}
 
+	Accessible.role: Utils.useSpecialAppleTabRole(Accessible.StaticText)
 	color: level === "C" ? Style.color.warning : (level === "W" ? Style.color.textSubline.basic : textStyle.textColor)
 	focusFrameVisible: false
-	font.bold: activeFocus
 	font.family: UiPluginModel.fixedFontFamily
+	font.weight: activeFocus ? Style.font.bold : Style.font.normal
 	lineHeight: 1.0
 	lineHeightMode: Text.ProportionalHeight
 	text: "%1 %2".arg(origin).arg(message)

@@ -107,14 +107,14 @@ CommandApdu::CommandApdu(const QByteArray& pBuffer)
 
 CommandApdu::CommandApdu(const QByteArray& pHeader, const QByteArray& pData, int pLe)
 	:
-	mCla(static_cast<std::byte>(pHeader.size() > 0 ? pHeader.at(0) : 0)),
+	mCla(static_cast<std::byte>(pHeader.isEmpty() ? 0 : pHeader.at(0))),
 	mIns(pHeader.size() > 1 ? static_cast<uchar>(pHeader.at(1)) : 0),
 	mP1(pHeader.size() > 2 ? static_cast<uchar>(pHeader.at(2)) : 0),
 	mP2(pHeader.size() > 3 ? static_cast<uchar>(pHeader.at(3)) : 0),
 	mData(pData),
 	mLe(pLe)
 {
-	if (pHeader.size() > 0 && pHeader.size() != 4)
+	if (!pHeader.isEmpty() && pHeader.size() != 4)
 	{
 		qCCritical(card) << "Wrong command header size!";
 	}
@@ -277,7 +277,7 @@ CommandApdu::operator QByteArray() const
 		cmd += '\0';
 	}
 
-	if (mData.size() > 0)
+	if (!mData.isEmpty())
 	{
 		cmd += generateLengthField(static_cast<int>(mData.size()));
 		cmd += mData;

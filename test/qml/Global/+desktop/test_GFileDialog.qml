@@ -1,6 +1,7 @@
 /**
  * Copyright (c) 2021-2025 Governikus GmbH & Co. KG, Germany
  */
+
 import QtQuick
 import QtTest
 
@@ -13,6 +14,13 @@ TestCase {
 	function test_load() {
 		let testObject = createTestObject();
 		verify(testObject, "Object loaded");
+	}
+	function test_selectFile() {
+		let testObject = createTestObject();
+		compare(testObject.selectedFile.toString(), "");
+		testObject.selectFile("test");
+		let endsWithTest = /test$/;
+		verify(endsWithTest.test(testObject.selectedFile));
 	}
 
 	name: "test_GFileDialog"

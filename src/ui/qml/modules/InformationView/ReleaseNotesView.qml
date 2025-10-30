@@ -15,38 +15,37 @@ GListView {
 
 	property real maximumContentWidth: Number.POSITIVE_INFINITY
 
-	activeFocusOnTab: true
+	function isListElementEmptyFunc(pItem) {
+		let delegate = pItem as FormattedTextView;
+		if (delegate)
+			return delegate.content === "";
+		return true;
+	}
+
 	displayMarginBeginning: Style.dimens.pane_padding
 	displayMarginEnd: Style.dimens.pane_padding
 
 	delegate: FormattedTextView {
-		maximumContentWidth: root.maximumContentWidth
-		totalItemCount: root.count
-		width: root.width
+		anchors.horizontalCenter: parent ? parent.horizontalCenter : undefined
+		anchors.horizontalCenterOffset: -Style.dimens.pane_padding / 2
+		count: root.count
+		width: Math.min(root.width - Style.dimens.pane_padding, root.maximumContentWidth)
 
 		onActiveFocusChanged: if (activeFocus) {
 			root.handleItemFocused(index);
 		}
+		onScrollDownAction: root.scrollPageDown()
+		onScrollUpAction: root.scrollPageUp()
 	}
 	highlight: Item {
 		z: 2
 
 		FocusFrame {
 			anchors.leftMargin: 0
-			anchors.rightMargin: Style.dimens.pane_padding
+			anchors.rightMargin: 0
 			scope: root
+			visible: Style.is_layout_desktop
 		}
-	}
-
-	Keys.onDownPressed: {
-		do {
-			root.incrementCurrentIndex();
-		} while ((currentItem as FormattedTextView).content === "" && root.currentIndex + 1 < root.count)
-	}
-	Keys.onUpPressed: {
-		do {
-			root.decrementCurrentIndex();
-		} while ((currentItem as FormattedTextView).content === "" && root.currentIndex > 1)
 	}
 
 	layer {

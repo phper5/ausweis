@@ -28,9 +28,9 @@ class test_ProviderConfiguration
 		void testProviderUrls()
 		{
 			const ProviderConfigurationInfo provider1({
-			            /* short name  */ QString(),
-			            /* long name  */ QString(),
-			            /* long description */ QString(),
+			            /* short name  */ LanguageString(),
+			            /* long name  */ LanguageString(),
+			            /* long description */ LanguageString(),
 			            /* address */ QStringLiteral("ftp://homepage.com/form"),
 			            /* homepage */ QStringLiteral("ftp://www.homepage.de/bla/bla1"),
 						QString(), QString(), QString(), QString(), QString(), QString(), {},
@@ -39,9 +39,9 @@ class test_ProviderConfiguration
 			QCOMPARE(provider1.getHomepageBase(), QStringLiteral("www.homepage.de"));
 
 			const ProviderConfigurationInfo provider2({
-			            /* short name  */ QString(),
-			            /* long name  */ QString(),
-			            /* long description */ QString(),
+			            /* short name  */ LanguageString(),
+			            /* long name  */ LanguageString(),
+			            /* long description */ LanguageString(),
 			            /* address */ QStringLiteral("https://homepage.com/form"),
 			            /* homepage */ QStringLiteral("https://www.homepage.de/bla/bla1"),
 						QString(), QString(), QString(), QString(), QString(), QString(), {},
@@ -50,9 +50,9 @@ class test_ProviderConfiguration
 			QCOMPARE(provider2.getHomepageBase(), QStringLiteral("www.homepage.de"));
 
 			const ProviderConfigurationInfo provider3({
-			            /* short name  */ QString(),
-			            /* long name  */ QString(),
-			            /* long description */ QString(),
+			            /* short name  */ LanguageString(),
+			            /* long name  */ LanguageString(),
+			            /* long description */ LanguageString(),
 			            /* address */ QStringLiteral("homepage.com/form"),
 			            /* homepage */ QStringLiteral("www.homepage.de/bla/bla1"),
 						QString(), QString(), QString(), QString(), QString(), QString(), {},
@@ -70,9 +70,9 @@ class test_ProviderConfiguration
 		{
 			// Add image and icon.
 			const ProviderConfigurationInfo provider({
-			            /* short name  */ QStringLiteral("Provider 1"),
-			            /* long name  */ QStringLiteral("Provider 1 - long name"),
-			            /* long description */ QStringLiteral("Provider description long"),
+			            /* short name  */ LanguageString(QStringLiteral("Provider 1")),
+			            /* long name  */ LanguageString(QStringLiteral("Provider 1 - long name")),
+			            /* long description */ LanguageString(QStringLiteral("Provider description long")),
 			            /* address */ QStringLiteral("https://www.homepage.com/form/"),
 			            /* homepage */ QStringLiteral("https://www.homepage.com/"),
 			            /* category */ QStringLiteral("CategoryA"),
@@ -101,9 +101,9 @@ class test_ProviderConfiguration
 		void checkName()
 		{
 			const ProviderConfigurationInfo providerEmptyLongname({
-			            /* short name  */ QStringLiteral("Provider 1"),
-			            /* long name  */ QString(QLatin1String("")),
-			            /* long description */ QStringLiteral("Provider description long"),
+			            /* short name  */ LanguageString(QStringLiteral("Provider 1")),
+			            /* long name  */ LanguageString(QString(QLatin1String(""))),
+			            /* long description */ LanguageString(QStringLiteral("Provider description long")),
 			            /* address */ QStringLiteral("https://www.homepage.com/form/"),
 			            /* homepage */ QStringLiteral("https://www.homepage.com/"),
 			            /* category */ QStringLiteral("CategoryA"),
@@ -118,9 +118,9 @@ class test_ProviderConfiguration
 			QCOMPARE(providerEmptyLongname.getLongName().toString(), QString());
 
 			const ProviderConfigurationInfo providerWithoutShortname({
-			            /* short name  */ QString(),
-			            /* long name  */ QStringLiteral("Provider 1"),
-			            /* long description */ QStringLiteral("Provider description long"),
+			            /* short name  */ LanguageString(),
+			            /* long name  */ LanguageString(QStringLiteral("Provider 1")),
+			            /* long description */ LanguageString(QStringLiteral("Provider description long")),
 			            /* address */ QStringLiteral("https://www.homepage.com/form/"),
 			            /* homepage */ QStringLiteral("https://www.homepage.com/"),
 			            /* category */ QStringLiteral("CategoryA"),
@@ -183,8 +183,8 @@ class test_ProviderConfiguration
 			QFETCH(double, mobileCentsPerMinute);
 			QFETCH(double, mobileCentsPerCall);
 			const ProviderConfigurationInfo provider({
-						QString(), QString(), QString(), QString(), QString(), ""_L1, phone,
-						QString(), QString(), QString(), QString(), {}
+						LanguageString(), LanguageString(), LanguageString(), QString(), QString(),
+						""_L1, phone, QString(), QString(), QString(), QString(), {}
 					});
 			const CallCost& callCost = Env::getSingleton<ProviderConfiguration>()->getCallCost(provider);
 
@@ -227,9 +227,9 @@ class test_ProviderConfiguration
 		void testProvidersAreEqual()
 		{
 			const ProviderConfigurationInfo provider1({
-			            /* short name  */ QStringLiteral("Provider"),
-			            /* long name  */ QStringLiteral("Provider - long name"),
-			            /* long description */ QStringLiteral("Provider description long"),
+			            /* short name  */ LanguageString(QStringLiteral("Provider")),
+			            /* long name  */ LanguageString(QStringLiteral("Provider - long name")),
+			            /* long description */ LanguageString(QStringLiteral("Provider description long")),
 			            /* address */ QStringLiteral("https://www.homepage.com/form/"),
 			            /* homepage */ QStringLiteral("https://www.homepage.com/"),
 			            /* category */ QStringLiteral("CategoryA"),
@@ -242,9 +242,9 @@ class test_ProviderConfiguration
 					});
 
 			const ProviderConfigurationInfo provider2({
-			            /* short name  */ QStringLiteral("Provider"),
-			            /* long name  */ QStringLiteral("Provider - long name"),
-			            /* long description */ QStringLiteral("Provider description long"),
+			            /* short name  */ LanguageString(QStringLiteral("Provider")),
+			            /* long name  */ LanguageString(QStringLiteral("Provider - long name")),
+			            /* long description */ LanguageString(QStringLiteral("Provider description long")),
 			            /* address */ QStringLiteral("https://www.homepage.com/form/"),
 			            /* homepage */ QStringLiteral("https://www.homepage.com/"),
 			            /* category */ QStringLiteral("CategoryB"),
@@ -257,9 +257,9 @@ class test_ProviderConfiguration
 					});
 
 			const ProviderConfigurationInfo provider3({
-			            /* short name  */ QStringLiteral("Provider"),
-			            /* long name  */ QStringLiteral("Provider - long name"),
-			            /* long description */ QStringLiteral("Provider description long"),
+			            /* short name  */ LanguageString(QStringLiteral("Provider")),
+			            /* long name  */ LanguageString(QStringLiteral("Provider - long name")),
+			            /* long description */ LanguageString(QStringLiteral("Provider description long")),
 			            /* address */ QStringLiteral("https://www.homepage.com/form/"),
 			            /* homepage */ QStringLiteral("https://www.homepage.com/"),
 			            /* category */ QStringLiteral("CategoryB"),

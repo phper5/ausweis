@@ -7,7 +7,8 @@
 #include "LogHandler.h"
 
 #include <QDebug>
-#include <QtTest>
+#include <QSignalSpy>
+#include <QTest>
 
 using namespace Qt::Literals::StringLiterals;
 using namespace governikus;
@@ -178,16 +179,6 @@ class test_LogModel
 		}
 
 
-		void test_CurrentLog()
-		{
-			qDebug() << "log line 1";
-			qDebug() << "log line 2";
-			qDebug() << "log line 3";
-			mModel->setLogFile(0);
-			QCOMPARE(mModel->mLogEntries.size(), 3);
-		}
-
-
 		void test_SetLogEntries_data()
 		{
 			QTest::addColumn<QLatin1String>("fileName");
@@ -227,60 +218,43 @@ class test_LogModel
 		}
 
 
-		void test_OnNewLogMsg_data()
+		void test_OnNewLogMsg_currentLog_messageAddedAndSignalFired()
 		{
-			QTest::addColumn<QLatin1String>("msg");
-			QTest::addColumn<QLatin1String>("fileName");
-			QTest::addColumn<int>("selectedFile");
-			QTest::addColumn<int>("newLogMsgCounter");
-			QTest::addColumn<int>("logEntriesSizeChange");
+			mModel->setSource(QString());
+			QSignalSpy signalSpy(mModel, &LogModel::fireNewLogMsg);
+			const auto oldMsgCount = mModel->rowCount(QModelIndex());
 
-			QTest::newRow("emptyFile_MsgAdded") << QLatin1String("test : input") << QLatin1String(":/logfiles/empty.txt") << 0 << 1 << 1;
-			QTest::newRow("emptyFile_MsgNotAdded") << QLatin1String(" : ") << QLatin1String(":/logfiles/empty.txt") << 1 << 0 << 0;
+			qDebug() << "test : input";
 
-			QTest::newRow("size1_MsgAdded") << QLatin1String("test : input") << QLatin1String(":/logfiles/size1.txt") << 0 << 1 << 1;
-			QTest::newRow("size1_MsgNotAdded") << QLatin1String(" : ") << QLatin1String(":/logfiles/size1.txt") << 1 << 0 << 0;
+			QCOMPARE(mModel->isCurrentLog(), true);
+			QCOMPARE(signalSpy.count(), 1);
+			QCOMPARE(mModel->rowCount(QModelIndex()), oldMsgCount + 1);
 		}
 
 
-		void test_OnNewLogMsg()
+		void test_OnNewLogMsg_oldLog_messageIgnored()
 		{
-			QFETCH(QLatin1String, msg);
-			QFETCH(QLatin1String, fileName);
-			QFETCH(int, selectedFile);
-			QFETCH(int, newLogMsgCounter);
-			QFETCH(int, logEntriesSizeChange);
+			mModel->setSource(QStringLiteral(":/logfiles/empty.txt"));
+			QSignalSpy signalSpy(mModel, &LogModel::fireNewLogMsg);
+			const auto oldMsgCount = mModel->rowCount(QModelIndex());
 
-			QFile file(fileName);
-			QVERIFY(file.open(QIODevice::ReadOnly));
-			QTextStream stream(&file);
-			mModel->setLogEntries(stream);
-			const auto oldSize = mModel->mLogEntries.size();
-			mModel->mSelectedLogFile = selectedFile;
-			QSignalSpy spyNewLogMsg(mModel, &LogModel::fireNewLogMsg);
+			qDebug() << "test : input";
 
-			qDebug() << msg;
-			QCOMPARE(spyNewLogMsg.count(), newLogMsgCounter);
-			QCOMPARE(mModel->mLogEntries.size(), oldSize + logEntriesSizeChange);
+			QCOMPARE(mModel->isCurrentLog(), false);
+			QCOMPARE(signalSpy.count(), 0);
+			QCOMPARE(mModel->rowCount(QModelIndex()), oldMsgCount);
 		}
 
 
-		void test_RemoveOldLogFile()
+		void test_createLogFileName()
 		{
-			{
-				QTemporaryFile oldLogFile(LogHandler::getLogFileTemplate());
-				oldLogFile.setAutoRemove(false);
-				QVERIFY(oldLogFile.open());
-				QVERIFY(!oldLogFile.fileName().isNull());
-			}
+			const auto& appName = QCoreApplication::applicationName();
+			const auto& currentLog = mModel->createLogFileName();
+			mModel->setSource(QStringLiteral(":/logfiles/empty.txt"));
+			const auto& oldLog = mModel->createLogFileName();
 
-			// We need to reset() the model since the list of "old" logfiles
-			// is only populated in the ctor of LogModel.
-			resetModel(new LogModel());
-
-			QCOMPARE(mModel->getLogFileNames().size(), 2);
-			mModel->removeOtherLogFiles();
-			QCOMPARE(mModel->getLogFileNames().size(), 1);
+			QVERIFY(currentLog.contains(appName));
+			QVERIFY(currentLog != oldLog);
 		}
 
 

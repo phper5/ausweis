@@ -13,6 +13,7 @@ REVISION_CURRENT=$(hg id -i)
 echo "REVISION_CURRENT: ${REVISION_CURRENT}"
 
 format_repository() {
+  cmake --build ../build --target rebuild_cache
   cmake --build ../build --target format
   cmake --build ../build --target update.translations
 }
@@ -49,7 +50,6 @@ if ! hg --config patch.eol=auto --config phases.new-commit=secret import -m 'jen
 fi
 
 # Check if the repository state is formatted after the patch
-cmake --build ../build --target rebuild_cache
 format_repository
 STATUS_PATCH=$(hg status | wc -c)
 if [ "$STATUS_PATCH" = "0" ]; then
@@ -76,7 +76,6 @@ fi
 
 # Check if the patch itself is formatted even though is does not fix
 # the unformatted repository state
-cmake --build ../build --target rebuild_cache
 format_repository
 STATUS_PATCH=$(hg status | wc -c)
 if [ ! "0" = "$STATUS_PATCH" ]; then

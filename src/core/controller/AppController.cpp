@@ -8,14 +8,13 @@
 #include "LanguageLoader.h"
 #include "LogHandler.h"
 #include "NetworkManager.h"
-#include "Randomizer.h"
 #include "ReaderManager.h"
 #include "ResourceLoader.h"
 #include "SecureStorage.h"
 #include "UiLoader.h"
 #include "UiPlugin.h"
 #include "VolatileSettings.h"
-#include "controller/ChangePinController.h"
+#include "controller/WorkflowController.h"
 
 #include <QCoreApplication>
 #include <QDir>
@@ -56,7 +55,6 @@ AppController::AppController()
 	QCoreApplication::instance()->installNativeEventFilter(this);
 #endif
 
-	Randomizer::getInstance(); // just init entropy pool
 	Env::getSingleton<VolatileSettings>(); // just init in MainThread because of QObject
 	ResourceLoader::getInstance().init();
 
@@ -268,6 +266,10 @@ void AppController::onLanguageChanged()
 
 	if (newLocale == usedLocale)
 	{
+		if (QLocale() != usedLocale)
+		{
+			QLocale::setDefault(usedLocale);
+		}
 		return;
 	}
 
@@ -284,6 +286,7 @@ void AppController::onLanguageChanged()
 	{
 		languageLoader.load(newLocale);
 	}
+	QLocale::setDefault(languageLoader.getUsedLocale());
 
 	Q_EMIT fireTranslationChanged();
 }

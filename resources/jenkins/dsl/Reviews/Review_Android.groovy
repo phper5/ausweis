@@ -2,7 +2,7 @@ import common.Review
 import common.Constants
 
 // ----------------------------------------------------------------- APK
-for(ARCH in Constants.AndroidArchAPKReview)
+for(ARCH in Constants.AndroidArch)
 {
 
 def j = new Review
@@ -43,7 +43,7 @@ j.with
 
 
 // ----------------------------------------------------------------- AAR
-for(ARCH in Constants.AndroidArchAARReview)
+for(ARCH in Constants.AndroidArch)
 {
 
 def j = new Review
@@ -95,7 +95,7 @@ j.with
 {
 	parameters
 	{
-		for(ARCH in Constants.AndroidArchAARReview)
+		for(ARCH in Constants.AndroidArch)
 		{
 			stringParam(build.getSourceJobNameParam('Android_AAR_' + ARCH), '', 'Build of ' + ARCH)
 		}
@@ -103,7 +103,7 @@ j.with
 
 	steps
 	{
-		for(ARCH in Constants.AndroidArchAARReview)
+		for(ARCH in Constants.AndroidArch)
 		{
 			copyArtifacts(build.getSourceJobName('Android_AAR_' + ARCH))
 			{

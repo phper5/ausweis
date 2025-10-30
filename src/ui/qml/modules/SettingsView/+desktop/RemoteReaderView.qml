@@ -18,6 +18,7 @@ Item {
 	signal pairDevice(var pDeviceId)
 	signal showNoSacFoundInfo
 
+	Accessible.ignored: !ApplicationModel.screenReaderRunning && (Qt.platform.os === "osx" || Qt.platform.os === "ios")
 	implicitHeight: column.implicitHeight
 	implicitWidth: column.implicitWidth
 
@@ -27,11 +28,12 @@ Item {
 	Column {
 		id: column
 
+		Accessible.ignored: root.Accessible.ignored
 		anchors.fill: parent
 		spacing: Style.dimens.pane_spacing
 
 		GPane {
-			spacing: Style.dimens.pane_spacing
+			Accessible.ignored: root.Accessible.ignored
 			//: LABEL DESKTOP
 			title: qsTr("Paired devices")
 			visible: availablePairedDevices.count > 0
@@ -55,8 +57,7 @@ Item {
 			}
 		}
 		GPane {
-			spacing: Style.dimens.pane_spacing
-
+			Accessible.ignored: root.Accessible.ignored
 			//: LABEL DESKTOP
 			title: qsTr("Last connected")
 			visible: unavailablePairedDevices.count > 0
@@ -80,7 +81,7 @@ Item {
 			}
 		}
 		GPane {
-			spacing: Style.dimens.pane_spacing
+			Accessible.ignored: root.Accessible.ignored
 
 			//: LABEL DESKTOP
 			title: qsTr("Add pairing")
@@ -103,6 +104,7 @@ Item {
 				}
 			}
 			PairingProcessInfo {
+				Accessible.ignored: root.Accessible.ignored
 				Layout.fillWidth: true
 				visible: availableDevices.count === 0
 

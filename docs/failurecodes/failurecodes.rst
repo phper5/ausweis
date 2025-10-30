@@ -1,3 +1,5 @@
+.. _failurecodes:
+
 Failure Codes
 =============
 The |AppName| will send failure codes indicating what went wrong and where it happened as well as
@@ -62,6 +64,8 @@ authority.
 
 Codes
 -----
+
+List of possible failure codes:
 
   - | **User_Cancelled**
     | The user canceled the workflow. In the SDK case, the user can also be a third-party

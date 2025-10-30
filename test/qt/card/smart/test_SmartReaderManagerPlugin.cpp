@@ -43,7 +43,7 @@ class test_SmartReaderManagerPlugin
 						SmartReaderManagerPlugin plugin;
 						plugin.init();
 						QCOMPARE(plugin.getInfo().isAvailable(), false);
-						QCOMPARE(plugin.getReaders().size(), 0);
+						QCOMPARE(plugin.mReader, nullptr);
 					});
 
 		}
@@ -59,7 +59,7 @@ class test_SmartReaderManagerPlugin
 						QSignalSpy readerRemovedSpy(&plugin, &SmartReaderManagerPlugin::fireReaderRemoved);
 						auto& settings = Env::getSingleton<AppSettings>()->getGeneralSettings();
 
-						QCOMPARE(plugin.getReaders().size(), 0);
+						QCOMPARE(plugin.mReader, nullptr);
 
 						settings.setSmartAvailable(true);
 						QCOMPARE(readerAddedSpy.count(), 1);
@@ -68,8 +68,7 @@ class test_SmartReaderManagerPlugin
 						QCOMPARE(readerAddedInfo.isValid(), true);
 						QCOMPARE(readerUpdatedSpy.count(), 0);
 						QCOMPARE(readerRemovedSpy.count(), 0);
-						QCOMPARE(plugin.getReaders().size(), 1);
-						QVERIFY(plugin.getReaders().at(0) != nullptr);
+						QVERIFY(plugin.mReader != nullptr);
 
 						settings.setSmartAvailable(false);
 						QCOMPARE(readerAddedSpy.count(), 1);
@@ -78,8 +77,7 @@ class test_SmartReaderManagerPlugin
 						QCOMPARE(readerUpdatedInfo1.getName(), QStringLiteral("Smart"));
 						QCOMPARE(readerUpdatedInfo1.isValid(), false);
 						QCOMPARE(readerRemovedSpy.count(), 0);
-						QCOMPARE(plugin.getReaders().size(), 0);
-
+						QCOMPARE(plugin.mReader, nullptr);
 						settings.setSmartAvailable(true);
 						QCOMPARE(readerAddedSpy.count(), 1);
 						QCOMPARE(readerUpdatedSpy.count(), 2);
@@ -87,8 +85,7 @@ class test_SmartReaderManagerPlugin
 						QCOMPARE(readerUpdatedInfo2.getName(), QStringLiteral("Smart"));
 						QCOMPARE(readerUpdatedInfo2.isValid(), true);
 						QCOMPARE(readerRemovedSpy.count(), 0);
-						QCOMPARE(plugin.getReaders().size(), 1);
-						QVERIFY(plugin.getReaders().at(0) != nullptr);
+						QVERIFY(plugin.mReader != nullptr);
 					});
 		}
 

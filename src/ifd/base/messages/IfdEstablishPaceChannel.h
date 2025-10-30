@@ -5,6 +5,7 @@
 #pragma once
 
 #include "IfdMessage.h"
+#include "IfdSlotHandle.h"
 #include "pinpad/EstablishPaceChannel.h"
 
 
@@ -12,10 +13,9 @@ namespace governikus
 {
 
 class IfdEstablishPaceChannel
-	: public IfdMessage
+	: public IfdSlotHandle<IfdMessage>
 {
 	private:
-		QString mSlotHandle;
 		EstablishPaceChannel mInputData;
 		int mExpectedPinLength;
 
@@ -26,7 +26,6 @@ class IfdEstablishPaceChannel
 		explicit IfdEstablishPaceChannel(const QJsonObject& pMessageObject);
 		~IfdEstablishPaceChannel() override = default;
 
-		[[nodiscard]] const QString& getSlotHandle() const;
 		[[nodiscard]] const EstablishPaceChannel& getInputData() const;
 		[[nodiscard]] int getExpectedPinLength() const;
 		[[nodiscard]] QByteArray toByteArray(IfdVersion::Version pIfdVersion, const QString& pContextHandle) const override;

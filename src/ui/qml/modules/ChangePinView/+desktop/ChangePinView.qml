@@ -18,7 +18,7 @@ SectionPage {
 	property bool activateUI: true
 	property Component cardNotActivatedDelegate: null
 	property Component errorViewDelegate: null
-	property int navigationActionType: NavigationAction.Cancel
+	property int navigationActionType: NavigationAction.Action.Cancel
 	property bool onlyCheckPin: false
 	property bool skipInfoView: true
 	property Component successViewDelegate: null
@@ -31,7 +31,7 @@ SectionPage {
 	title: qsTr("Change PIN")
 
 	titleBarSettings: TitleBarSettings {
-		navigationAction: NavigationAction.Back
+		navigationAction: NavigationAction.Action.Back
 
 		onNavigationActionClicked: root.pop()
 	}
@@ -54,7 +54,7 @@ SectionPage {
 			}
 		}
 		onChangePinInfoRequested: root.push(multiInfoView, {
-			passwordType: MultiInfoData.CHANGE_PIN,
+			passwordType: MultiInfoData.Type.CHANGE_PIN,
 			progress: progressTracker
 		})
 		onChangeTransportPin: {
@@ -67,7 +67,7 @@ SectionPage {
 			}
 		}
 		onNoPinAvailable: root.push(multiInfoView, {
-			passwordType: MultiInfoData.NO_PIN,
+			passwordType: MultiInfoData.Type.NO_PIN,
 			progress: noPinProgress,
 			continueButtonText: root.usedInOnboarding ? qsTr("Abort setup") : ""
 		})
@@ -116,7 +116,7 @@ SectionPage {
 				contentType: infoView.passwordType
 			}
 			titleBarSettings: TitleBarSettings {
-				navigationAction: NavigationAction.Back
+				navigationAction: NavigationAction.Action.Back
 				startEnabled: root.titleBarSettings.startEnabled
 
 				onNavigationActionClicked: root.pop()
@@ -143,7 +143,7 @@ SectionPage {
 			title: root.title
 
 			titleBarSettings: TitleBarSettings {
-				navigationAction: NavigationAction.Back
+				navigationAction: NavigationAction.Action.Back
 				startEnabled: root.titleBarSettings.startEnabled
 
 				onNavigationActionClicked: root.pop()
@@ -163,7 +163,7 @@ SectionPage {
 			title: root.title
 
 			titleBarSettings: TitleBarSettings {
-				navigationAction: NavigationAction.Back
+				navigationAction: NavigationAction.Action.Back
 				startEnabled: root.titleBarSettings.startEnabled
 
 				onNavigationActionClicked: root.pop()

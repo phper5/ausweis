@@ -1,0 +1,13 @@
+{
+    "name": "AusweisApp",
+    "author": "Governikus",
+    "description": "Special linting for AusweisApp",
+    "version": "1.0",
+    "loggingCategories": [
+        {
+            "name": "source",
+            "settingsName": "source",
+            "description": "Check toString() of source property"
+        }
+    ]
+}

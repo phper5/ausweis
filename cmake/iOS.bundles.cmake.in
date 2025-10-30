@@ -51,11 +51,7 @@ function(SELF_GENERATED)
 
 		execute_process(COMMAND ${CMAKE_COMMAND} -E copy_directory ${BundleDir} Payload/${Bundle})
 		execute_process(COMMAND ${CMAKE_COMMAND} -E tar cf "${TARGET_FILE}.ipa" --format=zip Payload)
-		if(CMAKE_VERSION VERSION_LESS "3.17")
-			execute_process(COMMAND ${CMAKE_COMMAND} -E remove_directory Payload)
-		else()
-			execute_process(COMMAND ${CMAKE_COMMAND} -E rm -r Payload)
-		endif()
+		execute_process(COMMAND ${CMAKE_COMMAND} -E rm -r Payload)
 	endif()
 
 	FIND_BUNDLE(${Bundle}.dSYM dSYM ParentDir)

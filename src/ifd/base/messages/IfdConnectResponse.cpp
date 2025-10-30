@@ -5,7 +5,6 @@
 
 #include "IfdConnectResponse.h"
 
-#include <QJsonObject>
 #include <QLoggingCategory>
 
 
@@ -15,41 +14,24 @@ Q_DECLARE_LOGGING_CATEGORY(ifd)
 using namespace governikus;
 
 
-namespace
-{
-VALUE_NAME(SLOT_HANDLE, "SlotHandle")
-} // namespace
-
-
 IfdConnectResponse::IfdConnectResponse(const QString& pSlotHandle, ECardApiResult::Minor pResultMinor)
-	: IfdMessageResponse(IfdMessageType::IFDConnectResponse, pResultMinor)
-	, mSlotHandle(pSlotHandle)
+	: IfdSlotHandle<IfdMessageResponse>(IfdMessageType::IFDConnectResponse, pSlotHandle, pResultMinor)
 {
 }
 
 
 IfdConnectResponse::IfdConnectResponse(const QJsonObject& pMessageObject)
-	: IfdMessageResponse(pMessageObject)
-	, mSlotHandle()
+	: IfdSlotHandle<IfdMessageResponse>(pMessageObject)
 {
-	mSlotHandle = getStringValue(pMessageObject, SLOT_HANDLE());
 	mError = pMessageObject.value(QLatin1String("error")).toString();
 
 	ensureType(IfdMessageType::IFDConnectResponse);
 }
 
 
-const QString& IfdConnectResponse::getSlotHandle() const
-{
-	return mSlotHandle;
-}
-
-
 QByteArray IfdConnectResponse::toByteArray(IfdVersion::Version, const QString& pContextHandle) const
 {
 	QJsonObject result = createMessageBody(pContextHandle);
-
-	result[SLOT_HANDLE()] = mSlotHandle;
 
 	return IfdMessage::toByteArray(result);
 }

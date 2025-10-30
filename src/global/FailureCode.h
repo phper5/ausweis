@@ -8,7 +8,8 @@
 
 #include <QDebug>
 #include <QMap>
-#include <QPair>
+
+#include <utility>
 
 
 namespace governikus
@@ -184,7 +185,7 @@ class FailureCode
 
 		FailureCode(Reason pReason);
 		FailureCode(Reason pReason, const FailureInfoMap& pInfoMap);
-		FailureCode(Reason pReason, const QPair<Info, QString>& pInfo);
+		FailureCode(Reason pReason, const std::pair<Info, QString>& pInfo);
 
 		[[nodiscard]] Reason getReason() const;
 		[[nodiscard]] bool operator==(const FailureCode& pFailure) const;

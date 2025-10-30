@@ -6,7 +6,6 @@
 #include "IfdTransmitResponse.h"
 
 #include <QJsonArray>
-#include <QJsonObject>
 #include <QLoggingCategory>
 
 
@@ -18,7 +17,6 @@ using namespace governikus;
 
 namespace
 {
-VALUE_NAME(SLOT_HANDLE, "SlotHandle")
 VALUE_NAME(RESPONSE_APDU, "ResponseAPDU")
 VALUE_NAME(RESPONSE_APDUS, "ResponseAPDUs")
 } // namespace
@@ -72,29 +70,19 @@ void IfdTransmitResponse::parseResponseApdu(const QJsonObject& pMessageObject)
 
 
 IfdTransmitResponse::IfdTransmitResponse(const QString& pSlotHandle, const QByteArray& pResponseApdu, ECardApiResult::Minor pResultMinor)
-	: IfdMessageResponse(IfdMessageType::IFDTransmitResponse, pResultMinor)
-	, mSlotHandle(pSlotHandle)
+	: IfdSlotHandle<IfdMessageResponse>(IfdMessageType::IFDTransmitResponse, pSlotHandle, pResultMinor)
 	, mResponseApdu(pResponseApdu)
 {
 }
 
 
 IfdTransmitResponse::IfdTransmitResponse(const QJsonObject& pMessageObject)
-	: IfdMessageResponse(pMessageObject)
-	, mSlotHandle()
+	: IfdSlotHandle<IfdMessageResponse>(pMessageObject)
 	, mResponseApdu()
 {
-	mSlotHandle = getStringValue(pMessageObject, SLOT_HANDLE());
-
 	parseResponseApdu(pMessageObject);
 
 	ensureType(IfdMessageType::IFDTransmitResponse);
-}
-
-
-const QString& IfdTransmitResponse::getSlotHandle() const
-{
-	return mSlotHandle;
 }
 
 
@@ -107,8 +95,6 @@ const QByteArray& IfdTransmitResponse::getResponseApdu() const
 QByteArray IfdTransmitResponse::toByteArray(IfdVersion::Version pIfdVersion, const QString& pContextHandle) const
 {
 	QJsonObject result = createMessageBody(pContextHandle);
-
-	result[SLOT_HANDLE()] = mSlotHandle;
 
 	if (pIfdVersion >= IfdVersion::Version::v2)
 	{

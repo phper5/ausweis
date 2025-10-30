@@ -17,7 +17,8 @@ GFlickableColumnLayout {
 
 	property bool cardInitiallyAppeared: false
 	property bool isRemoteWorkflow: ApplicationModel.currentWorkflow === ApplicationModel.Workflow.REMOTE_SERVICE
-	readonly property int nfcState: visible ? ApplicationModel.nfcState : ApplicationModel.NfcState.UNAVAILABLE
+	readonly property int nfcState: visible ? ApplicationModel.nfcState : nfcStateInvisible
+	readonly property int nfcStateInvisible: -1
 
 	signal showNfcInformation
 	signal showRemoteServiceSettings
@@ -64,6 +65,8 @@ GFlickableColumnLayout {
 				}
 
 				return "";
+			default:
+				return "";
 			}
 		}
 		infoText: {
@@ -90,6 +93,8 @@ GFlickableColumnLayout {
 				return "%1%2".arg(root.isRemoteWorkflow ? technologyInfo.positionHint + ". <br/><br/>" : "").arg(
 				//: INFO ANDROID Text that one ID card position should be kept for several seconds
 				qsTr("Keep one position for several seconds before trying another one and do not move the ID card after contact was established."));
+			default:
+				return "";
 			}
 		}
 		showAdditionalContent: {
@@ -120,6 +125,8 @@ GFlickableColumnLayout {
 			} else if (root.nfcState === ApplicationModel.NfcState.INACTIVE) {
 				//: INFO ANDROID IOS NFC is available and enabled but needs to be started.
 				return qsTr("Start scan");
+			} else if (root.nfcState === root.nfcStateInvisible) {
+				return "";
 			}
 			if (AuthModel.eidTypeMismatchError !== "") {
 				return AuthModel.eidTypeMismatchError;
@@ -148,6 +155,8 @@ GFlickableColumnLayout {
 				}
 				//: INFO ANDROID IOS
 				return qsTr("Read ID card");
+			default:
+				return "";
 			}
 		}
 

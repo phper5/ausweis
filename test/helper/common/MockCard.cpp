@@ -39,7 +39,7 @@ ResponseApduResult MockCard::transmit(const CommandApdu& pCmd)
 	{
 		qFatal("No (more) response APDU configured, but a(nother) command transmitted");
 	}
-	QPair<CardReturnCode, QByteArray> config = mCardConfig.mTransmits.takeFirst();
+	std::pair<CardReturnCode, QByteArray> config = mCardConfig.mTransmits.takeFirst();
 	return {config.first, ResponseApdu(config.second)};
 }
 

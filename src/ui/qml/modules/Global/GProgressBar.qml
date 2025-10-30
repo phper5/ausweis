@@ -13,13 +13,13 @@ ProgressBar {
 	id: root
 
 	readonly property alias effectiveVisualPosition: bar.mutableVisualPosition
-	property alias text: progressText.text
-
-	signal requestA11yUpdate(int pValue)
+	property string text: ""
 
 	Accessible.focusable: true
+
+	//: LABEL ALL_PLATFORMS
+	Accessible.name: qsTr("Progress")
 	Accessible.role: Accessible.ProgressBar
-	activeFocusOnTab: ApplicationModel.isScreenReaderRunning
 	background: null
 	from: 0
 	to: 100
@@ -27,14 +27,27 @@ ProgressBar {
 	contentItem: Rectangle {
 		Accessible.ignored: true
 		border.color: Style.color.control.border.basic
-		border.width: Style.dimens.progress_bar_border
+		border.width: 2 * Style.dimens.border_width
 		color: Style.color.background
-		implicitHeight: Style.dimens.progress_bar_height
+		implicitHeight: 2 * (progressText.font.pixelSize + border.width)
+		implicitWidth: Math.max(10 * implicitHeight, progressText.implicitWidth + implicitHeight)
 		radius: height / 2
 
+		GText {
+			id: progressText
+
+			Accessible.ignored: true
+			anchors.centerIn: parent
+			elide: Text.ElideMiddle
+			font.weight: Style.font.bold
+			maximumLineCount: 1
+			text: root.text
+		}
 		Item {
+			id: barSpace
+
 			anchors.fill: parent
-			anchors.margins: Style.dimens.progress_bar_border * 3
+			anchors.margins: 3 * parent.border.width
 
 			Rectangle {
 				id: bar
@@ -43,6 +56,7 @@ ProgressBar {
 
 				border.color: Style.color.control.border.basic
 				border.width: Style.dimens.border_width
+				clip: true
 				color: Style.color.control.background.basic
 				height: parent.height
 				radius: height / 2
@@ -55,36 +69,22 @@ ProgressBar {
 						velocity: 0.5
 					}
 				}
+
+				GText {
+					Accessible.ignored: true
+					color: Style.color.control.content.basic
+					elide: Text.ElideMiddle
+					font.weight: Style.font.bold
+					maximumLineCount: 1
+					text: root.text
+
+					anchors {
+						left: parent.left
+						leftMargin: progressText.x - barSpace.anchors.margins
+						verticalCenter: parent.verticalCenter
+					}
+				}
 			}
-		}
-		GText {
-			id: progressText
-
-			activeFocusOnTab: false
-			color: Style.color.progressbar_text
-			elide: Text.ElideMiddle
-			font.weight: Font.Bold
-			horizontalAlignment: Text.AlignHCenter
-			maximumLineCount: 1
-
-			anchors {
-				left: parent.left
-				right: parent.right
-				verticalCenter: parent.verticalCenter
-			}
-		}
-	}
-
-	onActiveFocusChanged: if (activeFocus) {
-		requestA11yUpdate(value);
-	}
-	onRequestA11yUpdate: pValue => Accessible.name = qsTr("%1 percent done").arg(pValue)
-	onValueChanged: {
-		if (value === to || Qt.platform.os === "android" || Qt.platform.os === "ios") {
-			requestA11yUpdate(value);
-		}
-		if (value === to && activeFocus && Qt.platform.os === "windows") {
-			GAccessible.announce(root, Accessible.name);
 		}
 	}
 

@@ -106,14 +106,9 @@ void DiagnosisController::onReaderEvent()
 	}
 
 	auto attachedDevices = Env::getSingleton<ReaderDetector>()->getAttachedSupportedDevices();
-	QMutableListIterator iter(attachedDevices);
-	while (iter.hasNext())
-	{
-		if (readersWithDriverInfos.contains(iter.next()))
-		{
-			iter.remove();
-		}
-	}
+	erase_if(attachedDevices, [&readersWithDriverInfos](const auto& pInfo){
+				return readersWithDriverInfos.contains(pInfo);
+			});
 
 	mContext->setReaderInfosNoDriver(attachedDevices);
 

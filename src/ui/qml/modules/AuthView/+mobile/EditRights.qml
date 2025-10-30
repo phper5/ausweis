@@ -76,6 +76,7 @@ FlickableSectionPage {
 		qsTr("By entering your PIN, access to the following data of your ID card will be allowed to the mentioned provider:")
 	}
 	GPane {
+		Accessible.ignored: true
 		Layout.fillWidth: true
 		color: Style.color.paneSublevel.background.basic
 		drawShadow: false
@@ -88,13 +89,11 @@ FlickableSectionPage {
 			text: root.workflowModel.transactionInfo
 			textFormat: Text.StyledText
 			visible: !!text
-			width: parent.width
 		}
 		GText {
 			//: LABEL IOS_PHONE ANDROID_PHONE
 			text: qsTr("The provider mentioned above does not require any data stored on your ID card, only confirmation of you possessing a valid ID card.")
 			visible: !writeData.visible && !readData.visible
-			width: parent.width
 		}
 	}
 	GPane {
@@ -108,12 +107,12 @@ FlickableSectionPage {
 		DataGroup {
 			id: writeData
 
+			Layout.fillWidth: true
 			chat: ChatModel.write
 
 			//: LABEL IOS_PHONE ANDROID_PHONE
 			title: qsTr("Write access (update)")
 			titleStyle: Style.text.headline
-			width: parent.width
 			writeAccess: true
 
 			onScrollPageDown: root.scrollPageDown()
@@ -125,18 +124,18 @@ FlickableSectionPage {
 
 		Layout.fillWidth: true
 		color: Style.color.paneSublevel.background.basic
+		contentPadding: 0
 		drawShadow: false
-		padding: 0
 		visible: requiredData.count > 0 || optionalData.count > 0
 
 		DataGroup {
 			id: requiredData
 
+			Layout.fillWidth: true
 			chat: ChatModel.required
 
 			//: LABEL IOS_PHONE ANDROID_PHONE
 			title: qsTr("Read access")
-			width: parent.width
 
 			onScrollPageDown: root.scrollPageDown()
 			onScrollPageUp: root.scrollPageUp()
@@ -144,11 +143,11 @@ FlickableSectionPage {
 		DataGroup {
 			id: optionalData
 
+			Layout.fillWidth: true
 			chat: ChatModel.optional
 
 			//: LABEL IOS_PHONE ANDROID_PHONE
 			title: qsTr("Read access (optional)")
-			width: parent.width
 
 			onScrollPageDown: root.scrollPageDown()
 			onScrollPageUp: root.scrollPageUp()

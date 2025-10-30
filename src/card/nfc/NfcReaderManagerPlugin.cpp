@@ -22,7 +22,7 @@ QAtomicPointer<NfcReaderManagerPlugin> NfcReaderManagerPlugin::instance = nullpt
 
 void NfcReaderManagerPlugin::onNfcAdapterStateChanged(bool pEnabled)
 {
-	if (getInfo().isEnabled() == pEnabled || !mNfcReader)
+	if (getInfo().isEnabled() == pEnabled || !mReader)
 	{
 		return;
 	}
@@ -31,7 +31,7 @@ void NfcReaderManagerPlugin::onNfcAdapterStateChanged(bool pEnabled)
 	setPluginEnabled(pEnabled);
 	if (pEnabled)
 	{
-		Q_EMIT fireReaderAdded(mNfcReader->getReaderInfo());
+		Q_EMIT fireReaderAdded(mReader->getReaderInfo());
 #if defined(Q_OS_ANDROID)
 		if (QNativeInterface::QAndroidApplication::isActivityContext())
 		{
@@ -44,7 +44,7 @@ void NfcReaderManagerPlugin::onNfcAdapterStateChanged(bool pEnabled)
 	}
 	else
 	{
-		Q_EMIT fireReaderRemoved(mNfcReader->getReaderInfo());
+		Q_EMIT fireReaderRemoved(mReader->getReaderInfo());
 	}
 }
 
@@ -76,7 +76,7 @@ void NfcReaderManagerPlugin::enqueueReaderMode(bool pEnabled)
 	if (auto* plugin = NfcReaderManagerPlugin::instance.loadRelaxed())
 	{
 		QMetaObject::invokeMethod(plugin, [plugin, pEnabled] {
-					if (plugin->mNfcReader)
+					if (plugin->mReader)
 					{
 						setReaderMode(pEnabled);
 					}
@@ -107,7 +107,7 @@ NfcReaderManagerPlugin::NfcReaderManagerPlugin()
 	: ReaderManagerPlugin(ReaderManagerPluginType::NFC,
 			QNearFieldManager().isSupported(QNearFieldTarget::TagTypeSpecificAccess)
 			)
-	, mNfcReader(nullptr)
+	, mReader(nullptr)
 {
 	instance = this;
 }
@@ -119,14 +119,14 @@ NfcReaderManagerPlugin::~NfcReaderManagerPlugin()
 }
 
 
-QList<Reader*> NfcReaderManagerPlugin::getReaders() const
+QPointer<Reader> NfcReaderManagerPlugin::getReader(const QString& pReaderName) const
 {
-	if (getInfo().isEnabled() && mNfcReader)
+	if (getInfo().isEnabled() && mReader && mReader->getName() == pReaderName)
 	{
-		return QList<Reader*>({mNfcReader.data()});
+		return mReader.data();
 	}
 
-	return QList<Reader*>();
+	return nullptr;
 }
 
 
@@ -134,41 +134,41 @@ void NfcReaderManagerPlugin::init()
 {
 	ReaderManagerPlugin::init();
 
-	if (!getInfo().isAvailable() || mNfcReader)
+	if (!getInfo().isAvailable() || mReader)
 	{
 		return;
 	}
 
-	mNfcReader.reset(new NfcReader());
-	connect(mNfcReader.data(), &NfcReader::fireCardInserted, this, &NfcReaderManagerPlugin::fireCardInserted);
-	connect(mNfcReader.data(), &NfcReader::fireCardRemoved, this, &NfcReaderManagerPlugin::fireCardRemoved);
-	connect(mNfcReader.data(), &NfcReader::fireCardInfoChanged, this, &NfcReaderManagerPlugin::fireCardInfoChanged);
-	connect(mNfcReader.data(), &NfcReader::fireReaderPropertiesUpdated, this, &NfcReaderManagerPlugin::fireReaderPropertiesUpdated);
-	connect(mNfcReader.data(), &NfcReader::fireNfcAdapterStateChanged, this, &NfcReaderManagerPlugin::onNfcAdapterStateChanged);
-	connect(mNfcReader.data(), &NfcReader::fireReaderDisconnected, this, &NfcReaderManagerPlugin::onReaderDisconnected);
-	qCDebug(card_nfc) << "Add reader" << mNfcReader->getName();
+	mReader.reset(new NfcReader());
+	connect(mReader.data(), &NfcReader::fireCardInserted, this, &NfcReaderManagerPlugin::fireCardInserted);
+	connect(mReader.data(), &NfcReader::fireCardRemoved, this, &NfcReaderManagerPlugin::fireCardRemoved);
+	connect(mReader.data(), &NfcReader::fireCardInfoChanged, this, &NfcReaderManagerPlugin::fireCardInfoChanged);
+	connect(mReader.data(), &NfcReader::fireReaderPropertiesUpdated, this, &NfcReaderManagerPlugin::fireReaderPropertiesUpdated);
+	connect(mReader.data(), &NfcReader::fireNfcAdapterStateChanged, this, &NfcReaderManagerPlugin::onNfcAdapterStateChanged);
+	connect(mReader.data(), &NfcReader::fireReaderDisconnected, this, &NfcReaderManagerPlugin::onReaderDisconnected);
+	qCDebug(card_nfc) << "Add reader" << mReader->getName();
 
 	setReaderMode(true);
-	onNfcAdapterStateChanged(mNfcReader->isEnabled());
+	onNfcAdapterStateChanged(mReader->isEnabled());
 }
 
 
 void NfcReaderManagerPlugin::shutdown()
 {
-	if (mNfcReader)
+	if (mReader)
 	{
 		onNfcAdapterStateChanged(false);
 		setReaderMode(false);
-		mNfcReader.reset();
+		mReader.reset();
 	}
 }
 
 
 void NfcReaderManagerPlugin::startScan(bool pAutoConnect)
 {
-	if (mNfcReader)
+	if (mReader)
 	{
-		mNfcReader->connectReader();
+		mReader->connectReader();
 		ReaderManagerPlugin::startScan(pAutoConnect);
 	}
 }
@@ -176,9 +176,18 @@ void NfcReaderManagerPlugin::startScan(bool pAutoConnect)
 
 void NfcReaderManagerPlugin::stopScan(const QString& pError)
 {
-	if (mNfcReader)
+	if (mReader)
 	{
-		mNfcReader->disconnectReader(pError);
+		mReader->disconnectReader(pError);
 		ReaderManagerPlugin::stopScan(pError);
+	}
+}
+
+
+void NfcReaderManagerPlugin::shelveAll() const
+{
+	if (getInfo().isEnabled() && mReader)
+	{
+		shelve(mReader.data());
 	}
 }

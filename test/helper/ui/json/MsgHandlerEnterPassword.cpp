@@ -6,12 +6,13 @@
 
 #include "MockCardConnection.h"
 #include "MockReaderManagerPlugin.h"
-#include "ReaderManager.h"
 
 #include <QTest>
 
+
 using namespace Qt::Literals::StringLiterals;
 using namespace governikus;
+
 
 void governikus::setValidState(MessageDispatcher& pDispatcher,
 		bool pSelectReader,
@@ -46,7 +47,7 @@ void governikus::setValidState(MessageDispatcher& pDispatcher,
 
 	if (pSelectReader)
 	{
-		auto* reader = MockReaderManagerPlugin::getInstance().addReader("MockReader CARD"_L1);
+		const auto& reader = MockReaderManagerPlugin::getInstance().addReader("MockReader CARD"_L1);
 		auto info = reader->getReaderInfo();
 		info.setBasicReader(pBasicReader);
 		reader->setReaderInfo(info);

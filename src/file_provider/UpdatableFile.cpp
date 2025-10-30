@@ -259,11 +259,11 @@ QUrl UpdatableFile::lookupUrl()
 	QString path = lookupPath();
 	if (path.startsWith(QLatin1String(":/")))
 	{
-		return QStringLiteral("qrc://") + path.remove(0, 1);
+		return QUrl(QStringLiteral("qrc://") + path.remove(0, 1));
 	}
 	else
 	{
-		return QStringLiteral("file:///") + path;
+		return QUrl(QStringLiteral("file:///") + path);
 	}
 }
 

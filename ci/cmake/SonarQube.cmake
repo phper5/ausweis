@@ -1,3 +1,7 @@
+block()
+	include(Libraries)
+endblock()
+
 if(NOT PACKAGES_DIR)
 	set(PACKAGES_DIR $ENV{PACKAGES_DIR})
 	if(NOT PACKAGES_DIR)
@@ -6,20 +10,20 @@ if(NOT PACKAGES_DIR)
 endif()
 message(STATUS "Use PACKAGES_DIR: ${PACKAGES_DIR}")
 
-set(SONARSCANNERCLI_VERSION 7.1.0.4889-linux-x64) # https://binaries.sonarsource.com/?prefix=Distribution/sonar-scanner-cli/
+set(SONARSCANNERCLI_VERSION 7.3.0.5189) # https://binaries.sonarsource.com/?prefix=Distribution/sonar-scanner-cli/
 set(SONARSCANNERCLI_ZIP_NAME sonar-scanner-cli-${SONARSCANNERCLI_VERSION}.zip)
 set(SONARSCANNERCLI_URL https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/${SONARSCANNERCLI_ZIP_NAME})
-set(SONARSCANNERCLI_HASH b4d2a001d65b489f9effe1ea8a78495db1b152f124d7f7b058aad8651c7e1484)
+set(SONARSCANNERCLI_HASH a251d0793cb6bd889e4fd30299bb5dc4e07433e57133b16fc227aca98f8d2c2d)
 
-set(DEPENDENCYCHECK_VERSION 12.1.3) # https://github.com/dependency-check/DependencyCheck
+set(DEPENDENCYCHECK_VERSION 12.1.8) # https://github.com/dependency-check/DependencyCheck
 set(DEPENDENCYCHECK_ZIP_NAME dependency-check-${DEPENDENCYCHECK_VERSION}-release.zip)
 set(DEPENDENCYCHECK_URL https://github.com/dependency-check/DependencyCheck/releases/download/v${DEPENDENCYCHECK_VERSION}/${DEPENDENCYCHECK_ZIP_NAME})
-set(DEPENDENCYCHECK_HASH c79149ab46ce24b2c69d4734caa1afa4e62f128eec719733bb8f0eb406bdd0d6)
+set(DEPENDENCYCHECK_HASH bd51cf867950ffcfc4e074c43948127f450fceedc93f628d52815588412d38a6)
 
-set(MARIADB_CONNECTOR_VERSION 3.5.3)
+set(MARIADB_CONNECTOR_VERSION 3.5.6)
 set(MARIADB_CONNECTOR_ZIP_NAME mariadb-java-client-${MARIADB_CONNECTOR_VERSION}.jar)
 set(MARIADB_CONNECTOR_URL https://downloads.mariadb.com/Connectors/java/connector-java-${MARIADB_CONNECTOR_VERSION}/${MARIADB_CONNECTOR_ZIP_NAME})
-set(MARIADB_CONNECTOR_HASH 85c4ba2f221d0dfd439c26affbb294f784960763544263c65aba9c2c76858706)
+set(MARIADB_CONNECTOR_HASH a129703efd7b0f334564d46753de999f09b3a361489a2eb647e6020390981cc9)
 
 set(SONARQUBETOOLS_DIR ${WORKSPACE}/sonarqubetools)
 step(${CMAKE_COMMAND} -E make_directory ${SONARQUBETOOLS_DIR})
@@ -57,10 +61,9 @@ DOWNLOAD_AND_EXTRACT("SonarScanner" ${SONARSCANNERCLI_URL} ${SONARSCANNERCLI_ZIP
 DOWNLOAD_AND_EXTRACT("Dependency Check" ${DEPENDENCYCHECK_URL} ${DEPENDENCYCHECK_ZIP_NAME} ${DEPENDENCYCHECK_HASH} "dependency-check" "dependency-check" TRUE)
 DOWNLOAD_AND_EXTRACT("Dependency Check MariaDB Connector" ${MARIADB_CONNECTOR_URL} ${MARIADB_CONNECTOR_ZIP_NAME} ${MARIADB_CONNECTOR_HASH} "dependency-check/lib/" "dependency-check/lib/" FALSE)
 
-
-set(CACHE_DIR "${WORKSPACE}/cache")
-if(NOT EXISTS ${CACHE_DIR})
-	step(${CMAKE_COMMAND} -E make_directory ${CACHE_DIR})
+set(SONAR_DIR "${WORKSPACE}/sonar")
+if(NOT EXISTS ${SONAR_DIR})
+	step(${CMAKE_COMMAND} -E make_directory ${SONAR_DIR})
 endif()
 
 step(${T_CFG} --preset ci-linux)
@@ -80,26 +83,51 @@ step(${T_CTEST} -LE qml -E Test_ui_qml_Qml)
 
 step(${T_TARGET} gcovr.sonar)
 
-
+if(DEFINED ENV{GITLAB_CI})
+	set(BRANCH $ENV{REV})
+elseif(DEFINED ENV{JENKINS_HOME})
+	set(BRANCH $ENV{MERCURIAL_REVISION_BRANCH})
+else()
+	message(FATAL_ERROR "Unknown branch for SonarQube")
+endif()
 
 if(REVIEW)
+	if(DEFINED ENV{REVIEWBOARD_REVIEW_ID})
+		set(KEY $ENV{REVIEWBOARD_REVIEW_ID})
+	elseif(DEFINED ENV{GITLAB_CI})
+		set(KEY pipeline-$ENV{CI_PIPELINE_ID})
+	elseif(DEFINED ENV{JENKINS_HOME})
+		set(KEY $ENV{BUILD_TAG})
+	else()
+		message(FATAL_ERROR "Unknown key for SonarQube")
+	endif()
+
 	set(SONAR_CMDLINE
-		-Dsonar.pullrequest.key=$ENV{REVIEWBOARD_REVIEW_ID}
-		-Dsonar.pullrequest.branch=$ENV{MERCURIAL_REVISION_BRANCH}
-		-Dsonar.pullrequest.base=$ENV{MERCURIAL_REVISION_BRANCH}
+		-Dsonar.pullrequest.key=${KEY}
+		-Dsonar.pullrequest.branch=${BRANCH}
+		-Dsonar.pullrequest.base=${BRANCH}
 	)
 else()
 	set(SONAR_CMDLINE
-		-Dsonar.branch.name=$ENV{MERCURIAL_REVISION_BRANCH}
+		-Dsonar.branch.name=${BRANCH}
 	)
+endif()
+
+if(DEFINED ENV{JENKINS_HOME})
+	list(APPEND SONAR_CMDLINE -Dsonar.cfamily.threads=4)
+elseif(DEFINED ENV{CMAKE_BUILD_PARALLEL_LEVEL})
+	list(APPEND SONAR_CMDLINE -Dsonar.cfamily.threads=$ENV{CMAKE_BUILD_PARALLEL_LEVEL})
 endif()
 
 step(
 	${SONARQUBETOOLS_DIR}/sonar-scanner/bin/sonar-scanner
 	-Dsonar.scanner.metadataFilePath=${T_TEMP}/sonar-metadata.txt
 	${SONAR_CMDLINE}
-	-Dsonar.token=$ENV{SONARQUBE_TOKEN}
 	-Dsonar.qualitygate.wait=true
 	-Dsonar.qualitygate.timeout=90
+	-Dsonar.cfamily.analysisCache.mode=fs
+	-Dsonar.cfamily.analysisCache.path=${SONAR_DIR}
+	-Dsonar.scanner.skipJreProvisioning=true
 	CHDIR ${T_BUILD_DIR}
+	ENV SONAR_USER_HOME=${SONAR_DIR}/home
 )

@@ -103,7 +103,7 @@ class DiagnosisContext::ComponentInfo
 	QString mManufacturer;
 
 	public:
-		ComponentInfo(const QString& pPath = QString(), const QString& pDescription = QString(),
+		explicit ComponentInfo(const QString& pPath = QString(), const QString& pDescription = QString(),
 				const QString& pVersion = QString(), const QString& pManufacturer = QString())
 			: mPath(pPath)
 			, mDescription(pDescription)

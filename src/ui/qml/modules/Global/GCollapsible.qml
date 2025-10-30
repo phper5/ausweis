@@ -5,11 +5,11 @@
 pragma ComponentBehavior: Bound
 
 import QtQuick
-import QtQuick.Controls
 import QtQuick.Layouts
 import Governikus.Global
 import Governikus.Style
 import Governikus.View
+import Governikus.Type
 
 ColumnLayout {
 	id: root
@@ -17,6 +17,7 @@ ColumnLayout {
 	property bool alwaysReserveSelectionTitleHeight: false
 	property bool arrowToLeft: false
 	property alias backgroundColor: collapsibleContentBackground.color
+	readonly property alias content: contentItem.children
 	property int contentBottomMargin: Style.dimens.groupbox_spacing
 	property int contentHorizontalMargin: horizontalMargin
 	property alias contentSpacing: contentItem.spacing
@@ -24,35 +25,44 @@ ColumnLayout {
 	property bool drawBottomCorners: false
 	property bool drawTopCorners: false
 	default property alias expandableData: contentItem.data
-	property bool expanded: false
+	readonly property alias expanded: expandButton.checked
 	property int horizontalMargin: Style.dimens.pane_spacing
 	property alias selectionIcon: selectionIcon.source
 	property alias selectionTitle: selectionTitle.text
+	property bool startExpanded: false
 	property alias tintIcon: selectionIcon.tintEnabled
 	property alias title: title.text
 
+	function onOptionSelected() {
+		if (expandButton.checked && !ApplicationModel.screenReaderRunning) {
+			expandButton.checked = false;
+		}
+	}
+
 	spacing: 0
 
-	AbstractButton {
+	GAbstractButton {
 		id: expandButton
 
-		Accessible.name: root.title + ". " +
-		//: LABEL ANDROID IOS
-		(root.expanded ? qsTr("collapse") :
-			//: LABEL ANDROID IOS
-			qsTr("expand") + ". ") +
-		//: LABEL ANDROID IOS
-		(root.selectionTitle !== "" ? qsTr("Currently selected is %1").arg(root.selectionTitle) : "")
-		Accessible.role: Accessible.Button
+		//: LABEL ALL_PLATFORMS
+		Accessible.description: root.selectionTitle !== "" ? qsTr("Currently selected is %1").arg(root.selectionTitle) : ""
+		Accessible.name: root.title
+		Accessible.role: {
+			if ("Switch" in Accessible) {
+				return Accessible.Switch; // qmllint disable missing-property
+			}
+			return Accessible.Button;
+		}
 		Layout.fillWidth: true
+		checkable: true
 		implicitHeight: bannerLayout.implicitHeight + Style.dimens.pane_spacing * 2
 		implicitWidth: bannerLayout.implicitWidth
 
 		background: RoundedRectangle {
 			id: background
 
-			bottomLeftCorner: root.drawBottomCorners && !root.expanded
-			bottomRightCorner: root.drawBottomCorners && !root.expanded
+			bottomLeftCorner: root.drawBottomCorners && !expandButton.checked
+			bottomRightCorner: root.drawBottomCorners && !expandButton.checked
 			color: colors.paneBackground
 			topLeftCorner: root.drawTopCorners
 			topRightCorner: root.drawTopCorners
@@ -132,13 +142,15 @@ ColumnLayout {
 			}
 		}
 
-		onClicked: root.expanded = !root.expanded
-		onFocusChanged: if (focus)
-			Utils.positionViewAtItem(this)
+		Accessible.onPressAction: expandButton.toggle()
+		Accessible.onScrollDownAction: Utils.scrollPageDownOnGFlickable(this)
+		Accessible.onScrollUpAction: Utils.scrollPageUpOnGFlickable(this)
+		Component.onCompleted: checked = root.startExpanded
 
 		StatefulColors {
 			id: colors
 
+			checkedCondition: false
 			statefulControl: expandButton
 		}
 	}
@@ -150,11 +162,11 @@ ColumnLayout {
 		bottomRightCorner: root.drawBottomCorners
 		clip: true
 		color: Style.color.paneSublevel.background.basic
-		implicitHeight: root.expanded ? (contentItem.implicitHeight + contentItem.anchors.topMargin + contentItem.anchors.bottomMargin) : 0
+		implicitHeight: expandButton.checked ? (contentItem.implicitHeight + contentItem.anchors.topMargin + contentItem.anchors.bottomMargin) : 0
 		implicitWidth: contentItem.implicitWidth + contentItem.anchors.leftMargin + contentItem.anchors.rightMargin
 		topLeftCorner: false
 		topRightCorner: false
-		visible: root.expanded
+		visible: expandButton.checked
 
 		Behavior on implicitHeight {
 			NumberAnimation {
@@ -180,7 +192,7 @@ ColumnLayout {
 	component LeftRightArrow: TintableIcon {
 		Layout.leftMargin: root.horizontalMargin
 		Layout.rightMargin: root.horizontalMargin
-		source: root.expanded ? "qrc:///images/material_expand_less.svg" : "qrc:///images/material_expand_more.svg"
+		source: expandButton.checked ? "qrc:///images/material_expand_less.svg" : "qrc:///images/material_expand_more.svg"
 		sourceSize.height: Style.text.normal.textSize
 		tintColor: Style.color.textNormal.basic
 		tintEnabled: true

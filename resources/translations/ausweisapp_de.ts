@@ -42,9 +42,9 @@
         <translation>Eine Aktualisierung ist verfügbar (Version %1).</translation>
     </message>
     <message>
-        <source>To close the app, press the back button 2 times.</source>
+        <source>To close the app, tap the back button 2 times.</source>
         <extracomment>INFO ANDROID IOS Hint that is shown if the users pressed the &quot;back&quot; button on the top-most navigation level for the first time (a second press closes the app).</extracomment>
-        <translation>Zum Schließen erneut &quot;Zurück&quot; drücken.</translation>
+        <translation>Zum Schließen erneut &quot;Zurück&quot; tippen.</translation>
     </message>
 </context>
 <context>
@@ -90,9 +90,19 @@
         <translation>Zurück zur Einrichtung</translation>
     </message>
     <message>
-        <source>You may start a new authentication after pressing the button.</source>
-        <extracomment>LABEL ALL_PLATFORMS</extracomment>
-        <translation>Sie können eine neue Authentisierung starten, nachdem Sie den Button gedrückt haben.</translation>
+        <source>You may start a new authentication after clicking the button.</source>
+        <extracomment>LABEL DESKTOP</extracomment>
+        <translation>Sie können eine neue Authentisierung starten, nachdem Sie den Button geklickt haben.</translation>
+    </message>
+    <message>
+        <source>You may start a new authentication after tapping the button.</source>
+        <extracomment>LABEL ANDROID IOS</extracomment>
+        <translation>Sie können eine neue Authentisierung starten, nachdem Sie den Button getippt haben.</translation>
+    </message>
+    <message>
+        <source>Cancellation progress</source>
+        <extracomment>LABEL ALL_PLATFORMS Name of an progress indicator during the cancellation of an authentication read by screen readers</extracomment>
+        <translation>Fortschritt des Abbruchs</translation>
     </message>
 </context>
 <context>
@@ -213,6 +223,13 @@ INFO ANDROID IOS The card reader requests the user&apos;s attention.</extracomme
         <extracomment>INFO DESKTOP Information message about cancellation process without working network connectivity</extracomment>
         <translation>Es wurden Netzwerkprobleme erkannt. Die Verbindung wird weiterhin für 30 Sekunden versucht.</translation>
     </message>
+    <message>
+        <source>Authentication progress</source>
+        <extracomment>LABEL DESKTOP Name of an progress indicator during an authentication read by screen readers
+----------
+LABEL ANDROID IOS Name of an progress indicator during an authentication read by screen readers</extracomment>
+        <translation>Authentifizierungsfortschritt</translation>
+    </message>
 </context>
 <context>
     <name>AuthView</name>
@@ -227,9 +244,9 @@ LABEL ANDROID IOS</extracomment>
 <context>
     <name>AutoRedirectDecision</name>
     <message>
-        <source>You are currently using automatic redirection. This may cause the screen reader to miss some information during the authentication process. To ensure all information are received, please enable manual redirection.</source>
+        <source>Currently, the app automatically redirects you back to the service provider after authentication. This may not allow your screen reader to provide all information. To ensure you receive all information, enable manual redirection to the service provider.</source>
         <extracomment>INFO ALL_PLATFORMS</extracomment>
-        <translation>Sie nutzen derzeit die automatische Weiterleitung. Dadurch kann Ihr Bildschirmleser Informationen während einer Authetisierung verpassen. Um sicherzustellen dass Sie alle Informationen erhalten, sollten Sie die manuelle Weiterleitung einschalten.</translation>
+        <translation>Aktuell leitet Sie die App nach einer Authentisierung automatisch zurück zum Anbieter. Hierbei gibt Ihr Bildschirmleser möglicherweise nicht alle Informationen wieder. Um zu gewährleisten, dass Sie alle Informationen erhalten, schalten Sie die manuelle Weiterleitung zum Anbieter ein.</translation>
     </message>
     <message>
         <source>You can change your preference at any time in the settings.</source>
@@ -299,16 +316,11 @@ LABEL ANDROID IOS</extracomment>
     </message>
 </context>
 <context>
-    <name>BaseController</name>
+    <name>BaseHeading</name>
     <message>
-        <source>Process finished successfully. You may now remove your ID card from the device.</source>
-        <extracomment>INFO ALL_PLATFORMS The workflow finished successfully, the ID card may (and should) be removed from the card reader.</extracomment>
-        <translation>Der Vorgang war erfolgreich. Sie können nun Ihren Ausweis vom Gerät entfernen.</translation>
-    </message>
-    <message>
-        <source>You may now remove your ID card from the device.</source>
-        <extracomment>INFO ALL_PLATFORMS The workflow is completed, the ID card may (and should) be removed from the card reader.</extracomment>
-        <translation>Sie können nun Ihren Ausweis vom Gerät entfernen.</translation>
+        <source>Heading</source>
+        <extracomment>LABEL WINDOWS Screenreader announcement, that the current item is a heading.</extracomment>
+        <translation>Überschrift</translation>
     </message>
 </context>
 <context>
@@ -872,9 +884,14 @@ LABEL ANDROID IOS</extracomment>
         <translation>Was bedeutet das?</translation>
     </message>
     <message>
-        <source>You may now try the function: &quot;See my personal data&quot;. Press the &quot;%1&quot; button to do so now.</source>
-        <extracomment>LABEL ALL_PLATFORMS</extracomment>
-        <translation>Probieren Sie zum Abschluss der Prüfung die Funktion &quot;Meine Daten einsehen&quot;. Drücken Sie &quot;%1&quot; um fortzufahren.</translation>
+        <source>You may now try the function: &quot;See my personal data&quot;. Click the &quot;%1&quot; button to do so now.</source>
+        <extracomment>LABEL DESKTOP</extracomment>
+        <translation>Probieren Sie zum Abschluss der Prüfung die Funktion &quot;Meine Daten einsehen&quot;. Klicken Sie &quot;%1&quot; um fortzufahren.</translation>
+    </message>
+    <message>
+        <source>You may now try the function: &quot;See my personal data&quot;. Tap the &quot;%1&quot; button to do so now.</source>
+        <extracomment>LABEL ANDROID IOS</extracomment>
+        <translation>Probieren Sie zum Abschluss der Prüfung die Funktion &quot;Meine Daten einsehen&quot;. Tippen Sie &quot;%1&quot; um fortzufahren.</translation>
     </message>
     <message>
         <source>NFC supported</source>
@@ -1007,7 +1024,7 @@ LABEL ANDROID IOS</extracomment>
     <message>
         <source>The ID card PIN has been entered incorrectly 2 times in a row. This is why you must first enter the 6-digit Card Access Number (CAN) for the next identification process. You can find it at the bottom right of the front of your ID card.</source>
         <extracomment>LABEL ALL_PLATFORMS Sentence 1 of 3 of CAN explanation</extracomment>
-        <translation>Die Karten-PIN wurde 2 Mal hintereinander falsch eingegeben. Deshalb müssen Sie beim nächsten Ausweisvorgang zunächst die 6-stellig Zugangsnummer (CAN) eingeben. Sie finden diese auf der Vorderseite Ihres Ausweises unten rechts.</translation>
+        <translation>Die Karten-PIN wurde 2 Mal hintereinander falsch eingegeben. Deshalb müssen Sie beim nächsten Ausweisvorgang zunächst die 6-stellige Zugangsnummer (CAN) eingeben. Sie finden diese auf der Vorderseite Ihres Ausweises unten rechts.</translation>
     </message>
     <message>
         <source>You may now try the function: &quot;See my personal data&quot;.</source>
@@ -1047,7 +1064,7 @@ LABEL ALL_PLATFORMS Sentence 2 of 3 of PUK explanation</extracomment>
         <translation>Es wurde kein unterstützter Ausweis erkannt. Die %1 unterstützt:&lt;p&gt;&lt;ul&gt;&lt;li&gt;deutsche Personalausweise&lt;/li&gt;&lt;li&gt;elektronische Aufenthaltstitel (eAT)&lt;/li&gt;&lt;li&gt;eID-Karten für EU-/EWR-Bürger&lt;/li&gt;&lt;/ul&gt;&lt;/p&gt;Haben Sie eines der genannten Dokumente verwendet und diese Fehlermeldung erscheint dennoch, starten Sie bitte die Prüfung erneut.</translation>
     </message>
     <message>
-        <source>You may continue the onboarding and change your PIN.</source>
+        <source>You may continue the setup and change your PIN.</source>
         <extracomment>LABEL ALL_PLATFORMS Sentence 2 of 3 of CAN explanation
 ----------
 LABEL ALL_PLATFORMS Sentence 2 of 3 of PUK explanation</extracomment>
@@ -1291,7 +1308,7 @@ LABEL ALL_PLATFORMS Sentence 2 of 3 of PUK explanation</extracomment>
     </message>
 </context>
 <context>
-    <name>DarkModeButtons</name>
+    <name>DarkModeButtonData</name>
     <message>
         <source>System</source>
         <extracomment>LABEL ALL_PLATFORMS</extracomment>
@@ -1381,11 +1398,6 @@ LABEL ANDROID IOS</extracomment>
 <context>
     <name>DetachedLogView</name>
     <message>
-        <source>Select log:</source>
-        <extracomment>LABEL DESKTOP</extracomment>
-        <translation>Protokoll auswählen:</translation>
-    </message>
-    <message>
         <source>Zoom:</source>
         <extracomment>LABEL DESKTOP</extracomment>
         <translation>Zoom:</translation>
@@ -1429,6 +1441,11 @@ LABEL ANDROID IOS</extracomment>
         <source>Filter. Deactivated.</source>
         <extracomment>LABEL DESKTOP</extracomment>
         <translation>Filter. Deaktiviert.</translation>
+    </message>
+    <message>
+        <source>Current Log</source>
+        <extracomment>LABEL DESKTOP</extracomment>
+        <translation>Aktuelles Protokoll</translation>
     </message>
 </context>
 <context>
@@ -1512,6 +1529,16 @@ LABEL ANDROID IOS</extracomment>
         <source>The developer mode deactivates some security checks and the authentication process will continue even if some errors occur. Skipped errors will be shown as notifications. The developer mode is only usable with the test PKI.</source>
         <extracomment>LABEL DESKTOP</extracomment>
         <translation>Im Entwicklermodus werden einige Sicherheitsprüfungen abgestellt und die Authentisierung bei bestimmten Fehlern trotzdem fortgesetzt. Übergangene Fehler werden in den Benachrichtigungen angezeigt. Der Entwicklermodus funktioniert nur in der Test-PKI.</translation>
+    </message>
+    <message>
+        <source>Using the developer mode forces the notifications to be enabled.</source>
+        <extracomment>LABEL DESKTOP Only visible when the user activates the developer mode in the settings.</extracomment>
+        <translation>Im Entwicklermodus werden die internen Benachrichtigungen erzwungen.</translation>
+    </message>
+    <message>
+        <source>Show notifications inside of %1</source>
+        <extracomment>LABEL DESKTOP</extracomment>
+        <translation>Benachrichtigungen in der %1 anzeigen</translation>
     </message>
 </context>
 <context>
@@ -1839,18 +1866,8 @@ LABEL IOS_PHONE ANDROID_PHONE</extracomment>
 <context>
     <name>GCollapsible</name>
     <message>
-        <source>collapse</source>
-        <extracomment>LABEL ANDROID IOS</extracomment>
-        <translation>einklappen</translation>
-    </message>
-    <message>
-        <source>expand</source>
-        <extracomment>LABEL ANDROID IOS</extracomment>
-        <translation>ausklappen</translation>
-    </message>
-    <message>
         <source>Currently selected is %1</source>
-        <extracomment>LABEL ANDROID IOS</extracomment>
+        <extracomment>LABEL ALL_PLATFORMS</extracomment>
         <translation>Aktuell ausgewählt ist %1</translation>
     </message>
 </context>
@@ -1865,8 +1882,17 @@ LABEL IOS_PHONE ANDROID_PHONE</extracomment>
 <context>
     <name>GProgressBar</name>
     <message>
-        <source>%1 percent done</source>
-        <translation>%1 Prozent abgeschlossen</translation>
+        <source>Progress</source>
+        <extracomment>LABEL ALL_PLATFORMS</extracomment>
+        <translation>Fortschritt</translation>
+    </message>
+</context>
+<context>
+    <name>GRadioButton</name>
+    <message>
+        <source>checked</source>
+        <extracomment>LABEL DESKTOP</extracomment>
+        <translation>aktiviert</translation>
     </message>
 </context>
 <context>
@@ -1875,14 +1901,6 @@ LABEL IOS_PHONE ANDROID_PHONE</extracomment>
         <source>Step %1 of %2. This step is %3 percent complete.</source>
         <extracomment>LABEL ALL_PLATFORMS</extracomment>
         <translation>Schritt %1 von %2 zu %3 Prozent abgeschlossen.</translation>
-    </message>
-</context>
-<context>
-    <name>GText</name>
-    <message>
-        <source>Press space to open link</source>
-        <extracomment>INFO DESKTOP Text read by screen reader if the text contains a weblink which may be opened.</extracomment>
-        <translation>Drücken Sie die Leertaste, um diesen Link zu öffnen</translation>
     </message>
 </context>
 <context>
@@ -1900,11 +1918,6 @@ LABEL IOS_PHONE ANDROID_PHONE</extracomment>
         <translation>Verhalten</translation>
     </message>
     <message>
-        <source>Using the developer mode forces the notifications to be enabled.</source>
-        <extracomment>LABEL DESKTOP Only visible when the user activates the developer mode in the settings.</extracomment>
-        <translation>Im Entwicklermodus werden die internen Benachrichtigungen erzwungen.</translation>
-    </message>
-    <message>
         <source>Network</source>
         <extracomment>LABEL DESKTOP</extracomment>
         <translation>Netzwerk</translation>
@@ -1920,7 +1933,7 @@ LABEL IOS_PHONE ANDROID_PHONE</extracomment>
         <translation>Erscheinungsbild</translation>
     </message>
     <message>
-        <source>Use the system font</source>
+        <source>Use system font</source>
         <extracomment>LABEL DESKTOP</extracomment>
         <translation>Systemschriftart verwenden</translation>
     </message>
@@ -1933,11 +1946,6 @@ LABEL IOS_PHONE ANDROID_PHONE</extracomment>
         <source>Close %1 window after authentication</source>
         <extracomment>LABEL DESKTOP</extracomment>
         <translation>%1-Fenster nach Authentisierung schließen</translation>
-    </message>
-    <message>
-        <source>Show notifications inside of %1</source>
-        <extracomment>LABEL DESKTOP</extracomment>
-        <translation>Benachrichtigungen in der %1 anzeigen</translation>
     </message>
     <message>
         <source>Change language</source>
@@ -1993,6 +2001,31 @@ LABEL IOS_PHONE ANDROID_PHONE</extracomment>
         <source>Attach %1 to system tray (recommended)</source>
         <extracomment>LABEL WINDOWS Text for attaching the AA to the system tray</extracomment>
         <translation>%1 im Infobereich anheften (empfohlen)</translation>
+    </message>
+    <message>
+        <source>Automatically check for software updates at program start (recommended)</source>
+        <extracomment>LABEL DESKTOP</extracomment>
+        <translation>Automatisch nach Software-Aktualisierungen suchen (empfohlen)</translation>
+    </message>
+    <message>
+        <source>Show update</source>
+        <extracomment>LABEL DESKTOP</extracomment>
+        <translation>Aktualisierung anzeigen</translation>
+    </message>
+    <message>
+        <source>Start manual search for software update</source>
+        <extracomment>LABEL DESKTOP</extracomment>
+        <translation>Manuelle Suche nach Software-Aktualisierung starten</translation>
+    </message>
+    <message>
+        <source>Abort search</source>
+        <extracomment>LABEL DESKTOP</extracomment>
+        <translation>Suche abbrechen</translation>
+    </message>
+    <message>
+        <source>When you start %1, it automatically checks for updates. Updates are not performed automatically. If this option is disabled, you have to manually check for updates in the settings.</source>
+        <extracomment>LABEL DESKTOP %1 is replaced with the application name</extracomment>
+        <translation>Beim Starten der %1 wird automatisch nach Updates gesucht. Eine automatische Ausführung der Aktualisierung findet nicht statt. Ist diese Option ausgeschaltet, müssen mögliche Aktualisierungen manuell in den Einstellungen gesucht werden.</translation>
     </message>
 </context>
 <context>
@@ -2210,6 +2243,19 @@ INFO ANDROID IOS The paired smartphone was removed since it did not respond to c
     </message>
 </context>
 <context>
+    <name>LinkQualityAnimation</name>
+    <message>
+        <source>Link quality unavailable.</source>
+        <extracomment>INFO ALL_PLATFORMS</extracomment>
+        <translation>Verbindungsqualität nicht verfügbar.</translation>
+    </message>
+    <message>
+        <source>%1% link quality.</source>
+        <extracomment>INFO ALL_PLATFORMS %1 is replaced with a number between 0 and 100</extracomment>
+        <translation>%1% Verbindungsqualität.</translation>
+    </message>
+</context>
+<context>
     <name>LocalNetworkInfo</name>
     <message>
         <source>Go to application settings</source>
@@ -2223,14 +2269,44 @@ INFO ANDROID IOS The paired smartphone was removed since it did not respond to c
     </message>
 </context>
 <context>
+    <name>LogFilesView</name>
+    <message>
+        <source>Select Log</source>
+        <extracomment>LABEL ANDROID IOS</extracomment>
+        <translation>Protokoll auswählen</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <extracomment>LABEL ANDROID IOS</extracomment>
+        <translation>Löschen</translation>
+    </message>
+    <message>
+        <source>All old logs will be deleted.</source>
+        <extracomment>INFO ANDROID IOS All logfiles are about to be removed, user confirmation required.</extracomment>
+        <translation>Alle Protokolle werden gelöscht.</translation>
+    </message>
+    <message>
+        <source>Delete all logs</source>
+        <extracomment>LABEL ANDROID IOS</extracomment>
+        <translation>Alle Protokolle löschen</translation>
+    </message>
+</context>
+<context>
     <name>LogTitleBarControls</name>
     <message>
         <source>Share log</source>
+        <extracomment>LABEL ANDROID IOS</extracomment>
         <translation>Protokoll teilen</translation>
     </message>
     <message>
         <source>Delete all logs</source>
+        <extracomment>LABEL ANDROID IOS</extracomment>
         <translation>Alle Protokolle löschen</translation>
+    </message>
+    <message>
+        <source>Filter</source>
+        <extracomment>LABEL ANDROID IOS</extracomment>
+        <translation>Filter</translation>
     </message>
 </context>
 <context>
@@ -2260,38 +2336,18 @@ INFO ANDROID IOS The paired smartphone was removed since it did not respond to c
     </message>
     <message>
         <source>All old logs will be deleted.</source>
-        <extracomment>INFO DESKTOP All logfiles are about to be removed, user confirmation required.
-----------
-INFO ANDROID IOS All logfiles are about to be removed, user confirmation required.</extracomment>
+        <extracomment>INFO DESKTOP All logfiles are about to be removed, user confirmation required.</extracomment>
         <translation>Alle Protokolle werden gelöscht.</translation>
     </message>
     <message>
-        <source>Log</source>
-        <extracomment>LABEL ANDROID IOS</extracomment>
-        <translation>Protokoll</translation>
-    </message>
-    <message>
-        <source>Select log from list.</source>
-        <translation>Protokoll aus Liste auswählen.</translation>
-    </message>
-    <message>
         <source>Delete all logs</source>
-        <extracomment>LABEL DESKTOP
-----------
-LABEL ANDROID IOS</extracomment>
+        <extracomment>LABEL DESKTOP</extracomment>
         <translation>Alle Protokolle löschen</translation>
     </message>
     <message>
         <source>Delete</source>
-        <extracomment>LABEL DESKTOP
-----------
-LABEL ANDROID IOS</extracomment>
+        <extracomment>LABEL DESKTOP</extracomment>
         <translation>Löschen</translation>
-    </message>
-    <message>
-        <source>The log entry was copied to the clipboard.</source>
-        <extracomment>INFO ANDROID IOS Toast message used to confirm the copy of a log entry.</extracomment>
-        <translation>Der Protokolleintrag wurde in die Zwischenablage kopiert.</translation>
     </message>
     <message>
         <source>Filter</source>
@@ -2318,7 +2374,9 @@ LABEL ANDROID IOS</extracomment>
     <name>LogViewDelegate</name>
     <message>
         <source>The log entry was copied to the clipboard.</source>
-        <extracomment>INFO DESKTOP Toast message used to confirm the copy of a log entry.</extracomment>
+        <extracomment>INFO DESKTOP Toast message used to confirm the copy of a log entry.
+----------
+INFO ANDROID IOS Toast message used to confirm the copy of a log entry.</extracomment>
         <translation>Der Protokolleintrag wurde in die Zwischenablage kopiert.</translation>
     </message>
 </context>
@@ -2399,9 +2457,9 @@ LABEL ANDROID IOS</extracomment>
         <translation>Allgemein</translation>
     </message>
     <message>
-        <source>Version information</source>
-        <extracomment>LABEL ANDROID IOS</extracomment>
-        <translation>Versionsinformationen</translation>
+        <source>%1 version</source>
+        <extracomment>LABEL ANDROID IOS %1 is replaced with the application name</extracomment>
+        <translation>%1-Version</translation>
     </message>
     <message>
         <source>Software license</source>
@@ -2478,7 +2536,7 @@ LABEL ANDROID IOS</extracomment>
         <translation>Nutzungsbedingungen und Softwarelizenz</translation>
     </message>
     <message>
-        <source>Start onboarding</source>
+        <source>Start setup</source>
         <extracomment>LABEL ANDROID IOS</extracomment>
         <translation>Einrichtung starten</translation>
     </message>
@@ -2529,12 +2587,12 @@ LABEL ANDROID IOS</extracomment>
         <translation>Kontakt</translation>
     </message>
     <message>
-        <source>Start onboarding</source>
+        <source>Start setup</source>
         <extracomment>LABEL DESKTOP</extracomment>
         <translation>Einrichtung starten</translation>
     </message>
     <message>
-        <source>Onboarding</source>
+        <source>Setup</source>
         <extracomment>LABEL DESKTOP</extracomment>
         <translation>Einrichtung</translation>
     </message>
@@ -2631,7 +2689,7 @@ INFO ALL_PLATFORMS Description text explaining the PINs 3/7</extracomment>
     <message>
         <source>The PUK is required if the %1card PIN has been entered incorrectly 3 times%2 in a row. As a result, the card PIN is blocked. By entering the PUK you will %1unblock the card PIN%2 and have%1 3 more attempts%2 to enter the correct PIN.</source>
         <extracomment>INFO ALL_PLATFORMS Answer to the question &apos;Why is the PUK required?&apos;</extracomment>
-        <translation>Die PUK wird verlangt, wenn die %1Karten-PIN 3-mal falsch eingegeben%2 wurde. Die Karten-PIN ist dadurch gesperrt. Durch die Eingabe der PUK %1entsperren Sie die Karten-PIN%2 und haben%1 3 weitere Versuche%2, die richtige PIN einzugeben.</translation>
+        <translation>Die PUK wird verlangt, wenn die %1Karten-PIN 3 Mal falsch eingegeben%2 wurde. Die Karten-PIN ist dadurch gesperrt. Durch die Eingabe der PUK %1entsperren Sie die Karten-PIN%2 und haben%1 3 weitere Versuche%2, die richtige PIN einzugeben.</translation>
     </message>
     <message>
         <source>My PUK does not work</source>
@@ -3293,27 +3351,37 @@ LABEL ANDROID IOS</extracomment>
     <name>NumberField</name>
     <message>
         <source>The number is hidden.</source>
-        <extracomment>LABEL DESKTOP Screenreader text for the password field</extracomment>
+        <extracomment>LABEL ALL_PLATFORMS Screenreader text for the password field</extracomment>
         <translation>Die Geheimzahl ist ausgeblendet.</translation>
     </message>
     <message>
         <source>You entered %1 of %2 digits.</source>
-        <extracomment>LABEL DESKTOP Screenreader text for the password field</extracomment>
+        <extracomment>LABEL ALL_PLATFORMS Screenreader text for the password field</extracomment>
         <translation>Sie haben %1 von %2 Ziffern eingegeben.</translation>
     </message>
     <message>
-        <source>Press to hide the number</source>
+        <source>Click to hide the number</source>
         <extracomment>LABEL DESKTOP Screenreader text for the eye icon to change the password visibility</extracomment>
-        <translation>Drücken Sie die Taste um die Geheimnummer einzublenden</translation>
+        <translation>Klicken Sie die Taste um die Geheimnummer auszublenden</translation>
     </message>
     <message>
-        <source>Press to show the number</source>
+        <source>Tap to hide the number</source>
+        <extracomment>LABEL ANDROID IOS Screenreader text for the eye icon to change the password visibility</extracomment>
+        <translation>Tippen Sie die Taste um die Geheimnummer auszublenden</translation>
+    </message>
+    <message>
+        <source>Click to show the number</source>
         <extracomment>LABEL DESKTOP Screenreader text for the eye icon to change the password visibility</extracomment>
-        <translation>Drücken Sie die Taste um die Geheimnummer auszublenden</translation>
+        <translation>Klicken Sie die Taste um die Geheimnummer einzublenden</translation>
+    </message>
+    <message>
+        <source>Tap to show the number</source>
+        <extracomment>LABEL ANDROID IOS Screenreader text for the eye icon to change the password visibility</extracomment>
+        <translation>Tippen Sie die Taste um die Geheimnummer einzublenden</translation>
     </message>
     <message>
         <source>The number is visible. Digits entered so far: %1</source>
-        <extracomment>LABEL DESKTOP Screenreader text for the password field</extracomment>
+        <extracomment>LABEL ALL_PLATFORMS Screenreader text for the password field</extracomment>
         <translation>Die Geheimnummer ist sichtbar. Bisher eingegebene Ziffern: %1</translation>
     </message>
 </context>
@@ -3561,7 +3629,7 @@ LABEL IOS ANDROID</extracomment>
         <translation>Leider erfüllen Sie nicht alle Anforderungen, um die %1 zu nutzen.</translation>
     </message>
     <message>
-        <source>You may restart the setup anytime under %1Help &gt; Onboarding%2.</source>
+        <source>You may restart the setup anytime under %1Help &gt; Setup%2.</source>
         <extracomment>LABEL ALL_PLATFORMS %1 and %2 are replaced with bold emphasis.</extracomment>
         <translation>Sie können die Einrichtung jederzeit unter %1Hilfe &gt; Einrichtung%2 erneut ausführen.</translation>
     </message>
@@ -3681,14 +3749,9 @@ LABEL IOS ANDROID</extracomment>
         <translation>oder</translation>
     </message>
     <message>
-        <source>Afterwards, a pairing code is displayed on your smartphone. You may then select the device in the list below to enter the pairing code.</source>
-        <extracomment>LABEL DESKTOP</extracomment>
-        <translation>Anschließend wird ein Kopplungscode auf Ihrem Smartphone angezeigt. Dann können Sie das Gerät in der untenstehenden Liste auswählen, um den Kopplungscode einzugeben.</translation>
-    </message>
-    <message>
-        <source>Press space to continue onboarding using the smartphone &quot;%1&quot;</source>
-        <extracomment>LABEL DESKTOP</extracomment>
-        <translation>Drücken Sie die Leertaste um die Einrichtung mit dem Smartphone &quot;%1&quot; fortzusetzen</translation>
+        <source>Afterwards, a pairing code is displayed on your smartphone. You may then select the device in the %1 list to enter the pairing code.</source>
+        <extracomment>LABEL DESKTOP %1 will be replaced with the Available Devices list name</extracomment>
+        <translation>Anschließend wird ein Kopplungscode auf Ihrem Smartphone angezeigt. Dann können Sie das Gerät in der Liste %1 auswählen, um den Kopplungscode einzugeben.</translation>
     </message>
     <message>
         <source>Use device</source>
@@ -4104,18 +4167,23 @@ LABEL ANDROID IOS</extracomment>
 <context>
     <name>PkiSwitch</name>
     <message>
-        <source>%1 more presses to toggle the environment (prod/test) for integrated functions.</source>
-        <extracomment>INFO ANDROID IOS Used in notifications when the user taps the icon</extracomment>
+        <source>%1 more clicks to toggle the environment (prod/test) for integrated functions.</source>
+        <extracomment>INFO DESKTOP Used in notifications when the user taps the icon</extracomment>
         <translation>%1 weitere Klicks um die Umgebung (prod/test) für die integrierten Funktionen umzuschalten.</translation>
     </message>
     <message>
-        <source>Testmode for the integrated functions activated.</source>
+        <source>%1 more taps to toggle the environment (prod/test) for integrated functions.</source>
         <extracomment>INFO ANDROID IOS Used in notifications when the user taps the icon</extracomment>
+        <translation>%1 weitere Tipps um die Umgebung (prod/test) für die integrierten Funktionen umzuschalten.</translation>
+    </message>
+    <message>
+        <source>Testmode for the integrated functions activated.</source>
+        <extracomment>INFO ALL_PLATFORMS Used in notifications when the user taps the icon</extracomment>
         <translation>Testmodus für die integrierten Funktionen aktiviert.</translation>
     </message>
     <message>
         <source>Testmode for the integrated functions deactivated.</source>
-        <extracomment>INFO ANDROID IOS Used in notifications when the user taps the icon</extracomment>
+        <extracomment>INFO ALL_PLATFORMS Used in notifications when the user taps the icon</extracomment>
         <translation>Testmodus für die integrierten Funktionen deaktiviert.</translation>
     </message>
 </context>
@@ -4186,10 +4254,13 @@ LABEL ANDROID IOS</extracomment>
     </message>
     <message>
         <source>You have received a one-time PIN, the %1Transport PIN%2, as a letter from your competent authority. You can replace this with a%1 6-digit card PIN%2 in the %3 or at the Citizens&apos; Registration Office. If you do not have a PIN or do not remember your card PIN, click here:</source>
-        <extracomment>LABEL DESKTOP %1 + %2 = Bold Tags, %3 = AusweisApp
-----------
-LABEL ANDROID IOS %1 + %2 = Bold Tags, %3 = AusweisApp</extracomment>
+        <extracomment>LABEL DESKTOP %1 + %2 = Bold Tags, %3 = AusweisApp</extracomment>
         <translation>Sie haben eine Einmal-PIN, die %1Transport-PIN%2, als Brief von Ihrer Ausweisbehörde erhalten. Diese ersetzen Sie in der %3 oder im Bürgeramt durch eine%1 6-stellige Karten-PIN%2. Wenn Ihnen keine PIN vorliegt oder Sie sich nicht an Ihre Karten-PIN erinnern, klicken Sie hier:</translation>
+    </message>
+    <message>
+        <source>You have received a one-time PIN, the %1Transport PIN%2, as a letter from your competent authority. You can replace this with a%1 6-digit card PIN%2 in the %3 or at the Citizens&apos; Registration Office. If you do not have a PIN or do not remember your card PIN, tap here:</source>
+        <extracomment>LABEL ANDROID IOS %1 + %2 = Bold Tags, %3 = AusweisApp</extracomment>
+        <translation>Sie haben eine Einmal-PIN, die %1Transport-PIN%2, als Brief von Ihrer Ausweisbehörde erhalten. Diese ersetzen Sie in der %3 oder im Bürgeramt durch eine%1 6-stellige Karten-PIN%2. Wenn Ihnen keine PIN vorliegt oder Sie sich nicht an Ihre Karten-PIN erinnern, tippen Sie hier:</translation>
     </message>
     <message>
         <source>The chip in your ID card is read using %1NFC%2. To do this, simply place the ID card on the %1back of the smartphone%2.</source>
@@ -4278,7 +4349,7 @@ LABEL ANDROID IOS</extracomment>
         <translation>Anbieter</translation>
     </message>
     <message>
-        <source>Touch for more details</source>
+        <source>Tap for more details</source>
         <extracomment>LABEL ANDROID IOS</extracomment>
         <translation>Tippen Sie hier für mehr Details</translation>
     </message>
@@ -4399,14 +4470,24 @@ LABEL DESKTOP Title of the proxy credentials popup.</extracomment>
         <translation>Bei Rückfragen oder auftretenden Fehlern zum Vorgang wenden Sie sich bitte an den jeweiligen Anbieter.</translation>
     </message>
     <message>
-        <source>You will be automatically redirected to the provider in a few seconds. If you are not automatically redirected, click on the &quot;%1&quot; button.</source>
-        <extracomment>INFO ALL_PLATFORMS Redirect information when automatic redirect is enabled</extracomment>
-        <translation>Die automatische Weiterleitung zum Anbieter erfolgt in wenigen Sekunden. Falls Sie nicht automatisch weitergeleitet werden, drücken Sie auf den Button &quot;%1&quot;.</translation>
+        <source>You will be automatically redirected to the provider in a few seconds. If you are not automatically redirected, click the &quot;%1&quot; button.</source>
+        <extracomment>INFO DESKTOP Redirect information when automatic redirect is enabled</extracomment>
+        <translation>Die automatische Weiterleitung zum Anbieter erfolgt in wenigen Sekunden. Falls Sie nicht automatisch weitergeleitet werden, klicken Sie auf den Button &quot;%1&quot;.</translation>
     </message>
     <message>
-        <source>Press the button to complete the authentication and return to the provider.</source>
-        <extracomment>INFO ALL_PLATFORMS Redirect information when automatic redirect is disabled</extracomment>
-        <translation>Drücken Sie auf den Button, um die Authentisierung abzuschließen und zum Anbieter zurückzukehren.</translation>
+        <source>Click the button to complete the authentication and return to the provider.</source>
+        <extracomment>INFO DESKTOP Redirect information when automatic redirect is disabled</extracomment>
+        <translation>Klicken Sie auf den Button, um die Authentisierung abzuschließen und zum Anbieter zurückzukehren.</translation>
+    </message>
+    <message>
+        <source>You will be automatically redirected to the provider in a few seconds. If you are not automatically redirected, tap the &quot;%1&quot; button.</source>
+        <extracomment>INFO ANDROID IOS Redirect information when automatic redirect is enabled</extracomment>
+        <translation>Die automatische Weiterleitung zum Anbieter erfolgt in wenigen Sekunden. Falls Sie nicht automatisch weitergeleitet werden, tippen Sie auf den Button &quot;%1&quot;.</translation>
+    </message>
+    <message>
+        <source>Tap the button to complete the authentication and return to the provider.</source>
+        <extracomment>INFO ANDROID IOS Redirect information when automatic redirect is disabled</extracomment>
+        <translation>Tippen Sie auf den Button, um die Authentisierung abzuschließen und zum Anbieter zurückzukehren.</translation>
     </message>
     <message>
         <source>Return to provider</source>
@@ -4437,28 +4518,29 @@ LABEL ANDROID IOS</extracomment>
 <context>
     <name>RemoteReaderDelegate</name>
     <message>
-        <source>Smartphone named &quot;%1&quot;. %2. </source>
-        <extracomment>INFO DESKTOP Name and status of remote device. %1 is replaced with the name, %2 with the status</extracomment>
-        <translation>Smartphone namens &quot;%1&quot;. %2. </translation>
+        <source>Smartphone named &quot;%1&quot;.</source>
+        <extracomment>INFO DESKTOP Name of remote device. %1 is replaced with the name.</extracomment>
+        <translation>Smartphone namens &quot;%1&quot;.</translation>
     </message>
     <message>
-        <source>Press space to unpair the smartphone &quot;%1&quot;.</source>
-        <extracomment>INFO DESKTOP Text for activation action if the device is paired.</extracomment>
-        <translation>Drücken Sie die Leertaste um das Smartphone &quot;%1&quot; zu entkoppeln.</translation>
-    </message>
-    <message>
-        <source>Press space to pair the smartphone &quot;%1&quot;.</source>
-        <extracomment>INFO DESKTOP Text for activation action if the device is unpaired.</extracomment>
-        <translation>Drücken Sie die Leertaste um das Smartphone &quot;%1&quot; zu koppeln.</translation>
-    </message>
-    <message>
-        <source>Remove remote device</source>
-        <translation>Entferne das Gerät</translation>
+        <source>Status: &quot;%1&quot;.</source>
+        <extracomment>INFO DESKTOP Status of remote device. %1 is replaced with the status.</extracomment>
+        <translation>Status: &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Pair</source>
         <extracomment>LABEL DESKTOP</extracomment>
         <translation>Koppeln</translation>
+    </message>
+    <message>
+        <source>Unpair</source>
+        <extracomment>LABEL DESKTOP</extracomment>
+        <translation>Entkoppeln</translation>
+    </message>
+    <message>
+        <source>%1 device &quot;%2&quot;</source>
+        <extracomment>LABEL DESKTOP Text of pairing button, %1 will be Pair/Unpair and %2 is replaced with device name</extracomment>
+        <translation>Gerät &quot;%2&quot; %1</translation>
     </message>
 </context>
 <context>
@@ -4515,9 +4597,9 @@ LABEL ANDROID IOS</extracomment>
         <translation>Zuletzt verbunden</translation>
     </message>
     <message>
-        <source>Click to remove device</source>
+        <source>Tap to remove device</source>
         <extracomment>LABEL ANDROID IOS</extracomment>
-        <translation>Klicken, um das Gerät zu entfernen</translation>
+        <translation>Tippen, um das Gerät zu entfernen</translation>
     </message>
     <message>
         <source>Remove</source>
@@ -4540,9 +4622,9 @@ LABEL ANDROID IOS</extracomment>
         <translation>Kopplung hinzufügen</translation>
     </message>
     <message>
-        <source>Click to pair</source>
+        <source>Tap to pair</source>
         <extracomment>LABEL ANDROID IOS</extracomment>
-        <translation>Klicken zum Koppeln</translation>
+        <translation>Tippen zum Koppeln</translation>
     </message>
     <message>
         <source>Please connect your WiFi to use another smartphone as card reader (SaC).</source>
@@ -4565,9 +4647,9 @@ LABEL ANDROID IOS</extracomment>
         <translation>Das Gerät wird gekoppelt ...</translation>
     </message>
     <message>
-        <source>Click to use device</source>
+        <source>Tap to use device</source>
         <extracomment>LABEL ANDROID IOS</extracomment>
-        <translation>Klicken, um das Gerät zu nutzen</translation>
+        <translation>Tippen, um das Gerät zu nutzen</translation>
     </message>
 </context>
 <context>
@@ -4649,7 +4731,7 @@ Hierfür müssen Sie zuvor das entsprechende Gerät mit diesem Smartphone koppel
     <message>
         <source>Start pairing of a new device</source>
         <extracomment>LABEL ANDROID IOS</extracomment>
-        <translation>Kopplung mit einem neuen Gerät starten.</translation>
+        <translation>Kopplung mit einem neuen Gerät starten</translation>
     </message>
     <message>
         <source>Where do I enter the pairing code?</source>
@@ -4720,6 +4802,11 @@ Hierfür müssen Sie zuvor das entsprechende Gerät mit diesem Smartphone koppel
         <source>Enter the pairing code &quot;%1&quot; in the %2 on your other device. Both devices have to be on the same network (e.g. WiFi).</source>
         <extracomment>INFO ANDROID IOS %1 is replaced with the pairing code, %2 with the name &quot;AusweisApp&quot;</extracomment>
         <translation>Geben Sie den Kopplungscode &quot;%1&quot; in der %2 auf Ihrem anderen Gerät ein. Beide Geräte müssen hierfür im selben Netzwerk (z.B. WLAN) sein.</translation>
+    </message>
+    <message>
+        <source>Pairing progress</source>
+        <extracomment>LABEL ANDROID IOS Name of an progress indicator during the pairing process read by screen readers</extracomment>
+        <translation>Kopplungsfortschritt</translation>
     </message>
 </context>
 <context>
@@ -4821,46 +4908,6 @@ LABEL ANDROID IOS</extracomment>
         <translation>Ziffernblock</translation>
     </message>
     <message>
-        <source>Software updates</source>
-        <extracomment>LABEL DESKTOP</extracomment>
-        <translation>Software-Aktualisierungen</translation>
-    </message>
-    <message>
-        <source>Check for updates at program start</source>
-        <extracomment>LABEL DESKTOP</extracomment>
-        <translation>Automatisch bei Programmstart nach Updates suchen</translation>
-    </message>
-    <message>
-        <source>Show update</source>
-        <extracomment>LABEL DESKTOP</extracomment>
-        <translation>Aktualisierung anzeigen</translation>
-    </message>
-    <message>
-        <source>Check now</source>
-        <extracomment>LABEL DESKTOP</extracomment>
-        <translation>Jetzt überprüfen</translation>
-    </message>
-    <message>
-        <source>An update is available (version %1)!</source>
-        <extracomment>LABEL DESKTOP An update is available, the new version is supplied to the user.</extracomment>
-        <translation>Eine Aktualisierung ist verfügbar (Version %1)!</translation>
-    </message>
-    <message>
-        <source>An update is available but retrieving the information failed.</source>
-        <extracomment>LABEL DESKTOP The updater found an update but not all required update information are valid, this should be a very rare case.</extracomment>
-        <translation>Eine Aktualisierung ist verfügbar, das Herunterladen der Informationen ist jedoch fehlgeschlagen.</translation>
-    </message>
-    <message>
-        <source>Your version %1 of %2 is up to date.</source>
-        <extracomment>LABEL DESKTOP The current version is up to date, no user action is required.</extracomment>
-        <translation>Ihre Version %1 der %2 ist aktuell.</translation>
-    </message>
-    <message>
-        <source>No update information available, please check for update manually.</source>
-        <extracomment>LABEL DESKTOP The automatic update check is disabled (or no network connection was present during app start), a manual check for update is required.</extracomment>
-        <translation>Keine Aktualisierungsinformationen vorhanden, bitte prüfen Sie manuell auf verfügbare Aktualisierungen.</translation>
-    </message>
-    <message>
         <source>Shuffle keys</source>
         <extracomment>LABEL DESKTOP</extracomment>
         <translation>Tasten zufällig anordnen</translation>
@@ -4912,16 +4959,6 @@ LABEL ANDROID IOS</extracomment>
 <context>
     <name>SelfAuthenticationData</name>
     <message>
-        <source>Read self-authentication data</source>
-        <extracomment>LABEL DESKTOP Title of the self authentication result data view</extracomment>
-        <translation>Ausgelesene Daten der Selbstauskunft</translation>
-    </message>
-    <message>
-        <source>Successfully read data.</source>
-        <extracomment>INFO DESKTOP Status message that the self authentication successfully completed.</extracomment>
-        <translation>Lesevorgang erfolgreich.</translation>
-    </message>
-    <message>
         <source>Read data</source>
         <extracomment>LABEL DESKTOP Title of the self authentication result data view</extracomment>
         <translation>Ausgelesene Daten</translation>
@@ -4936,8 +4973,17 @@ LABEL ANDROID IOS</extracomment>
         <extracomment>LABEL ANDROID IOS</extracomment>
         <translation>Zur Startseite</translation>
     </message>
+</context>
+<context>
+    <name>SelfAuthenticationHeader</name>
+    <message>
+        <source>Successfully read data.</source>
+        <extracomment>INFO ALL_PLATFORMS Status message that the self authentication successfully completed (1/2).</extracomment>
+        <translation>Lesevorgang erfolgreich.</translation>
+    </message>
     <message>
         <source>You may now remove your ID card from the device.</source>
+        <extracomment>INFO ALL_PLATFORMS Status message that the self authentication successfully completed (2/2).</extracomment>
         <translation>Sie können nun Ihren Ausweis vom Gerät entfernen.</translation>
     </message>
 </context>
@@ -5207,7 +5253,7 @@ LABEL ANDROID IOS</extracomment>
         <translation>Befolgen der Anweisungen auf Ihrem zweiten Gerät</translation>
     </message>
     <message>
-        <source>Now follow the instruction for the setup on your PC/Mac. If the onboarding does not start automatically, you may find it under Help &gt; Onboarding.</source>
+        <source>Now follow the instruction for the setup on your PC/Mac. If the setup does not start automatically, you may find it under Help &gt; Setup.</source>
         <extracomment>LABEL ANDROID IOS</extracomment>
         <translation>Folgen Sie nun den Anweisungen auf Ihrem PC/Mac. Sollte sich die Einrichtung nicht automatisch öffnen, können Sie diese unter Hilfe &gt; Einrichtung finden.</translation>
     </message>
@@ -5560,9 +5606,9 @@ LABEL ANDROID IOS</extracomment>
         <translation>Smart-eID nicht einsatzbereit</translation>
     </message>
     <message>
-        <source>Your Smart-eID is ready for use, press &quot;Continue&quot; to proceed.</source>
+        <source>Your Smart-eID is ready for use, tap &quot;Continue&quot; to proceed.</source>
         <extracomment>LABEL ANDROID IOS</extracomment>
-        <translation>Ihre Smart-eID ist einsatzbereit. Klicken Sie auf &quot;Weiter&quot;, um fortzufahren.</translation>
+        <translation>Ihre Smart-eID ist einsatzbereit. Tippen Sie auf &quot;Weiter&quot;, um fortzufahren.</translation>
     </message>
     <message>
         <source>Please wait a moment.</source>
@@ -5685,7 +5731,7 @@ Um fortzufahren, verwenden Sie Ihren Ausweis, indem Sie die NFC-Schnittstelle au
 <context>
     <name>TabbedReaderView</name>
     <message>
-        <source>Card Readers</source>
+        <source>Card readers</source>
         <extracomment>LABEL DESKTOP</extracomment>
         <translation>Kartenleser</translation>
     </message>
@@ -5755,6 +5801,10 @@ Um fortzufahren, verwenden Sie Ihren Ausweis, indem Sie die NFC-Schnittstelle au
         <extracomment>LABEL DESKTOP</extracomment>
         <translation>Internen Benachrichtigungsdialog der %1 ausblenden</translation>
     </message>
+    <message>
+        <source>Update available</source>
+        <translation>Aktualisierung verfügbar</translation>
+    </message>
 </context>
 <context>
     <name>TitleBarNavigation</name>
@@ -5779,12 +5829,12 @@ Um fortzufahren, verwenden Sie Ihren Ausweis, indem Sie die NFC-Schnittstelle au
     <message>
         <source>Yes, attach app to menu bar</source>
         <extracomment>INFO MACOS Button to decide to attach app to the menu bar on macOS</extracomment>
-        <translation>Ja, App im Benachrichtigungsbereich anheften</translation>
+        <translation>Ja, App in der Menüleiste anheften</translation>
     </message>
     <message>
         <source>Yes, attach app to tray</source>
         <extracomment>INFO WINDOWS Button to decide to attach app to the tray on Windows</extracomment>
-        <translation>Ja, App im Benachrichtigungsbereich anheften</translation>
+        <translation>Ja, App im Infobereich anheften</translation>
     </message>
     <message>
         <source>The %1 continues to run in the background after the application window is closed, so that it can be automatically opened on an authentication.</source>
@@ -5804,7 +5854,7 @@ Um fortzufahren, verwenden Sie Ihren Ausweis, indem Sie die NFC-Schnittstelle au
     <message>
         <source>Attaching the app to the tray is therefore recommended.</source>
         <extracomment>INFO WINDOWS Information text why attaching the app to the tray/menu bar is advisable 3/3</extracomment>
-        <translation>Daher wird es empfohlen, sie im Benachrichtigungsbereich der Windows-Taskleiste anzuheften</translation>
+        <translation>Daher wird es empfohlen, sie im Benachrichtigungsbereich der Windows-Taskleiste anzuheften.</translation>
     </message>
     <message>
         <source>No, don&apos;t attach app to menu bar</source>
@@ -5835,23 +5885,9 @@ Um fortzufahren, verwenden Sie Ihren Ausweis, indem Sie die NFC-Schnittstelle au
         <translation>Anwendungsaktualisierung</translation>
     </message>
     <message>
-        <source>An update information for your platform is not available.</source>
-        <extracomment>LABEL DESKTOP Resulttext if no update information is available for the current platform.</extracomment>
-        <translation>Für Ihre Plattform sind keine Aktualisierungsinformationen verfügbar.</translation>
-    </message>
-    <message>
-        <source>The update information could not be retrieved. Please check your network connection.</source>
-        <extracomment>LABEL DESKTOP Resulttext if the update information are invalid, might be caused by network issues.</extracomment>
-        <translation>Die Aktualisierungeninformationen konnten nicht heruntergeladen werden. Bitte überprüfen Sie die Netzwerkverbindung.</translation>
-    </message>
-    <message>
-        <source>Your version %1 of %2 is up to date!</source>
-        <extracomment>LABEL DESKTOP The currently installed version is the most recent one, no action is required.</extracomment>
-        <translation>Ihre Version %1 der %2 ist auf dem aktuellen Stand!</translation>
-    </message>
-    <message>
-        <source>An update is available (installed version %1)</source>
-        <translation>Eine Aktualisierung ist verfügbar (installierte Version %1)</translation>
+        <source>An update for the outdated installed version (%1) is available for download.</source>
+        <extracomment>LABEL DESKTOP %1 is replaced with the current version number</extracomment>
+        <translation>Eine Aktualisierung der veralteten installierten Version (%1) ist zum Download verfügbar.</translation>
     </message>
     <message>
         <source>Warning - Your operating system is no longer supported</source>
@@ -5873,6 +5909,11 @@ Um fortzufahren, verwenden Sie Ihren Ausweis, indem Sie die NFC-Schnittstelle au
         <extracomment>INFO DESKTOP Header of the popup that is shown when the app download failed.</extracomment>
         <translation>Warnung - Die Aktualisierung ist fehlgeschlagen</translation>
     </message>
+    <message>
+        <source>Update available</source>
+        <extracomment>LABEL DESKTOP</extracomment>
+        <translation>Aktualisierung verfügbar</translation>
+    </message>
 </context>
 <context>
     <name>UpdateViewButtonRow</name>
@@ -5887,37 +5928,55 @@ Um fortzufahren, verwenden Sie Ihren Ausweis, indem Sie die NFC-Schnittstelle au
         <translation>Aktualisierung starten</translation>
     </message>
     <message>
-        <source>%1 of %2 Kilobyte downloaded</source>
-        <extracomment>LABEL DESKTOP %1 and %2 will be replaced with the already downloaded and the total file size.</extracomment>
-        <translation>%1 von %2 Kilobyte heruntergeladen</translation>
+        <source>Download progress</source>
+        <extracomment>LABEL DESKTOP Name of an progress indicator during a download read by screen readers</extracomment>
+        <translation>Dowloadfortschritt</translation>
+    </message>
+    <message>
+        <source>The update (version %1) is being performed...</source>
+        <extracomment>LABEL DESKTOP %1 is replaced with the version number of the software update.</extracomment>
+        <translation>Die Aktualisierung (Version %1) wird durchgeführt...</translation>
     </message>
 </context>
 <context>
     <name>UpdateViewInformation</name>
     <message>
-        <source>New version:</source>
+        <source>New version</source>
         <extracomment>LABEL DESKTOP Information about the available, new version number.</extracomment>
-        <translation>Neue Version:</translation>
+        <translation>Neue Version</translation>
     </message>
     <message>
-        <source>Release date:</source>
+        <source>Release date</source>
         <extracomment>LABEL DESKTOP Date when the available update was released.</extracomment>
-        <translation>Erscheinungsdatum:</translation>
+        <translation>Erscheinungsdatum</translation>
     </message>
     <message>
-        <source>Download size:</source>
+        <source>Download size</source>
         <extracomment>LABEL DESKTOP Download size of the available update in megabyte.</extracomment>
-        <translation>Größe der Aktualisierung:</translation>
+        <translation>Größe der Aktualisierung</translation>
     </message>
     <message>
-        <source>Download link:</source>
+        <source>Download link</source>
         <extracomment>LABEL DESKTOP Plaintext link to the update download.</extracomment>
-        <translation>Link zum Download:</translation>
+        <translation>Link zum Download</translation>
     </message>
     <message>
-        <source>Checksum link:</source>
+        <source>Checksum link</source>
         <extracomment>LABEL DESKTOP Link to download checksum to verify the downloaded update file.</extracomment>
-        <translation>Link zur Prüfsumme:</translation>
+        <translation>Link zur Prüfsumme</translation>
+    </message>
+</context>
+<context>
+    <name>Utils</name>
+    <message>
+        <source>Tap to open the following website in your browser: %1</source>
+        <extracomment>INFO ANDROID IOS Hint that a link is present, which will open in the browser</extracomment>
+        <translation>Tippen um die Webseite in Ihrem Browser zu öffnen: %1</translation>
+    </message>
+    <message>
+        <source>Press space to open the following website in your browser: %1</source>
+        <extracomment>INFO DESKTOP Hint that a link is present, which will open in the browser</extracomment>
+        <translation>Drücken Sie die Leertaste um die Webseite in Ihrem Browser zu öffnen: %1</translation>
     </message>
 </context>
 <context>
@@ -5933,14 +5992,9 @@ Um fortzufahren, verwenden Sie Ihren Ausweis, indem Sie die NFC-Schnittstelle au
         <translation>Entwickleroptionen deaktiviert.</translation>
     </message>
     <message>
-        <source>Version Information</source>
-        <extracomment>LABEL ANDROID IOS</extracomment>
-        <translation>Versionsinformationen</translation>
-    </message>
-    <message>
-        <source>%1 more presses to toggle the advanced settings.</source>
-        <extracomment>INFO ANDROID IOS Used in notifications when the user taps the version information</extracomment>
-        <translation>%1 weitere Klicks um die erweiterten Einstellungen umzuschalten.</translation>
+        <source>%1 version</source>
+        <extracomment>LABEL ANDROID IOS %1 is replaced with the application name</extracomment>
+        <translation>%1-Version</translation>
     </message>
     <message>
         <source>Advanced settings activated.</source>
@@ -5966,6 +6020,11 @@ Um fortzufahren, verwenden Sie Ihren Ausweis, indem Sie die NFC-Schnittstelle au
         <source>Accessibility statement</source>
         <extracomment>LABEL DESKTOP</extracomment>
         <translation>Barrierefreiheitserklärung</translation>
+    </message>
+    <message>
+        <source>%1 more taps to toggle the advanced settings.</source>
+        <extracomment>INFO ANDROID IOS Used in notifications when the user taps the version information</extracomment>
+        <translation>%1 weitere Tipps um die erweiterten Einstellungen umzuschalten.</translation>
     </message>
 </context>
 <context>
@@ -6179,6 +6238,36 @@ Um fortzufahren, verwenden Sie Ihren Ausweis, indem Sie die NFC-Schnittstelle au
         <source>If this does not help, contact our %1support%2.</source>
         <extracomment>INFO DESKTOP Text of the popup that is shown when the execution of the update failed (2/2).</extracomment>
         <translation>Wenn dies nicht hilft, kontaktieren Sie unseren %1Support%2.</translation>
+    </message>
+    <message>
+        <source>Searching for software updates...</source>
+        <extracomment>LABEL DESKTOP</extracomment>
+        <translation>Die Suche nach Software-Aktualisierungen wird durchgeführt...</translation>
+    </message>
+    <message>
+        <source>An update is available (version %1).</source>
+        <extracomment>LABEL DESKTOP An update is available, the new version is supplied to the user.</extracomment>
+        <translation>Eine Aktualisierung ist verfügbar (Version %1).</translation>
+    </message>
+    <message>
+        <source>Your version %1 of %2 is up to date.</source>
+        <extracomment>LABEL DESKTOP %1 is replaced with the version number of the software and %2 is replaced with the application name.</extracomment>
+        <translation>Ihre Version %1 der %2 ist aktuell.</translation>
+    </message>
+    <message>
+        <source>An update information for your platform is not available.</source>
+        <extracomment>LABEL DESKTOP</extracomment>
+        <translation>Für Ihre Plattform sind keine Aktualisierungsinformationen verfügbar.</translation>
+    </message>
+    <message>
+        <source>An update is available but retrieving the information failed.</source>
+        <extracomment>LABEL DESKTOP The updater found an update but not all required update information are valid, this should be a very rare case.</extracomment>
+        <translation>Eine Aktualisierung ist verfügbar, das Herunterladen der Informationen ist jedoch fehlgeschlagen.</translation>
+    </message>
+    <message>
+        <source>The update information could not be retrieved. Please check your network connection.</source>
+        <extracomment>LABEL DESKTOP</extracomment>
+        <translation>Die Aktualisierungeninformationen konnten nicht heruntergeladen werden. Bitte überprüfen Sie die Netzwerkverbindung.</translation>
     </message>
 </context>
 <context>
@@ -7210,7 +7299,7 @@ Um fortzufahren, verwenden Sie Ihren Ausweis, indem Sie die NFC-Schnittstelle au
     </message>
 </context>
 <context>
-    <name>governikus::LogModel</name>
+    <name>governikus::LogFilesModel</name>
     <message>
         <source>Current log</source>
         <extracomment>LABEL ALL_PLATFORMS</extracomment>
@@ -7221,6 +7310,9 @@ Um fortzufahren, verwenden Sie Ihren Ausweis, indem Sie die NFC-Schnittstelle au
         <extracomment>LABEL ALL_PLATFORMS Datetime format according to https://doc.qt.io/qt/qdate.html#toString and https://doc.qt.io/qt/qtime.html#toString</extracomment>
         <translation>dd.MM.yyyy hh:mm:ss</translation>
     </message>
+</context>
+<context>
+    <name>governikus::LogModel</name>
     <message>
         <source>The logfile is disabled.</source>
         <translation>Die Protokolldatei ist deaktiviert.</translation>
@@ -7351,7 +7443,7 @@ INFO ALL_PLATFORMS The wrong ID card PIN was entered twice, the next attempt req
     <message>
         <source>You have entered an incorrect, 6-digit ID card PIN 3 times. Your %1ID card PIN is now blocked%2.</source>
         <extracomment>INFO ALL_PLATFORMS The ID card PIN was entered wrongfully three times, the ID card needs to be unlocked using the PUK. Part 1/2</extracomment>
-        <translation>Sie haben 3-mal eine falsche, 6-stellige Karten-PIN eingegeben. Ihre %1Karten-PIN ist nun gesperrt%2.</translation>
+        <translation>Sie haben 3 Mal eine falsche, 6-stellige Karten-PIN eingegeben. Ihre %1Karten-PIN ist nun gesperrt%2.</translation>
     </message>
     <message>
         <source>To remove the block, the%1 10-digit PUK%2 must be entered first. You can find the PUK in the bottom %1right next%2 to the Transport PIN in the %1authority&apos;s letter%2.</source>
@@ -7376,22 +7468,22 @@ INFO ALL_PLATFORMS The wrong ID card PIN was entered twice, the next attempt req
     <message>
         <source>You have entered an %1incorrect, 5-digit Transport PIN 2 times%2.</source>
         <extracomment>INFO ALL_PLATFORMS The wrong Transport PIN was entered twice, the next attempt requires the CAN for additional verification. %1 + %2 are used to emphasize. Part 1/2</extracomment>
-        <translation>Sie haben%1 2-mal eine falsche, 5-stellige Transport-PIN%2 eingegeben.</translation>
+        <translation>Sie haben%1 2 Mal eine falsche, 5-stellige Transport-PIN%2 eingegeben.</translation>
     </message>
     <message>
         <source>%1An incorrect PIN has been entered 2 times%2 at the last use of your ID card.</source>
         <extracomment>INFO ALL_PLATFORMS Once per workflow info text shown when an ID card with one PIN attempt left has been detected. %1 + %2 are used to emphasize. Part 1/2</extracomment>
-        <translation>Bei der letzten Nutzung ihres Online-Ausweises wurde%1 2-mal eine falsche Karten-PIN%2 eingegeben.</translation>
+        <translation>Bei der letzten Nutzung ihres Online-Ausweises wurde%1 2 Mal eine falsche Karten-PIN%2 eingegeben.</translation>
     </message>
     <message>
         <source>For a 3rd attempt, the%1 6-digit Card Access Number (CAN)%2 must be entered first. You can find your CAN %1in the bottom right on the front of your ID card%2.</source>
         <extracomment>INFO ALL_PLATFORMS Once per workflow info text shown when an ID card with one PIN attempt left has been detected. %1 + %2 are used to emphasize. Part 2/2</extracomment>
-        <translation>Für einen 3. Versuch muss die%1 6-stellige Zugangsnummer (CAN)%2 eingeben werden. Sie finden die CAN %1unten rechts auf der Vorderseite Ihres Ausweises%2.</translation>
+        <translation>Für einen 3. Versuch muss die%1 6-stellige Zugangsnummer (CAN)%2 eingegeben werden. Sie finden die CAN %1unten rechts auf der Vorderseite Ihres Ausweises%2.</translation>
     </message>
     <message>
         <source>%1An incorrect PIN has been entered 3 times%2 at the last use of your ID card.</source>
         <extracomment>INFO ALL_PLATFORMS Once per workflow info text shown when a blocked ID card has been detected. %1 + %2 are used to emphasize. Part 1/2</extracomment>
-        <translation>Bei der letzten Nutzung ihres Online-Ausweises wurde%1 3-mal eine falsche Karten-PIN%2 eingegeben.</translation>
+        <translation>Bei der letzten Nutzung ihres Online-Ausweises wurde%1 3 Mal eine falsche Karten-PIN%2 eingegeben.</translation>
     </message>
     <message>
         <source>Therefore you have to enter the %1PUK%2 first to %1unlock the ID card PIN%2.</source>
@@ -7585,9 +7677,9 @@ LABEL ALL_PLATFORMS Hint text for requested Transport PIN but both, Transport PI
         <translation>Nicht verfügbar</translation>
     </message>
     <message>
-        <source>Click to pair</source>
-        <extracomment>LABEL ALL_PLATFORMS</extracomment>
-        <translation>Klicken zum Koppeln</translation>
+        <source>Tap to pair</source>
+        <extracomment>LABEL LABEL ANDROID IOS</extracomment>
+        <translation>Tippen zum Koppeln</translation>
     </message>
     <message>
         <source>was</source>
@@ -7710,7 +7802,7 @@ LABEL ALL_PLATFORMS Additional date format with unknown day</extracomment>
         <translation>Nebenbestimmungen I (nur eAT)</translation>
     </message>
     <message>
-        <source>Date of expiry</source>
+        <source>Valid until</source>
         <extracomment>LABEL ALL_PLATFORMS</extracomment>
         <translation>Gültig bis</translation>
     </message>

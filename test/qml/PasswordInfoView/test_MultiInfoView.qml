@@ -11,6 +11,7 @@ TestCase {
 		let item = createTemporaryQmlObject("
 			import Governikus.MultiInfoView
 			MultiInfoView {
+				width: 500
 				infoContent: MultiInfoData {
 					contentType: %1
 				}

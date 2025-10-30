@@ -158,15 +158,9 @@ class test_StatePreVerification
 		{
 			const auto& remove = [](QList<QSharedPointer<const CVCertificate>>& pVector, const QSharedPointer<const CVCertificate>& pCert)
 					{
-						QMutableListIterator<QSharedPointer<const CVCertificate>> iter(pVector);
-						while (iter.hasNext())
-						{
-							iter.next();
-							if (*iter.value() == *pCert)
-							{
-								iter.remove();
-							}
-						}
+						erase_if(pVector, [&pCert](const auto& cert){
+									return *cert == *pCert;
+								});
 					};
 
 			auto& settings = Env::getSingleton<AppSettings>()->getPreVerificationSettings();

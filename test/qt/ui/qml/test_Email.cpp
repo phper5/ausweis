@@ -29,7 +29,7 @@ class test_Email
 
 		void test_generateMailBody_data()
 		{
-			QTest::addColumn<QString>("serviceUrl");
+			QTest::addColumn<QUrl>("serviceUrl");
 			QTest::addColumn<bool>("percentEncoding");
 			QTest::addColumn<QString>("result");
 
@@ -55,18 +55,18 @@ https://www.foo.bar
 
 Parameter of occurred error:
 https://www.test.de)"_s;
-			QTest::newRow("service - percent") << QStringLiteral("https://www.foo.bar") << true << resultWithService;
-			QTest::newRow("service - no percent") << QStringLiteral("https://www.foo.bar") << false << QString(resultWithService).replace("%20"_L1, " "_L1);
+			QTest::newRow("service - percent") << QUrl(QStringLiteral("https://www.foo.bar")) << true << resultWithService;
+			QTest::newRow("service - no percent") << QUrl(QStringLiteral("https://www.foo.bar")) << false << QString(resultWithService).replace("%20"_L1, " "_L1);
 
 			const auto resultWithoutService = QString(resultWithService).remove(346, 34);
-			QTest::newRow("no service - percent") << QString() << true << resultWithoutService;
-			QTest::newRow("no service - no percent") << QString() << false << QString(resultWithoutService).replace("%20"_L1, " "_L1);
+			QTest::newRow("no service - percent") << QUrl() << true << resultWithoutService;
+			QTest::newRow("no service - no percent") << QUrl() << false << QString(resultWithoutService).replace("%20"_L1, " "_L1);
 		}
 
 
 		void test_generateMailBody()
 		{
-			QFETCH(QString, serviceUrl);
+			QFETCH(QUrl, serviceUrl);
 			QFETCH(bool, percentEncoding);
 			QFETCH(QString, result);
 

@@ -18,12 +18,12 @@ Q_DECLARE_LOGGING_CATEGORY(qml)
 using namespace Qt::Literals::StringLiterals;
 using namespace governikus;
 
-@interface FontChangeTracker
+@interface SystemSettingsTracker
 	: NSObject
 - (instancetype) init;
 - (void) receiveNotification: (NSNotification*) notification;
 @end
-@implementation FontChangeTracker
+@implementation SystemSettingsTracker
 - (instancetype) init
 {
 	self = [super init];
@@ -36,15 +36,35 @@ using namespace governikus;
 	selector:@selector(receiveNotification:)
 	name:UIContentSizeCategoryDidChangeNotification
 	object:nil];
+
+	[[NSNotificationCenter defaultCenter]
+	addObserver:self
+	selector:@selector(receiveNotification:)
+	name:UIAccessibilityBoldTextStatusDidChangeNotification
+	object:nil];
+
+	[[NSNotificationCenter defaultCenter]
+	addObserver:self
+	selector:@selector(receiveNotification:)
+	name:UIAccessibilityButtonShapesEnabledStatusDidChangeNotification
+	object:nil];
+
+	[[NSNotificationCenter defaultCenter]
+	addObserver:self
+	selector:@selector(receiveNotification:)
+	name:UIAccessibilityOnOffSwitchLabelsDidChangeNotification
+	object:nil];
+
 	return self;
 }
 
 
 - (void)receiveNotification:(NSNotification*)notification
 {
-	if ([notification.name
-			isEqualToString:
-			UIContentSizeCategoryDidChangeNotification])
+	if ([notification.name isEqualToString:UIContentSizeCategoryDidChangeNotification] ||
+			[notification.name isEqualToString:UIAccessibilityBoldTextStatusDidChangeNotification] ||
+			[notification.name isEqualToString:UIAccessibilityButtonShapesEnabledStatusDidChangeNotification] ||
+			[notification.name isEqualToString:UIAccessibilityOnOffSwitchLabelsDidChangeNotification])
 	{
 		QMetaObject::invokeMethod(QCoreApplication::instance(), [] {
 					if (auto* uiPlugin = Env::getSingleton<UiLoader>()->getLoaded<UiPluginQml>())
@@ -58,13 +78,14 @@ using namespace governikus;
 
 @end
 
+
 @interface QIOSViewController
 	: UIViewController
 @property (nonatomic, assign) UIStatusBarStyle preferredStatusBarStyle;
 @end
 
 
-UiPluginQml::Private::Private() : mFontChangeTracker([[FontChangeTracker alloc] init])
+UiPluginQml::Private::Private() : mSystemSettingsTracker([[SystemSettingsTracker alloc] init])
 {
 }
 
@@ -105,6 +126,12 @@ qreal UiPluginQml::getSystemFontScaleFactor() const
 }
 
 
+int UiPluginQml::getSystemFontWeightAdjustment() const
+{
+	return UIAccessibilityIsBoldTextEnabled() ? 300 : 0;
+}
+
+
 void UiPluginQml::onUserDarkModeChanged() const
 {
 	UIWindow* window = PlatformTools::getFirstWindow();
@@ -124,4 +151,16 @@ void UiPluginQml::onUserDarkModeChanged() const
 
 	qtViewController.preferredStatusBarStyle = isDarkModeEnabled() ? UIStatusBarStyleLightContent : UIStatusBarStyleDarkContent;
 	[qtViewController setNeedsStatusBarAppearanceUpdate];
+}
+
+
+bool UiPluginQml::getA11yButtonShapeActive() const
+{
+	return UIAccessibilityButtonShapesEnabled();
+}
+
+
+bool UiPluginQml::getA11yOnOffSwitchLabelActive() const
+{
+	return UIAccessibilityIsOnOffSwitchLabelsEnabled();
 }

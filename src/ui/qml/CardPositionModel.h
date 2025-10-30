@@ -11,7 +11,9 @@
 #include <QTimer>
 #include <QtQml/qqmlregistration.h>
 
+
 class test_CardPositionModel;
+
 
 namespace governikus
 {
@@ -32,7 +34,7 @@ class CardPositionModel
 		int mCyclingClock;
 		qsizetype mCurrentIndex;
 		QTimer mCyclingTimer;
-		const QList<CardPosition> mCardPositions;
+		const QList<CardPosition::Data> mCardPositions;
 
 		void startTimer();
 		void stopTimer();

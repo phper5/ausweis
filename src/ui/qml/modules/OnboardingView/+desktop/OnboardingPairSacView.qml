@@ -20,7 +20,7 @@ BaseOnboardingView {
 	spacing: Style.dimens.pane_spacing
 
 	titleBarSettings: TitleBarSettings {
-		navigationAction: NavigationAction.Back
+		navigationAction: NavigationAction.Action.Back
 		startEnabled: false
 
 		onNavigationActionClicked: root.leaveView()
@@ -29,13 +29,11 @@ BaseOnboardingView {
 	ReaderScanEnabler {
 		pluginType: ReaderManagerPluginType.REMOTE_IFD
 	}
-	GText {
-		Layout.alignment: Qt.AlignHCenter
+	Heading {
 		Layout.bottomMargin: Style.dimens.pane_spacing
-		horizontalAlignment: Text.AlignHCenter
+		Layout.topMargin: -root.spacing
 		//: LABEL DESKTOP
 		text: qsTr("Set up smartphone as card reader")
-		textStyle: Style.text.headline
 	}
 	GPane {
 		Layout.fillWidth: true
@@ -46,9 +44,9 @@ BaseOnboardingView {
 			backgroundColor: Style.color.transparent
 			drawBottomCorners: true
 			drawTopCorners: true
-			expanded: true
 			//: LABEL DESKTOP
 			selectionTitle: expanded ? "" : qsTr("Click the arrow to show.")
+			startExpanded: true
 			//: LABEL DESKTOP
 			title: qsTr("Pairing instructions")
 
@@ -56,10 +54,11 @@ BaseOnboardingView {
 			}
 		}
 	}
-	GText {
+	Subheading {
+		id: deviceListHeading
+
 		//: LABEL DESKTOP
 		text: qsTr("Available devices")
-		textStyle: Style.text.subline
 	}
 	AvailableDevices {
 	}
@@ -72,7 +71,7 @@ BaseOnboardingView {
 			title: root.title
 
 			titleBarSettings: TitleBarSettings {
-				navigationAction: NavigationAction.Back
+				navigationAction: NavigationAction.Action.Back
 
 				onNavigationActionClicked: root.pop()
 			}
@@ -87,7 +86,6 @@ BaseOnboardingView {
 
 	component AvailableDevices: GPane {
 		Layout.fillWidth: true
-		spacing: Style.dimens.pane_spacing
 
 		Repeater {
 			id: devicesInPairingMode
@@ -112,22 +110,13 @@ BaseOnboardingView {
 			model: RemoteServiceModel.availablePairedDevices
 
 			delegate: RemoteReaderDelegate {
-				id: continueDelegate
-
-				function clickHandler() {
-					root.continueOnboarding();
-				}
-
-				//: LABEL DESKTOP
-				Accessible.name: qsTr("Press space to continue onboarding using the smartphone \"%1\"").arg(remoteDeviceName)
 				Layout.fillWidth: true
 
 				customContent: GButton {
-					activeFocusOnTab: !ApplicationModel.isScreenReaderRunning
 					//: LABEL DESKTOP
 					text: qsTr("Use device")
 
-					onClicked: continueDelegate.clickHandler()
+					onClicked: root.continueOnboarding()
 					onFocusChanged: if (focus)
 						root.positionViewAtItem(this)
 				}
@@ -166,10 +155,10 @@ BaseOnboardingView {
 				progress: root.progress
 
 				infoContent: MultiInfoData {
-					contentType: MultiInfoData.NO_SAC_FOUND
+					contentType: MultiInfoData.Type.NO_SAC_FOUND
 				}
 				titleBarSettings: TitleBarSettings {
-					navigationAction: NavigationAction.Back
+					navigationAction: NavigationAction.Action.Back
 					startEnabled: false
 
 					onNavigationActionClicked: root.pop()
@@ -219,7 +208,6 @@ BaseOnboardingView {
 			}
 			GText {
 				Accessible.ignored: true
-				activeFocusOnTab: false
 				//: LABEL DESKTOP
 				text: qsTr("or")
 			}
@@ -228,8 +216,8 @@ BaseOnboardingView {
 			}
 		}
 		GText {
-			//: LABEL DESKTOP
-			text: "5. " + qsTr("Afterwards, a pairing code is displayed on your smartphone. You may then select the device in the list below to enter the pairing code.")
+			//: LABEL DESKTOP %1 will be replaced with the Available Devices list name
+			text: "5. " + qsTr("Afterwards, a pairing code is displayed on your smartphone. You may then select the device in the %1 list to enter the pairing code.").arg("<b>" + deviceListHeading.text + "</b>")
 		}
 	}
 }

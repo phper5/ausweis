@@ -4,7 +4,6 @@
 
 #include "IfdModifyPin.h"
 
-#include <QJsonObject>
 #include <QLoggingCategory>
 
 
@@ -16,26 +15,21 @@ using namespace governikus;
 
 namespace
 {
-VALUE_NAME(SLOT_HANDLE, "SlotHandle")
 VALUE_NAME(INPUT_DATA, "InputData")
 } // namespace
 
 
 IfdModifyPin::IfdModifyPin(const QString& pSlotHandle, const QByteArray& pInputData)
-	: IfdMessage(IfdMessageType::IFDModifyPIN)
-	, mSlotHandle(pSlotHandle)
+	: IfdSlotHandle<IfdMessage>(IfdMessageType::IFDModifyPIN, pSlotHandle)
 	, mInputData(pInputData)
 {
 }
 
 
 IfdModifyPin::IfdModifyPin(const QJsonObject& pMessageObject)
-	: IfdMessage(pMessageObject)
-	, mSlotHandle()
+	: IfdSlotHandle<IfdMessage>(pMessageObject)
 	, mInputData()
 {
-	mSlotHandle = getStringValue(pMessageObject, SLOT_HANDLE());
-
 	const QString& inputData = getStringValue(pMessageObject, INPUT_DATA());
 	mInputData = QByteArray::fromHex(inputData.toUtf8());
 
@@ -45,13 +39,7 @@ IfdModifyPin::IfdModifyPin(const QJsonObject& pMessageObject)
 
 bool IfdModifyPin::isValid() const
 {
-	return !mSlotHandle.isEmpty() && !mInputData.isEmpty();
-}
-
-
-const QString& IfdModifyPin::getSlotHandle() const
-{
-	return mSlotHandle;
+	return !getSlotHandle().isEmpty() && !mInputData.isEmpty();
 }
 
 
@@ -65,7 +53,6 @@ QByteArray IfdModifyPin::toByteArray(IfdVersion::Version, const QString& pContex
 {
 	QJsonObject result = createMessageBody(pContextHandle);
 
-	result[SLOT_HANDLE()] = mSlotHandle;
 	result[INPUT_DATA()] = QString::fromLatin1(mInputData.toHex());
 
 	return IfdMessage::toByteArray(result);

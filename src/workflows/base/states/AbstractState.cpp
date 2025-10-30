@@ -174,7 +174,7 @@ void AbstractState::onCardRemoved(const ReaderInfo& pInfo)
 }
 
 
-void AbstractState::updateStatus(const GlobalStatus& pStatus)
+void AbstractState::updateStatus(const GlobalStatus& pStatus) const
 {
 	if (pStatus.isError() && mContext->getStatus().isNoError())
 	{

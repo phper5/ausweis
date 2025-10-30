@@ -278,6 +278,29 @@ class test_AuthModel
 		}
 
 
+		void test_getRefreshUrl_data()
+		{
+			QTest::addColumn<QUrl>("refreshUrl");
+
+			QTest::addRow("Empty URL") << QUrl(""_L1);
+			QTest::addRow("Non-empty URL") << QUrl("https://www.foo.bar?ResultMajor=ok"_L1);
+		}
+
+
+		void test_getRefreshUrl()
+		{
+			QFETCH(QUrl, refreshUrl);
+
+			auto context = QSharedPointer<AuthContext>::create();
+			context->setRefreshUrl(refreshUrl);
+
+			auto* const model = Env::getSingleton<AuthModel>();
+			model->resetAuthContext(context);
+
+			QCOMPARE(model->getRefreshUrl(), refreshUrl);
+		}
+
+
 };
 
 QTEST_MAIN(test_AuthModel)

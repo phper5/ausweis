@@ -25,31 +25,35 @@ ColumnLayout {
 		columns: 2
 
 		GText {
+			font.weight: Style.font.bold
 			//: LABEL DESKTOP Information about the available, new version number.
-			text: qsTr("New version:")
+			text: qsTr("New version")
 		}
 		GText {
 			id: textVersion
 
 		}
 		GText {
+			font.weight: Style.font.bold
 			//: LABEL DESKTOP Date when the available update was released.
-			text: qsTr("Release date:")
+			text: qsTr("Release date")
 		}
 		GText {
 			text: root.releaseDate.toLocaleDateString(Qt.locale(SettingsModel.language))
 		}
 		GText {
+			font.weight: Style.font.bold
 			//: LABEL DESKTOP Download size of the available update in megabyte.
-			text: qsTr("Download size:")
+			text: qsTr("Download size")
 		}
 		GText {
-			text: "%1 MiB".arg((root.downloadSize / 1024576).toLocaleString(Qt.locale(SettingsModel.language), "f", 1))
+			text: "%1 MB".arg((root.downloadSize / 1000000).toLocaleString(Qt.locale(SettingsModel.language), "f", 1))
 		}
 		GText {
+			font.weight: Style.font.bold
 
 			//: LABEL DESKTOP Plaintext link to the update download.
-			text: qsTr("Download link:")
+			text: qsTr("Download link")
 			visible: root.downloadUrl !== ""
 		}
 		GText {
@@ -57,8 +61,9 @@ ColumnLayout {
 			visible: root.downloadUrl !== ""
 		}
 		GText {
+			font.weight: Style.font.bold
 			//: LABEL DESKTOP Link to download checksum to verify the downloaded update file.
-			text: qsTr("Checksum link:")
+			text: qsTr("Checksum link")
 			visible: root.checksumUrl !== ""
 		}
 		GText {

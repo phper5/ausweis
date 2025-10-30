@@ -152,7 +152,7 @@ class test_ReaderManager
 		void fireCreateCardConnection_cardConnectFail()
 		{
 			CreateCardConnectionCommandSlot commandSlot;
-			MockReader* reader = MockReaderManagerPlugin::getInstance().addReader("MockReader 4711"_L1);
+			const auto& reader = MockReaderManagerPlugin::getInstance().addReader("MockReader 4711"_L1);
 			MockCardConfig cardConfig;
 			cardConfig.mConnect = CardReturnCode::COMMAND_FAILED;
 			reader->setCard(cardConfig);
@@ -167,7 +167,7 @@ class test_ReaderManager
 		void fireCreateCardConnection()
 		{
 			CreateCardConnectionCommandSlot commandSlot;
-			MockReader* reader = MockReaderManagerPlugin::getInstance().addReader("MockReader 4711"_L1);
+			const auto& reader = MockReaderManagerPlugin::getInstance().addReader("MockReader 4711"_L1);
 			QList<TransmitConfig> transmitConfigs;
 			transmitConfigs.append(TransmitConfig(CardReturnCode::OK, QByteArray::fromHex("6982")));
 			transmitConfigs.append(TransmitConfig(CardReturnCode::OK, QByteArray::fromHex("9000")));
@@ -185,7 +185,7 @@ class test_ReaderManager
 		void fireCreateCardConnectionFailedSelectApplication()
 		{
 			CreateCardConnectionCommandSlot commandSlot;
-			MockReader* reader = MockReaderManagerPlugin::getInstance().addReader("MockReader 4711"_L1);
+			const auto& reader = MockReaderManagerPlugin::getInstance().addReader("MockReader 4711"_L1);
 			QList<TransmitConfig> transmitConfigs;
 			transmitConfigs.append(TransmitConfig(CardReturnCode::OK, QByteArray::fromHex("6A82")));
 			MockCardConfig cardConfig(transmitConfigs);
@@ -286,7 +286,7 @@ class test_ReaderManager
 
 		void test_shelve()
 		{
-			MockReader* reader = MockReaderManagerPlugin::getInstance().addReader("MockReader"_L1);
+			const auto& reader = MockReaderManagerPlugin::getInstance().addReader("MockReader"_L1);
 			reader->setInfoCardInfo(CardInfo(CardType::EID_CARD));
 
 			QSignalSpy removed(reader, &Reader::fireCardRemoved);
@@ -295,7 +295,7 @@ class test_ReaderManager
 			QVERIFY(reader->getReaderInfo().hasCard());
 			QVERIFY(!reader->getReaderInfo().isInsertable());
 
-			MockReaderManagerPlugin::getInstance().shelve();
+			MockReaderManagerPlugin::getInstance().shelveAll();
 			QCOMPARE(removed.count(), 0);
 			QCOMPARE(properties.count(), 0);
 			QVERIFY(reader->getReaderInfo().hasCard());
@@ -308,7 +308,7 @@ class test_ReaderManager
 			QVERIFY(reader->getReaderInfo().hasCard());
 			QVERIFY(reader->getReaderInfo().isInsertable());
 
-			MockReaderManagerPlugin::getInstance().shelve();
+			MockReaderManagerPlugin::getInstance().shelveAll();
 			QCOMPARE(removed.count(), 1);
 			QCOMPARE(properties.count(), 1);
 			QVERIFY(!reader->getReaderInfo().hasCard());

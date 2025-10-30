@@ -10,15 +10,17 @@ endfunction()
 
 
 function(GET_TEST_CMDLINE cmdline testname)
-	if(DEFINED ENV{GITLAB_CI} AND (GOVERNIKUS_QT
+	if(DEFINED ENV{GITLAB_CI} AND (LIBS_QT_PATCHES
 			OR QT_VERSION VERSION_GREATER_EQUAL "6.9.1"
 			OR (QT_VERSION VERSION_GREATER_EQUAL "6.8.4" AND QT_VERSION VERSION_LESS "6.9")))
-		set(ci_output -o ${CMAKE_CURRENT_BINARY_DIR}/results.${testname}.junit.xml,junitxml)
+		set(log_format junit.xml,junitxml)
 	elseif(DEFINED ENV{JENKINS_HOME})
-		set(ci_output -o ${CMAKE_CURRENT_BINARY_DIR}/results.${testname}.log.xml,xml)
+		set(log_format log.xml,xml)
+	else()
+		set(log_format txt,txt)
 	endif()
 
-	set(${cmdline} ${PLATFORM} -v2 -o -,txt ${ci_output} PARENT_SCOPE)
+	set(${cmdline} ${PLATFORM} -v2 -o -,txt -o ${CMAKE_CURRENT_BINARY_DIR}/results.${testname}.${log_format} PARENT_SCOPE)
 endfunction()
 
 function(GET_TEST_ENV testenv testname)
@@ -56,9 +58,6 @@ function(ADD_QML_TEST _sourcefile _platform)
 	endif()
 
 	GET_TEST_CMDLINE(CMD_PARAMS ${TESTNAME})
-	if(QT_VERSION VERSION_LESS "6.5")
-		set(CMD_PARAMS ${CMD_PARAMS} -import "qrc:/qt/qml")
-	endif()
 	set(CMD_PARAMS ${CMD_PARAMS} -import "qrc:/qml")
 	set(CMD $<TARGET_FILE:QmlTestRunner> ${CMD_PARAMS} -input ${sourcefile})
 

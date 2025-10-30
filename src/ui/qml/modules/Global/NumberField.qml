@@ -15,14 +15,8 @@ import Governikus.View
 Control {
 	id: root
 
-	readonly property real eyeWidth: eye.width + eye.Layout.leftMargin + eye.Layout.rightMargin
 	property alias number: echoField.text
 	property alias passwordLength: echoField.maximumLength
-
-	//: LABEL DESKTOP Screenreader text for the password field
-	readonly property string passwordState: qsTr("You entered %1 of %2 digits.").arg(number.length).arg(passwordLength)
-	readonly property var text: if (Qt.platform.os === "windows")
-		passwordState
 	readonly property bool validInput: echoField.acceptableInput
 
 	signal accepted
@@ -31,6 +25,10 @@ Control {
 		echoField.insert(echoField.length, number);
 	}
 	function handleKeyEvent(eventKey, eventModifiers = Qt.NoModifier) {
+		if (!grid.focus)
+			return false;
+		if (Qt.platform.os === "android" && (eventKey & Qt.KeypadModifier) === Qt.KeypadModifier)
+			eventKey = eventKey & ~Qt.KeypadModifier;
 		if (eventKey >= Qt.Key_0 && eventKey <= Qt.Key_9) {
 			root.append(eventKey - Qt.Key_0);
 		} else if (eventKey === Qt.Key_Backspace) {
@@ -41,15 +39,9 @@ Control {
 			echoField.paste();
 		} else if ((eventKey === Qt.Key_Enter || eventKey === Qt.Key_Return) && validInput) {
 			root.accepted();
-			return true;
 		} else {
 			return false;
 		}
-
-		// Otherwise focus is lost if last clicked button gets invisible
-		// like 'C' in NumberPad.
-		if (visible)
-			root.forceActiveFocus();
 		return true;
 	}
 	function removeLast() {
@@ -70,14 +62,18 @@ Control {
 			id: grid
 
 			readonly property int markerWidth: Math.ceil(fontMetrics.averageCharacterWidth * 1.4)
+			//: LABEL ALL_PLATFORMS Screenreader text for the password field
+			readonly property string passwordState: qsTr("You entered %1 of %2 digits.").arg(root.number.length).arg(root.passwordLength)
+			readonly property var text: if (Qt.platform.os === "windows")
+				passwordState
 
 			Accessible.focusable: true
-			Accessible.name: (eye.activated ?
-				//: LABEL DESKTOP Screenreader text for the password field
+			Accessible.name: (button.showNumber ?
+				//: LABEL ALL_PLATFORMS Screenreader text for the password field
 				qsTr("The number is visible. Digits entered so far: %1").arg(root.number.split("").join(" ")) :
-				//: LABEL DESKTOP Screenreader text for the password field
-				qsTr("The number is hidden.")) + (root.text === undefined ? " " + root.passwordState : "")
-			Accessible.role: Accessible.StaticText
+				//: LABEL ALL_PLATFORMS Screenreader text for the password field
+				qsTr("The number is hidden.")) + (text === undefined ? " " + passwordState : "")
+			Accessible.role: Accessible.EditableText
 			Layout.maximumWidth: Layout.preferredWidth
 			Layout.minimumWidth: markerWidth
 			Layout.preferredWidth: markerWidth + (markerWidth + columnSpacing) * Math.max(5, root.passwordLength - 1)
@@ -104,7 +100,7 @@ Control {
 					color: Style.color.textNormal.basic
 					font: fontMetrics.font
 					horizontalAlignment: Text.AlignHCenter
-					text: eye.activated ? root.number.substr(digit.index, 1) : ""
+					text: button.showNumber ? root.number.substr(digit.index, 1) : ""
 					verticalAlignment: Text.AlignTop
 
 					Rectangle {
@@ -123,7 +119,7 @@ Control {
 						color: parent.color
 						height: width
 						radius: height / 2
-						visible: !eye.activated && root.number.charAt(digit.index) !== ""
+						visible: !button.showNumber && root.number.charAt(digit.index) !== ""
 						width: fontMetrics.averageCharacterWidth
 
 						anchors {
@@ -135,27 +131,31 @@ Control {
 			}
 		}
 		Button {
-			id: eye
+			id: button
 
-			property bool activated: false
+			property bool showNumber: false
 
 			background: null
 			padding: Style.dimens.text_spacing / 2
-			text: (activated ?
-				//: LABEL DESKTOP Screenreader text for the eye icon to change the password visibility
-				qsTr("Press to hide the number") :
-				//: LABEL DESKTOP Screenreader text for the eye icon to change the password visibility
-				qsTr("Press to show the number"))
+			text: (showNumber ? (Style.is_layout_desktop ?
+					//: LABEL DESKTOP Screenreader text for the eye icon to change the password visibility
+					qsTr("Click to hide the number") :
+					//: LABEL ANDROID IOS Screenreader text for the eye icon to change the password visibility
+					qsTr("Tap to hide the number")) : (Style.is_layout_desktop ?
+					//: LABEL DESKTOP Screenreader text for the eye icon to change the password visibility
+					qsTr("Click to show the number") :
+					//: LABEL ANDROID IOS Screenreader text for the eye icon to change the password visibility
+					qsTr("Tap to show the number")))
 
 			contentItem: TintableIcon {
-				source: eye.activated ? "qrc:///images/eye_visibility_on.svg" : "qrc:///images/eye_visibility_off.svg"
+				source: button.showNumber ? "qrc:///images/eye_visibility_on.svg" : "qrc:///images/eye_visibility_off.svg"
 				sourceSize.height: Style.is_layout_desktop ? Style.dimens.icon_size : Style.dimens.small_icon_size
 				tintColor: Style.color.textNormal.basic
 			}
 
-			onClicked: eye.activated = !eye.activated
+			onClicked: showNumber = !showNumber
 			onVisibleChanged: if (visible)
-				activated = false
+				showNumber = false
 
 			MouseArea {
 				acceptedButtons: Qt.NoButton
@@ -176,7 +176,7 @@ Control {
 		id: fontMetrics
 
 		font.pixelSize: Style.is_layout_desktop ? UiPluginModel.scaleFactor * 30 : 24
-		font.weight: Font.Bold
+		font.weight: Style.font.bold
 	}
 	TextInput {
 		id: echoField
@@ -199,7 +199,7 @@ Control {
 			cursorShape: Qt.PointingHandCursor
 
 			onClicked: mouse => {
-				root.forceActiveFocus();
+				grid.forceActiveFocus();
 				if (mouse.button === Qt.RightButton || mouse.button === Qt.MiddleButton) {
 					echoField.paste();
 				}

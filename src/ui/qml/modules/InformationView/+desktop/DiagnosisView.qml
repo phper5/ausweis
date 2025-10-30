@@ -19,13 +19,13 @@ SectionPage {
 	title: qsTr("System data")
 
 	titleBarSettings: TitleBarSettings {
-		navigationAction: NavigationAction.Back
+		navigationAction: NavigationAction.Action.Back
 
 		onNavigationActionClicked: root.leaveView()
 	}
 
 	Keys.onPressed: event => {
-		sectionContent.handleKeyPress(event.key);
+		sectionContent.handleKeyPress(event);
 	}
 
 	DiagnosisModel {
@@ -107,7 +107,7 @@ SectionPage {
 				//: LABEL DESKTOP
 				title: qsTr("Save system data")
 
-				onAccepted: diagnosisModel.saveToFile(file)
+				onAccepted: diagnosisModel.saveToFile(selectedFile)
 			}
 			Timer {
 				id: timeout

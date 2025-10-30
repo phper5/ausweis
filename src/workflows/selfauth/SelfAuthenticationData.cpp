@@ -218,7 +218,7 @@ void SelfAuthenticationData::SelfData::add(OrderedSelfData& pSelfData, const QSt
 		return;
 	}
 
-	pSelfData << qMakePair(pGroupName, pGroupValue);
+	pSelfData << std::make_pair(pGroupName, pGroupValue);
 }
 
 
@@ -248,15 +248,15 @@ void SelfAuthenticationData::SelfData::addAddress(OrderedSelfData& pSelfData) co
 
 QString SelfAuthenticationData::SelfData::formatDate(const QString& pDate)
 {
-	static const QList<QPair<QString, QLatin1String>> formattingPattern({
+	static const QList formattingPattern({
 	            //: LABEL ALL_PLATFORMS Date format according to https://doc.qt.io/qt/qdate.html#toString
-				qMakePair(QStringLiteral("yyyy-MM-dd+hh:mm"), QLatin1String(QT_TR_NOOP("dd.MM.yyyy"))),
+				std::make_pair(QStringLiteral("yyyy-MM-dd+hh:mm"), QLatin1String(QT_TR_NOOP("dd.MM.yyyy"))),
 	            //: LABEL ALL_PLATFORMS Date format according to https://doc.qt.io/qt/qdate.html#toString with unknown day
-				qMakePair(QStringLiteral("yyyy-MM"), QLatin1String(QT_TR_NOOP("xx.MM.yyyy"))),
+				std::make_pair(QStringLiteral("yyyy-MM"), QLatin1String(QT_TR_NOOP("xx.MM.yyyy"))),
 	            //: LABEL ALL_PLATFORMS Additional date format with unknown day
-				qMakePair(QStringLiteral("yyyyMM"), QLatin1String(QT_TR_NOOP("xx.MM.yyyy"))),
+				std::make_pair(QStringLiteral("yyyyMM"), QLatin1String(QT_TR_NOOP("xx.MM.yyyy"))),
 	            //: LABEL ALL_PLATFORMS Date format according to https://doc.qt.io/qt/qdate.html#toString with unknown day and month
-				qMakePair(QStringLiteral("yyyy"), QLatin1String(QT_TR_NOOP("xx.xx.yyyy"))),
+				std::make_pair(QStringLiteral("yyyy"), QLatin1String(QT_TR_NOOP("xx.xx.yyyy"))),
 			});
 
 	for (const auto& [key, value] : formattingPattern)
@@ -319,7 +319,7 @@ SelfAuthenticationData::OrderedSelfData SelfAuthenticationData::SelfData::getOrd
 	}
 
 	//: LABEL ALL_PLATFORMS
-	add(orderedSelfData, tr("Date of expiry"), formatDate(getValue(SelfAuthData::DateOfExpiry)));
+	add(orderedSelfData, tr("Valid until"), formatDate(getValue(SelfAuthData::DateOfExpiry)));
 
 	return orderedSelfData;
 }

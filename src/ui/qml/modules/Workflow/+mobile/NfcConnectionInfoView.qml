@@ -52,38 +52,38 @@ FlickableSectionPage {
 	ColumnLayout {
 		spacing: Style.dimens.groupbox_spacing
 
-		GText {
+		Subheading {
 			//: INFO ANDROID IOS
 			text: qsTr("NFC interface")
-			textStyle: Style.text.subline
 		}
 		GText {
 			//: INFO ANDROID IOS
 			text: qsTr("The NFC interface, and therefore the point at which the ID card must be placed, varies depending on the smartphone model. Find out where the NFC interface is on your smartphone model.")
 		}
 		GButton {
+			readonly property string nfcInfoUrl: {
+				if (Qt.platform.os === "ios")
+					return "https://www.ausweisapp.bund.de/%1/aa2/video-nfc-ios".arg(SettingsModel.language);
+				return "https://www.ausweisapp.bund.de/%1/aa2/video-nfc-android".arg(SettingsModel.language);
+			}
+
+			Accessible.description: Utils.platformAgnosticLinkOpenText(nfcInfoUrl, Accessible.name)
+			Accessible.role: Accessible.Link
 			Layout.alignment: Qt.AlignHCenter
 			icon.source: "qrc:///images/open_website.svg"
 			//: LABEL ANDROID IOS
 			text: qsTr("Tutorial: Using NFC")
 			tintIcon: true
 
-			onClicked: {
-				if (Qt.platform.os === "ios") {
-					Qt.openUrlExternally("https://www.ausweisapp.bund.de/%1/aa2/video-nfc-ios".arg(SettingsModel.language));
-				} else {
-					Qt.openUrlExternally("https://www.ausweisapp.bund.de/%1/aa2/video-nfc-android".arg(SettingsModel.language));
-				}
-			}
+			onClicked: Qt.openUrlExternally(nfcInfoUrl)
 		}
 	}
 	ColumnLayout {
 		spacing: Style.dimens.groupbox_spacing
 
-		GText {
+		Subheading {
 			//: INFO ANDROID IOS
 			text: qsTr("Sources of interference")
-			textStyle: Style.text.subline
 		}
 		GText {
 			text: qsTr("Remove your phone case and allow the ID card to come into direct contact with the device. Low battery power can negatively impact NFC functionality, so make sure your smartphone is charged and not in power saving mode.")
@@ -92,10 +92,9 @@ FlickableSectionPage {
 	ColumnLayout {
 		spacing: Style.dimens.groupbox_spacing
 
-		GText {
+		Subheading {
 			//: INFO ANDROID IOS
 			text: qsTr("Alternatives")
-			textStyle: Style.text.subline
 		}
 		GText {
 			//: INFO ANDROID IOS

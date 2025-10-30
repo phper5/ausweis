@@ -36,7 +36,7 @@ int SurveyModel::rowCount(const QModelIndex&) const
 
 QVariant SurveyModel::data(const QModelIndex& pIndex, int pRole) const
 {
-	if (pIndex.isValid() && pIndex.row() < rowCount())
+	if (pIndex.isValid() && pIndex.row() < rowCount(pIndex))
 	{
 		const auto& [title, value] = mData[pIndex.row()];
 		if (pRole == TITLE)

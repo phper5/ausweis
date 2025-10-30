@@ -23,7 +23,7 @@ CardNotActivatedBaseView {
 		id: titleBarSettings
 
 		TitleBarSettings {
-			navigationAction: NavigationAction.Back
+			navigationAction: NavigationAction.Action.Back
 
 			onNavigationActionClicked: root.pop()
 		}

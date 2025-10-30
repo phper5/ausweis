@@ -8,12 +8,15 @@
 #include "CertificateChecker.h"
 #include "Env.h"
 #include "LogHandler.h"
+#include "NetworkManager.h"
 #include "TlsChecker.h"
 #include "paos/PaosHandler.h"
+
 
 Q_DECLARE_LOGGING_CATEGORY(secure)
 Q_DECLARE_LOGGING_CATEGORY(developermode)
 Q_DECLARE_LOGGING_CATEGORY(network)
+
 
 using namespace governikus;
 
@@ -133,29 +136,9 @@ void StateGenericSendReceive::onSslHandshakeDone()
 	TlsChecker::logSslConfig(cfg, spawnMessageLogger(network));
 
 	auto failure = checkSslConnectionAndSaveCertificate(cfg);
-
-	auto context = getContext();
-	if (!failure.has_value() && !context->getTcToken()->usePsk())
+	if (!failure.has_value())
 	{
-		const auto& session = context->getSslSession();
-		if (session.isEmpty() || session != cfg.sessionTicket())
-		{
-			const auto& sessionFailedError = "Session resumption failed";
-
-			if (Env::getSingleton<AppSettings>()->getGeneralSettings().isDeveloperMode())
-			{
-				qCCritical(developermode) << sessionFailedError;
-			}
-			else
-			{
-				qCCritical(network) << sessionFailedError;
-				updateStatus({GlobalStatus::Code::Workflow_TrustedChannel_Establishment_Error, {GlobalStatus::ExternalInformation::LAST_URL, mReply->url().toString()}
-						});
-				failure = {FailureCode::Reason::Generic_Send_Receive_Session_Resumption_Failed,
-						   {FailureCode::Info::State_Name, getStateName()}
-				};
-			}
-		}
+		failure = checkAndSaveSessionResumption(cfg);
 	}
 
 	if (failure.has_value())
@@ -164,6 +147,43 @@ void StateGenericSendReceive::onSslHandshakeDone()
 		mReply->abort();
 		Q_EMIT fireAbort(failure.value());
 	}
+}
+
+
+std::optional<FailureCode> StateGenericSendReceive::checkAndSaveSessionResumption(const QSslConfiguration& pSslConfiguration) const
+{
+	auto context = getContext();
+	if (context->getTcToken()->usePsk())
+	{
+		if (context->getSslSessionPsk() != pSslConfiguration.sessionTicket())
+		{
+			qCDebug(network) << "Storing new session ticket";
+			context->setSslSessionPsk(pSslConfiguration.sessionTicket());
+		}
+		return {};
+	}
+
+	const auto& session = context->getSslSession();
+	if (session.isEmpty() || session != pSslConfiguration.sessionTicket())
+	{
+		const auto& sessionFailedError = "Session resumption failed";
+		if (Env::getSingleton<AppSettings>()->getGeneralSettings().isDeveloperMode())
+		{
+			qCCritical(developermode) << sessionFailedError;
+		}
+		else
+		{
+			qCCritical(network) << sessionFailedError;
+			updateStatus({GlobalStatus::Code::Workflow_TrustedChannel_Establishment_Error,
+						  {GlobalStatus::ExternalInformation::LAST_URL, mReply->url().toString()}
+					});
+
+			return FailureCode(FailureCode::Reason::Generic_Send_Receive_Session_Resumption_Failed,
+					{FailureCode::Info::State_Name, getStateName()});
+		}
+	}
+
+	return {};
 }
 
 
@@ -192,7 +212,7 @@ void StateGenericSendReceive::onExit(QEvent* pEvent)
 }
 
 
-std::optional<FailureCode> StateGenericSendReceive::checkSslConnectionAndSaveCertificate(const QSslConfiguration& pSslConfiguration)
+std::optional<FailureCode> StateGenericSendReceive::checkSslConnectionAndSaveCertificate(const QSslConfiguration& pSslConfiguration) const
 {
 	const QSharedPointer<AuthContext> context = getContext();
 	Q_ASSERT(!context.isNull());
@@ -271,7 +291,7 @@ void StateGenericSendReceive::run()
 
 	qCDebug(network).noquote() << "Try to send raw data:\n" << data;
 	const QByteArray& paosNamespace = PaosCreator::getNamespace(PaosCreator::Namespace::PAOS).toUtf8();
-	const auto& session = token->usePsk() ? QByteArray() : getContext()->getSslSession();
+	const auto& session = token->usePsk() ? getContext()->getSslSessionPsk() : getContext()->getSslSession();
 	mReply = Env::getSingleton<NetworkManager>()->paos(request, paosNamespace, data, token->usePsk(), session);
 	*this << connect(mReply.data(), &QNetworkReply::sslErrors, this, &StateGenericSendReceive::onSslErrors);
 	*this << connect(mReply.data(), &QNetworkReply::encrypted, this, &StateGenericSendReceive::onSslHandshakeDone);

@@ -4,38 +4,53 @@
 
 #include "CardPosition.h"
 
+
 using namespace governikus;
 
-CardPosition::CardPosition(double pXPosition, double pYPosition, int pZPosition, double pRotation)
+
+CardPosition::CardPosition(const Data& pData)
 	: QObject()
-	, mXPosition(pXPosition)
-	, mYPosition(pYPosition)
-	, mZPosition(pZPosition)
-	, mRotation(pRotation)
+	, mData(pData)
 {
-	Q_ASSERT(mXPosition >= 0.0 && mXPosition <= 1.0);
-	Q_ASSERT(mYPosition >= 0.0 && mYPosition <= 1.0);
-	Q_ASSERT(mZPosition == -1 || mZPosition == 1);
-	Q_ASSERT(mRotation >= 0 && mRotation <= 360);
+	Q_ASSERT(mData.mXPosition >= 0.0 && mData.mXPosition <= 1.0);
+	Q_ASSERT(mData.mYPosition >= 0.0 && mData.mYPosition <= 1.0);
+	Q_ASSERT(mData.mRotation >= 0.0 && mData.mRotation <= 360.0);
+	Q_ASSERT(mData.mZPosition == -1 || mData.mZPosition == 1);
 }
 
 
-CardPosition::CardPosition(const CardPosition& pOther)
-	: QObject()
-	, mXPosition(pOther.mXPosition)
-	, mYPosition(pOther.mYPosition)
-	, mZPosition(pOther.mZPosition)
-	, mRotation(pOther.mRotation)
+double CardPosition::getXPosition() const
 {
-
+	return mData.mXPosition;
 }
 
 
-CardPosition& CardPosition::operator=(const CardPosition& pOther)
+double CardPosition::getYPosition() const
 {
-	mXPosition = pOther.mXPosition;
-	mYPosition = pOther.mYPosition;
-	mZPosition = pOther.mZPosition;
-	mRotation = pOther.mRotation;
-	return *this;
+	return mData.mYPosition;
 }
+
+
+double CardPosition::getRotation() const
+{
+	return mData.mRotation;
+}
+
+
+int CardPosition::getZPosition() const
+{
+	return mData.mZPosition;
+}
+
+
+#ifndef QT_NO_DEBUG
+bool CardPosition::operator==(const CardPosition& pOther) const
+{
+	return mData.mXPosition == pOther.mData.mXPosition
+		   && mData.mYPosition == pOther.mData.mYPosition
+		   && mData.mRotation == pOther.mData.mRotation
+		   && mData.mZPosition == pOther.mData.mZPosition;
+}
+
+
+#endif

@@ -33,7 +33,6 @@ SectionPage {
 	GListView {
 		id: listView
 
-		Accessible.ignored: false
 		displayMarginBeginning: Style.dimens.pane_padding
 		displayMarginEnd: Style.dimens.pane_padding
 		model: ApplicationModel.getLicenseText()
@@ -58,13 +57,16 @@ SectionPage {
 				GText {
 					id: delegateText
 
-					activeFocusOnTab: false
+					Accessible.role: Utils.useSpecialAppleTabRole(Accessible.StaticText)
 					anchors.fill: parent
 					bottomPadding: parent.isLast ? Style.dimens.pane_padding : 0
 					leftPadding: Style.dimens.pane_padding
 					rightPadding: Style.dimens.pane_padding
 					text: delegateItem.modelData
 					topPadding: parent.isFirst ? Style.dimens.pane_padding : 0
+
+					Accessible.onScrollDownAction: listView.scrollPageDown()
+					Accessible.onScrollUpAction: listView.scrollPageUp()
 				}
 			}
 		}

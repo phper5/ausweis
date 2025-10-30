@@ -9,6 +9,7 @@
 #include "ReaderManagerPluginInfo.h"
 
 #include <QObject>
+#include <QPointer>
 #include <QThread>
 
 
@@ -25,83 +26,33 @@ class ReaderManagerPlugin
 		ReaderManagerPluginInfo mInfo;
 
 	protected:
-		void setPluginEnabled(bool pEnabled)
-		{
-			if (mInfo.isEnabled() != pEnabled)
-			{
-				mInfo.setEnabled(pEnabled);
-				Q_EMIT fireStatusChanged(mInfo);
-			}
-		}
-
-
-		void setPluginAvailable(bool pAvailable)
-		{
-			mInfo.setAvailable(pAvailable);
-			Q_EMIT fireStatusChanged(mInfo);
-		}
-
-
-		void setPluginValue(ReaderManagerPluginInfo::Key pKey, const QVariant& pValue)
-		{
-			mInfo.setValue(pKey, pValue);
-		}
+		void setPluginEnabled(bool pEnabled);
+		void setPluginAvailable(bool pAvailable);
+		void setPluginValue(ReaderManagerPluginInfo::Key pKey, const QVariant& pValue);
+		static void shelve(const QPointer<Reader>& pReader);
 
 	public:
-		ReaderManagerPlugin(ReaderManagerPluginType pPluginType,
+		explicit ReaderManagerPlugin(ReaderManagerPluginType pPluginType,
 				bool pAvailable = false,
 				bool pPluginEnabled = false);
 		~ReaderManagerPlugin() override = default;
 
-		[[nodiscard]] const ReaderManagerPluginInfo& getInfo() const
-		{
-			return mInfo;
-		}
+		[[nodiscard]] const ReaderManagerPluginInfo& getInfo() const;
+		[[nodiscard]] virtual QPointer<Reader> getReader(const QString& pReaderName) const = 0;
 
-
-		[[nodiscard]] virtual QList<Reader*> getReaders() const = 0;
-
-
-		virtual void init()
-		{
-			Q_ASSERT(QObject::thread() == QThread::currentThread());
-		}
-
-
-		void reset()
-		{
-			shutdown();
-			init();
-		}
-
-
-		virtual void shutdown()
-		{
-		}
-
-
-		virtual void insert(const QString& pReaderName, const QVariant& pData)
-		{
-			Q_UNUSED(pReaderName)
-			Q_UNUSED(pData)
-		}
-
-
-		void shelve() const;
-
+		virtual void init();
+		virtual void shutdown();
+		void reset();
 
 		virtual void startScan(bool pAutoConnect);
 		virtual void stopScan(const QString& pError = QString());
 		void setInitialScanState(ReaderManagerPluginInfo::InitialScan pState);
 
+		virtual void insert(const QString& pReaderName, const QVariant& pData);
+		virtual void shelveAll() const = 0;
+
 #ifndef QT_NO_DEBUG
-		void setPluginInfo(const ReaderManagerPluginInfo& pInfo)
-		{
-			mInfo = pInfo;
-			Q_EMIT fireStatusChanged(mInfo);
-		}
-
-
+		void setPluginInfo(const ReaderManagerPluginInfo& pInfo);
 #endif
 
 	Q_SIGNALS:

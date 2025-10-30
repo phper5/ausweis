@@ -31,15 +31,15 @@ class test_SmartModel
 	Q_OBJECT
 
 	private:
-		QPointer<MockReader> mSmartReader;
+		QPointer<MockReader> mReader;
 
 		void setupSmartReader(bool pPinInitial, int pRetryCounter)
 		{
-			Q_ASSERT(mSmartReader);
+			Q_ASSERT(mReader);
 
-			auto info = mSmartReader->getReaderInfo();
+			auto info = mReader->getReaderInfo();
 			info.setCardInfo(CardInfo(CardType::SMART_EID, FileRef(), QSharedPointer<EFCardAccess>(), pRetryCounter, false, false, pPinInitial));
-			mSmartReader->setReaderInfo(info);
+			mReader->setReaderInfo(info);
 		}
 
 	private Q_SLOTS:
@@ -52,7 +52,7 @@ class test_SmartModel
 			QTRY_COMPARE(spy.count(), 1); // clazy:exclude=qstring-allocations
 
 			setSmartEidStatus(EidStatus::PERSONALIZED);
-			mSmartReader = MockReaderManagerPlugin::getInstance().addReader("SmartReader"_L1);
+			mReader = MockReaderManagerPlugin::getInstance().addReader("SmartReader"_L1);
 			setupSmartReader(false, 3);
 
 			const auto& smartModel = Env::getSingleton<SmartModel>();

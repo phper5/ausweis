@@ -43,7 +43,7 @@ void RemoteReaderAdvertiserImpl::sendDiscovery()
 {
 	const auto& broadcastEntries = mHandler->getAllBroadcastEntries();
 
-	QList<QHostAddress> sender;
+	QSet<QHostAddress> sender;
 	for (const auto& broadcastEntry : broadcastEntries)
 	{
 		sender << broadcastEntry.ip();

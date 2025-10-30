@@ -8,12 +8,14 @@
 
 #include <QByteArray>
 #include <QList>
-#include <QPair>
+
+#include <utility>
+
 
 namespace governikus
 {
 
-using TransmitConfig = QPair<CardReturnCode, QByteArray>;
+using TransmitConfig = std::pair<CardReturnCode, QByteArray>;
 
 
 class MockCardConfig

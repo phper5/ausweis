@@ -36,7 +36,7 @@ mitgelieferten CMake-GUI ausgeführt werden.
 
 CMake erkennt während der Konfigurationszeit automatisch die Abhängigkeiten.
 Dazu kann die Variable *CMAKE_PREFIX_PATH* verwendet werden, um die Toolchain CMake
-bekannt zu machen. Alternativ zu `%PATH%` bzw. `$PATH` können alle Ordner, die dort
+bekannt zu machen. Alternativ zu ``%PATH%`` bzw. ``$PATH`` können alle Ordner, die dort
 für den Build eingetragen wurden, über diesen Mechanismus an CMake übergeben werden.
 
 Als Generator für Makefiles sollte unter Windows für MinGW "MinGW Makefiles" und
@@ -67,7 +67,6 @@ Beispiel über die CLI:
    -- Detecting CXX compile features - done
    -- VENDOR: Governikus GmbH & Co. KG
    -- VERSION: 1.24.0
-   -- Could NOT find Doxygen (missing: DOXYGEN_EXECUTABLE)
    -- Found Java: C:/Program Files/Java/jre1.8.0_241/bin/java.exe (found version "1.8.0.241") found components: Runtime
    -- Found Hg: C:/Program Files/TortoiseHg/hg.exe (found version "5.6.1")
    -- DVCS tag: tip
@@ -156,8 +155,7 @@ Packages
 --------
 Nachdem die Build-Umgebung eingerichtet ist, kann je nach System ein Package erstellt werden.
 
-- Unter Windows ist hierfür noch das WiX Toolset (http://wixtoolset.org/ Getestet: 3.8 bis 3.10)
-  notwendig.
+- Unter Windows ist hierfür das WiX Toolset (http://wixtoolset.org/ Getestet: 6.0.0) notwendig.
   Mittels "mingw32-make package" wird die AusweisApp gebaut und ein MSI Paket bereitgestellt.
 
 - Unter macOS wird mittels "make package" die AusweisApp gebaut und ein DMG bereitgestellt.

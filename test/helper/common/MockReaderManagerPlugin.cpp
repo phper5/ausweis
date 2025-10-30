@@ -2,10 +2,10 @@
  * Copyright (c) 2015-2025 Governikus GmbH & Co. KG, Germany
  */
 
-
 #include "MockReaderManagerPlugin.h"
 
 #include <QDebug>
+
 
 using namespace governikus;
 
@@ -30,22 +30,16 @@ MockReaderManagerPlugin& MockReaderManagerPlugin::getInstance()
 }
 
 
-QList<Reader*> MockReaderManagerPlugin::getReaders() const
+QPointer<Reader> MockReaderManagerPlugin::getReader(const QString& pReaderName) const
 {
-	QList<Reader*> readers;
-	readers.reserve(mReaders.size());
-	for (MockReader* reader : mReaders)
-	{
-		readers += reader;
-	}
-	return readers;
+	return mReaders.value(pReaderName).data();
 }
 
 
 void MockReaderManagerPlugin::startScan(bool pAutoConnect)
 {
 	ReaderManagerPlugin::startScan(pAutoConnect);
-	for (MockReader* reader : std::as_const(mReaders))
+	for (const auto& reader : std::as_const(mReaders))
 	{
 		const auto& readerInfo = reader->getReaderInfo();
 		if (readerInfo.isInsertable())
@@ -59,18 +53,17 @@ void MockReaderManagerPlugin::startScan(bool pAutoConnect)
 }
 
 
-MockReader* MockReaderManagerPlugin::addReader(const QString& pReaderName, ReaderManagerPluginType pType)
+QPointer<MockReader> MockReaderManagerPlugin::addReader(const QString& pReaderName, ReaderManagerPluginType pType)
 {
-	MockReader* mockReader = nullptr;
+	QSharedPointer<MockReader> mockReader;
 
 	QMetaObject::invokeMethod(this, [this, pReaderName, pType] {
-				auto* reader = new MockReader(pReaderName, pType);
-				reader->setParent(this);
+				const auto& reader = QSharedPointer<MockReader>::create(pReaderName, pType);
 
-				connect(reader, &Reader::fireCardInserted, this, &ReaderManagerPlugin::fireCardInserted);
-				connect(reader, &Reader::fireCardRemoved, this, &ReaderManagerPlugin::fireCardRemoved);
-				connect(reader, &Reader::fireCardInfoChanged, this, &ReaderManagerPlugin::fireCardInfoChanged);
-				connect(reader, &Reader::fireReaderPropertiesUpdated, this, &ReaderManagerPlugin::fireReaderPropertiesUpdated);
+				connect(reader.data(), &Reader::fireCardInserted, this, &ReaderManagerPlugin::fireCardInserted);
+				connect(reader.data(), &Reader::fireCardRemoved, this, &ReaderManagerPlugin::fireCardRemoved);
+				connect(reader.data(), &Reader::fireCardInfoChanged, this, &ReaderManagerPlugin::fireCardInfoChanged);
+				connect(reader.data(), &Reader::fireReaderPropertiesUpdated, this, &ReaderManagerPlugin::fireReaderPropertiesUpdated);
 
 				mReaders.insert(pReaderName, reader);
 				Q_EMIT fireReaderAdded(reader->getReaderInfo());
@@ -79,17 +72,16 @@ MockReader* MockReaderManagerPlugin::addReader(const QString& pReaderName, Reade
 			}, Qt::BlockingQueuedConnection, &mockReader);
 
 	QCoreApplication::processEvents();
-	return mockReader;
+	return mockReader.data();
 }
 
 
 void MockReaderManagerPlugin::removeReader(const QString& pReaderName)
 {
 	QMetaObject::invokeMethod(this, [this, pReaderName] {
-				if (auto reader = mReaders.take(pReaderName))
+				if (const auto& reader = mReaders.take(pReaderName))
 				{
 					Q_EMIT fireReaderRemoved(reader->getReaderInfo());
-					delete reader;
 				}
 			}, Qt::BlockingQueuedConnection);
 	QCoreApplication::processEvents();
@@ -98,13 +90,13 @@ void MockReaderManagerPlugin::removeReader(const QString& pReaderName)
 
 void MockReaderManagerPlugin::removeAllReader()
 {
-	QList<Reader*> readerList;
+	QList<QSharedPointer<MockReader>> readerList;
 
 	QMetaObject::invokeMethod(this, [this] {
-				return getReaders();
+				return mReaders.values();
 			}, Qt::BlockingQueuedConnection, &readerList);
 
-	for (auto reader : std::as_const(readerList))
+	for (const auto& reader : std::as_const(readerList))
 	{
 		removeReader(reader->getName());
 	}
@@ -114,11 +106,20 @@ void MockReaderManagerPlugin::removeAllReader()
 
 void MockReaderManagerPlugin::insert(const QString& pReaderName, const QVariant& pData)
 {
-	for (MockReader* reader : std::as_const(mReaders))
+	for (const auto& reader : std::as_const(mReaders))
 	{
 		if (reader->getName() == pReaderName)
 		{
 			reader->insertCard(pData);
 		}
+	}
+}
+
+
+void MockReaderManagerPlugin::shelveAll() const
+{
+	for (const auto& reader : mReaders)
+	{
+		shelve(reader.data());
 	}
 }

@@ -1,0 +1,10 @@
+pdfauthor: @VENDOR@
+app_name: @PROJECT_NAME@
+pdfsubject: Fehlercodes
+pdfkeywords: failure, codes, sdk, api
+author: @VENDOR@
+documenttitle: @PROJECT_NAME@ Fehlercodes
+subtitle: @VERSION_DVCS@
+language_iso639: de
+language_babel: ngerman
+tocdepth: 3

@@ -41,11 +41,9 @@ FlickableSectionPage {
 
 			//: LABEL ANDROID IOS
 			text: qsTr("You are about to set up a Smart-eID on your device. In order to proceed, you need you ID card, your 6-digit ID card PIN and an internet connection.")
-			width: parent.width
 		}
 		PrivacyStatement {
 			smart: true
-			width: parent.width
 		}
 	}
 	GSpacer {

@@ -12,7 +12,6 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QLoggingCategory>
-#include <QMutableListIterator>
 
 
 using namespace governikus;
@@ -361,19 +360,20 @@ bool RemoteServiceSettings::updateRemoteInfo(const RemoteInfo& pInfo)
 	}
 
 	auto infos = getRemoteInfos();
-	QMutableListIterator iter(infos);
-	while (iter.hasNext())
+	const auto& iter = std::find_if(infos.begin(), infos.end(),
+			[&pInfo](const auto& currentInfo) {
+				return currentInfo.getFingerprint() == pInfo.getFingerprint();
+			});
+
+	if (iter == infos.end())
 	{
-		iter.next();
-		if (iter.value().getFingerprint() == pInfo.getFingerprint())
-		{
-			iter.setValue(pInfo);
-			setRemoteInfos(infos);
-			return true;
-		}
+		return false;
+
 	}
 
-	return false;
+	*iter = pInfo;
+	setRemoteInfos(infos);
+	return true;
 }
 
 

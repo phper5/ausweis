@@ -7,6 +7,7 @@ import QtQuick.Layouts
 
 import Governikus.Global
 import Governikus.Style
+import Governikus.UpdateView
 import Governikus.View
 import Governikus.Type
 
@@ -18,6 +19,7 @@ Rectangle {
 	property alias showPane: titlePane.visible
 	readonly property string title: contentItem.title
 
+	signal showUpdate
 	signal startClicked
 
 	function setActiveFocus() {
@@ -53,6 +55,15 @@ Rectangle {
 
 				onClicked: root.startClicked()
 			}
+			GLink {
+				anchors.bottom: parent.bottom
+				anchors.right: rightTitleBarActions.left
+				font.underline: true
+				text: qsTr("Update available") + " (%1)".arg(SettingsModel.appUpdateData.version)
+				visible: SettingsModel.appUpdateData.updateAvailable && !(root.contentItem instanceof UpdateView)
+
+				onClicked: root.showUpdate()
+			}
 			Row {
 				id: rightTitleBarActions
 
@@ -79,14 +90,19 @@ Rectangle {
 					qsTr("Hide in-app notifications of %1").arg(Qt.application.name) :
 					//: LABEL DESKTOP
 					qsTr("Show in-app notifications of %1").arg(Qt.application.name)
-					Accessible.role: Accessible.CheckBox
+					Accessible.role: {
+						if ("Switch" in Accessible) {
+							return Accessible.Switch; // qmllint disable missing-property
+						}
+						return Accessible.CheckBox;
+					}
 					checkable: true
 					checked: notifications.visibleToUser
 					height: rightTitleBarActions.height
 					iconColor: notifications.iconColor
 					source: notifications.unreadMessages ? "qrc:///images/desktop/notifications_on.svg" : "qrc:///images/desktop/notifications_off.svg"
 					text: qsTr("Notifications")
-					visible: SettingsModel.showInAppNotifications
+					visible: SettingsModel.developerOptions && SettingsModel.showInAppNotifications
 
 					Accessible.onToggleAction: notifications.toggle()
 					onClicked: notifications.toggle()
@@ -120,7 +136,7 @@ Rectangle {
 				Layout.leftMargin: Style.dimens.pane_padding
 				enabled: root.currentSettings.navigationEnabled
 				type: root.currentSettings.navigationAction
-				visible: root.currentSettings.navigationAction !== NavigationAction.None
+				visible: root.currentSettings.navigationAction !== NavigationAction.Action.None
 
 				onClicked: root.currentSettings.navigationActionClicked()
 			}

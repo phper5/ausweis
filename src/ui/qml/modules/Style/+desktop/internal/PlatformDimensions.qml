@@ -30,13 +30,9 @@ QtObject {
 	readonly property real pane_radius: UiPluginModel.scaleFactor * 20.4
 	readonly property int pane_spacing: UiPluginModel.scaleFactor * 18
 	readonly property real popup_border: Math.max(UiPluginModel.scaleFactor * 1.2, 1)
-	readonly property real progress_bar_border: separator_size_large
-	readonly property real progress_bar_height: UiPluginModel.scaleFactor * 36
 	readonly property real scrollbar_padding_horizontal: UiPluginModel.scaleFactor * 3
 	readonly property real scrollbar_padding_vertical: UiPluginModel.scaleFactor * 0
 	readonly property real scrollbar_width: UiPluginModel.scaleFactor * 6
-	readonly property real separator_size: Math.max(Math.floor(UiPluginModel.scaleFactor * 1.2, 1))
-	readonly property real separator_size_large: Math.max(UiPluginModel.scaleFactor * 2.4, 1)
 	readonly property real small_icon_size: UiPluginModel.scaleFactor * 19.2
 	readonly property real stagedprogressbar_height: UiPluginModel.scaleFactor * 7.8
 	readonly property real stagedprogressbar_spacing: UiPluginModel.scaleFactor * 4.8

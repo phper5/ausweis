@@ -6,6 +6,7 @@ pragma ComponentBehavior: Bound
 
 import QtQuick
 import QtQuick.Controls
+import QtQuick.Effects
 
 import Governikus.Style
 
@@ -29,7 +30,7 @@ Item {
 
 		SequentialAnimation {
 			PropertyAnimation {
-				duration: root.source == "" ? 0 : Style.animation_duration
+				duration: root.source.toString() === "" ? 0 : Style.animation_duration
 				easing.type: Easing.InCubic
 				property: "opacity"
 				target: root
@@ -40,8 +41,8 @@ Item {
 				target: root
 			}
 			PropertyAnimation {
-				duration: root.source == "" ? Style.animation_duration * 2 : Style.animation_duration
-				easing.type: root.source == "" ? Easing.InOutCubic : Easing.InCubic
+				duration: root.source.toString() === "" ? Style.animation_duration * 2 : Style.animation_duration
+				easing.type: root.source.toString() === "" ? Easing.InOutCubic : Easing.InCubic
 				property: "opacity"
 				target: root
 				to: 1
@@ -75,14 +76,18 @@ Item {
 	Component {
 		id: desaturateLayer
 
-		GDesaturate {
+		MultiEffect {
+			saturation: -1
 		}
 	}
 	Component {
 		id: colorLayer
 
-		GColorOverlay {
+		MultiEffect {
+			brightness: 0.5
+			colorization: 1
 			colorizationColor: root.tintColor
+			contrast: -1.0
 		}
 	}
 }

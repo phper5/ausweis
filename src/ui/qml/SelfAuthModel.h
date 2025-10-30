@@ -60,7 +60,7 @@ class SelfAuthModel
 		[[nodiscard]] bool isWorkflowCancelled() const;
 		[[nodiscard]] Q_INVOKABLE bool isBasicReader() const;
 
-		[[nodiscard]] int rowCount(const QModelIndex& = QModelIndex()) const override;
+		[[nodiscard]] int rowCount(const QModelIndex&) const override;
 		[[nodiscard]] QVariant data(const QModelIndex& pIndex, int pRole = Qt::DisplayRole) const override;
 		[[nodiscard]] QHash<int, QByteArray> roleNames() const override;
 

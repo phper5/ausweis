@@ -11,15 +11,13 @@ GLink {
 	id: root
 
 	Accessible.focusable: true
-	Accessible.ignored: icon.source == "" && text === ""
+	Accessible.ignored: icon.source.toString() === "" && text === ""
 	Accessible.name: text
 	Accessible.role: Accessible.Button
 	activeFocusOnTab: !Accessible.ignored
 	colorStyle: Style.color.linkTitle
 	horizontalPadding: 0
 	textStyle: Style.text.navigation
-
-	Keys.onSpacePressed: clicked()
 
 	MouseArea {
 		id: mouseArea

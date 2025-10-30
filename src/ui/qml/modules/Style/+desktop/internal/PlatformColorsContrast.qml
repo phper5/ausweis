@@ -21,7 +21,6 @@ Colors {
 	error: "#ff0000"
 	focus_indicator: textNormal.basic
 	image: "#ff0000"
-	progressbar_text: textNormal.basic
 	success: "#00ff00"
 	warning: "#ff0000"
 
@@ -38,8 +37,17 @@ Colors {
 		content.checked: root.textNormal.basic
 	}
 	controlRadiobutton: DefaultControlColors {
-		background.pressed: root.textNormal.basic
-		content.basic: root.textNormal.basic
+		background.checked: root.palette.highlight
+		background.hovered: background.checked
+		background.pressed: background.hovered
+		border.basic: root.palette.buttonText
+		border.checked: background.checked
+		border.hovered: border.checked
+		border.pressed: border.hovered
+		content.basic: border.basic
+		content.checked: root.palette.highlightedText
+		content.hovered: content.checked
+		content.pressed: content.hovered
 	}
 	controlScrollbar: DefaultControlColors {
 		background.basic: root.textNormal.basic

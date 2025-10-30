@@ -6,7 +6,7 @@ def j = new Build
 		name: 'Win64_clang_MSI',
 		libraries: 'Win64_MSVC',
 		label: 'MSVC',
-		artifacts: 'build/*.msi'
+		artifacts: 'build/*.msi,build/Appcast*'
 	).generate(this)
 
 
@@ -25,7 +25,7 @@ j = new Build
 		name: 'Win64_clang++_MSI',
 		libraries: 'Win64_MSVC',
 		label: 'MSVC',
-		artifacts: 'build/*.msi'
+		artifacts: 'build/*.msi,build/Appcast*'
 	).generate(this)
 
 

@@ -67,32 +67,32 @@ class test_ReleaseInformationModel
 			QCOMPARE(mModel->allowRetry(), true);
 			QCOMPARE(mSpyCurrentInformationChanged->count(), 0);
 			QCOMPARE(mSpyUpdateInformationChanged->count(), 0);
-			QCOMPARE(mModel->getCurrentRelease()->rowCount(), 1);
-			QCOMPARE(mModel->getUpdateRelease()->rowCount(), 1);
+			QCOMPARE(mModel->getCurrentRelease()->rowCount(QModelIndex()), 1);
+			QCOMPARE(mModel->getUpdateRelease()->rowCount(QModelIndex()), 1);
 		}
 
 
 		void ensureChangedSignalOnCurrentReleaseInfoChanged()
 		{
-			QCOMPARE(mModel->getCurrentRelease()->rowCount(), 1);
+			QCOMPARE(mModel->getCurrentRelease()->rowCount(QModelIndex()), 1);
 
 			mModel->update();
 
 			QCOMPARE(mSpyCurrentInformationChanged->count(), 1);
 			QCOMPARE(mSpyUpdateInformationChanged->count(), 0);
-			QCOMPARE(mModel->getCurrentRelease()->rowCount(), 11);
-			QCOMPARE(mModel->getUpdateRelease()->rowCount(), 1);
+			QCOMPARE(mModel->getCurrentRelease()->rowCount(QModelIndex()), 11);
+			QCOMPARE(mModel->getUpdateRelease()->rowCount(QModelIndex()), 1);
 		}
 
 
 		void ensureSignalOnUpdateReleaseInfoChanged()
 		{
-			QCOMPARE(mModel->getUpdateRelease()->rowCount(), 1);
+			QCOMPARE(mModel->getUpdateRelease()->rowCount(QModelIndex()), 1);
 
 			mReleaseInfoConfig->setUpdateVersion(VersionNumber("1.2.4"_L1));
 
 			QCOMPARE(mSpyUpdateInformationChanged->count(), 1);
-			QCOMPARE(mModel->getUpdateRelease()->rowCount(), 11);
+			QCOMPARE(mModel->getUpdateRelease()->rowCount(QModelIndex()), 11);
 		}
 
 

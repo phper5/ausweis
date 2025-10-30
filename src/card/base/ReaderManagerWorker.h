@@ -10,6 +10,7 @@
 #include "ReaderManagerPluginInfo.h"
 
 #include <QObject>
+#include <QPointer>
 
 
 namespace governikus
@@ -26,7 +27,7 @@ class ReaderManagerWorker
 		void registerPlugins();
 		[[nodiscard]] static bool isPlugin(const QJsonObject& pJson);
 		void registerPlugin(ReaderManagerPlugin* pPlugin);
-		[[nodiscard]] Reader* getReader(const QString& pReaderName) const;
+		[[nodiscard]] QPointer<Reader> getReader(const QString& pReaderName) const;
 
 	public:
 		ReaderManagerWorker();
@@ -40,7 +41,6 @@ class ReaderManagerWorker
 		Q_INVOKABLE void startScan(ReaderManagerPluginType pType, bool pAutoConnect);
 		Q_INVOKABLE void stopScan(ReaderManagerPluginType pType, const QString& pError);
 
-		[[nodiscard]] Q_INVOKABLE QList<ReaderInfo> getReaderInfos() const;
 		Q_INVOKABLE void updateReaderInfo(const QString& pReaderName) const;
 		void createCardConnectionWorker(const QString& pReaderName, const std::function<QSharedPointer<CardConnectionWorker>(const QSharedPointer<CardConnectionWorker>&)>& pInitWorker);
 

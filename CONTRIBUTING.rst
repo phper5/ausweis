@@ -27,7 +27,7 @@ offiziellen Release synchronisiert.
 Code Style
 ----------
 
-Wir verwenden `uncrustify` um den Quellcode automatisch zu formatieren.
+Wir verwenden ``uncrustify`` um den Quellcode automatisch zu formatieren.
 Mittels CMake wird das Build-Target "format" im jeweiligen "Makefile"
 generiert, welches die Formatierung für alle Dateien vornimmt.
 

@@ -27,20 +27,8 @@ FlickableSectionPage {
 	signal abortCurrentWorkflow
 	signal continueClicked
 
-	function continueOrLeave() {
-		if (continueButton.visible) {
-			root.continueClicked();
-		} else {
-			root.leaveView();
-		}
-	}
-
 	spacing: Style.dimens.pane_spacing
 	title: infoContent.title
-
-	Keys.onEnterPressed: root.continueOrLeave()
-	Keys.onEscapePressed: root.leaveView()
-	Keys.onReturnPressed: root.continueOrLeave()
 
 	GRepeater {
 		id: repeater
@@ -69,17 +57,16 @@ FlickableSectionPage {
 				source: dataRow.modelData.blockImage
 				sourceSize.width: Math.max(repeater.maxItemWidth, Style.dimens.header_icon_size)
 				tintColor: Style.color.image
-				visible: source != ""
+				visible: source.toString() !== ""
 			}
 			ColumnLayout {
 				Layout.alignment: Qt.AlignTop
 				spacing: Style.dimens.groupbox_spacing
 
-				GText {
+				Subheading {
 					Layout.alignment: Qt.AlignLeft
 					horizontalAlignment: Text.AlignLeft
 					text: dataRow.modelData.blockTitle
-					textStyle: Style.text.subline
 					visible: text !== ""
 				}
 				Repeater {
@@ -88,6 +75,7 @@ FlickableSectionPage {
 					delegate: GText {
 						required property string modelData
 
+						Accessible.role: (textStyle === Style.text.headline || textStyle === Style.text.subline) ? Accessible.Heading : Accessible.StaticText
 						Layout.alignment: Qt.AlignLeft
 						horizontalAlignment: Text.AlignLeft
 						text: modelData
@@ -106,15 +94,13 @@ FlickableSectionPage {
 		Layout.fillWidth: true
 		buttonText: root.hintButtonText
 		buttonTooltip: root.buttonLink
+		linkToOpen: root.buttonLink
 		text: root.hint
 		//: LABEL DESKTOP
 		title: root.hintTitle !== "" ? root.hintTitle : qsTr("Hint")
 		visible: text !== ""
 
-		onClicked: {
-			root.abortCurrentWorkflow();
-			Qt.openUrlExternally(root.buttonLink);
-		}
+		onLinkAboutToOpen: root.abortCurrentWorkflow()
 	}
 	GSpacer {
 		Layout.fillHeight: true

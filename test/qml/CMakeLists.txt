@@ -8,9 +8,6 @@ else()
 endif()
 
 target_link_libraries(QmlTestRunner ${Qt}::QuickTest ${Qt}::Gui AusweisAppGlobal AusweisAppUiQml AusweisAppTestHelper)
-if(WIN32)
-	ADD_SHADERS_TO_TARGET(QmlTestRunner)
-endif()
 
 if(CMAKE_GENERATOR MATCHES "Xcode")
 	set_target_properties(QmlTestRunner PROPERTIES RUNTIME_OUTPUT_DIRECTORY_${CMAKE_BUILD_TYPE} "${CMAKE_CURRENT_BINARY_DIR}")

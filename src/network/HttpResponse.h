@@ -21,7 +21,7 @@ class HttpResponse
 		[[nodiscard]] QByteArray getStatusMessage() const;
 
 	public:
-		HttpResponse(http_status pStatus = HTTP_STATUS_INTERNAL_SERVER_ERROR,
+		explicit HttpResponse(http_status pStatus = HTTP_STATUS_INTERNAL_SERVER_ERROR,
 				const QByteArray& pBody = QByteArray(),
 				const QByteArray& pContentType = QByteArray());
 

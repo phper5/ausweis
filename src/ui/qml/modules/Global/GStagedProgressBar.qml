@@ -21,7 +21,7 @@ Rectangle {
 	Accessible.name: qsTr("Step %1 of %2. This step is %3 percent complete.").arg(d.currentStage).arg(d.stages).arg(Math.floor(d.absoluteProgress * 100))
 	Accessible.role: Accessible.ProgressBar
 	color: Style.color.pane.background.basic
-	implicitHeight: bars.implicitHeight + UiPluginModel.safeAreaMargins.bottom
+	implicitHeight: bars.implicitHeight
 	layer.enabled: GraphicsInfo.api !== GraphicsInfo.Software
 
 	layer.effect: GDropShadow {

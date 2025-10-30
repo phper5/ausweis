@@ -30,6 +30,9 @@ Rectangle {
 
 	onRightActionChanged: rightActionLoader.setRightAction(rightAction)
 
+	MouseArea {
+		anchors.fill: parent
+	}
 	Rectangle {
 		id: safeAreaBackground
 
@@ -99,7 +102,7 @@ Rectangle {
 				id: rightActionLoader
 
 				function setRightAction(pRightAction) {
-					if (SettingsModel.useAnimations) {
+					if (SettingsModel.useAnimations && pRightAction !== null) {
 						rightActionStackAnimateOut.newSourceComponent = pRightAction;
 						rightActionStackAnimateOut.start();
 						return;
@@ -107,7 +110,7 @@ Rectangle {
 					rightActionLoader.sourceComponent = pRightAction;
 				}
 
-				Layout.alignment: Qt.AlignRight
+				Layout.alignment: Qt.AlignRight | Qt.AlignTop
 
 				PropertyAnimation {
 					id: rightActionStackAnimateOut

@@ -14,7 +14,7 @@ ResultView {
 	id: root
 
 	animationSymbol: Symbol.Type.ERROR
-	animationType: AnimationLoader.NFC_RESULT
+	animationType: AnimationLoader.Type.NFC_RESULT
 	//: LABEL ANDROID IOS
 	buttonText: qsTr("Retry")
 	//: LABEL ANDROID IOS

@@ -5,22 +5,19 @@
 #pragma once
 
 #include "IfdMessageResponse.h"
+#include "IfdSlotHandle.h"
 
 
 namespace governikus
 {
 class IfdError
-	: public IfdMessageResponse
+	: public IfdSlotHandle<IfdMessageResponse>
 {
-	private:
-		QString mSlotHandle;
-
 	public:
-		IfdError(const QString& pSlotHandle, ECardApiResult::Minor pResultMinor = ECardApiResult::Minor::null);
+		explicit IfdError(const QString& pSlotHandle, ECardApiResult::Minor pResultMinor = ECardApiResult::Minor::null);
 		explicit IfdError(const QJsonObject& pMessageObject);
 		~IfdError() override = default;
 
-		[[nodiscard]] const QString& getSlotHandle() const;
 		[[nodiscard]] QByteArray toByteArray(IfdVersion::Version pIfdVersion, const QString& pContextHandle) const override;
 };
 

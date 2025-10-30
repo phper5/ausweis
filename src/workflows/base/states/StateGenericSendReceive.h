@@ -36,9 +36,10 @@ class StateGenericSendReceive
 
 		void logRawData(const QByteArray& pMessage);
 		void setReceivedMessage(const QSharedPointer<PaosMessage>& pMessage) const;
-		std::optional<FailureCode> checkSslConnectionAndSaveCertificate(const QSslConfiguration& pSslConfiguration);
+		std::optional<FailureCode> checkSslConnectionAndSaveCertificate(const QSslConfiguration& pSslConfiguration) const;
 		void onSslErrors(const QList<QSslError>& pErrors);
 		void onSslHandshakeDone();
+		std::optional<FailureCode> checkAndSaveSessionResumption(const QSslConfiguration& pSslConfiguration) const;
 		void run() override;
 
 	protected:

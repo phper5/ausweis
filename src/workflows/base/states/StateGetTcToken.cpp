@@ -49,7 +49,7 @@ void StateGetTcToken::run()
 }
 
 
-bool StateGetTcToken::isValidRedirectUrl(const QUrl& pUrl)
+bool StateGetTcToken::isValidRedirectUrl(const QUrl& pUrl) const
 {
 	if (pUrl.isEmpty())
 	{
@@ -159,10 +159,39 @@ void StateGetTcToken::onNetworkReply()
 
 	if (mReply->error() != QNetworkReply::NoError)
 	{
-		qCCritical(network) << NetworkManager::toStatus(mReply);
-		updateStatus(NetworkManager::toTrustedChannelStatus(mReply));
-		Q_EMIT fireAbort({FailureCode::Reason::Get_TcToken_Network_Error,
-						  {FailureCode::Info::Network_Error, mReply->errorString()}
+		GlobalStatus::Code errorStatus = GlobalStatus::Code::No_Error;
+		FailureCode::Reason reason;
+		if (statusCode >= 500)
+		{
+			if (statusCode == 503)
+			{
+				errorStatus = GlobalStatus::Code::Workflow_TrustedChannel_ServiceUnavailable;
+				reason = FailureCode::Reason::Get_TcToken_ServiceUnavailable;
+			}
+			else
+			{
+				errorStatus = GlobalStatus::Code::Workflow_TrustedChannel_Server_Error;
+				reason = FailureCode::Reason::Get_TcToken_Server_Error;
+			}
+		}
+		else if (statusCode >= 400)
+		{
+			errorStatus = GlobalStatus::Code::Workflow_TrustedChannel_Client_Error;
+			reason = FailureCode::Reason::Get_TcToken_Client_Error;
+		}
+		else
+		{
+			errorStatus = GlobalStatus::Code::Workflow_TrustedChannel_Other_Network_Error;
+			reason = FailureCode::Reason::Get_TcToken_Network_Error;
+		}
+
+		const GlobalStatus::ExternalInfoMap infoMap {
+			{GlobalStatus::ExternalInformation::HTTP_STATUS_CODE, QString::number(statusCode)},
+			{GlobalStatus::ExternalInformation::LAST_URL, mReply->url().toString()}
+		};
+		updateStatus({errorStatus, infoMap});
+		Q_EMIT fireAbort({reason,
+						  {FailureCode::Info::Http_Status_Code, QString::number(statusCode)}
 				});
 		return;
 	}
@@ -187,40 +216,10 @@ void StateGetTcToken::onNetworkReply()
 	}
 
 	qCritical() << "Error while connecting to the provider. The server returns an unexpected status code:" << statusCode;
-
-	GlobalStatus::Code errorStatus = GlobalStatus::Code::No_Error;
-	FailureCode::Reason reason;
-	if (statusCode >= 500)
-	{
-		if (statusCode == 503)
-		{
-			errorStatus = GlobalStatus::Code::Workflow_TrustedChannel_ServiceUnavailable;
-			reason = FailureCode::Reason::Get_TcToken_ServiceUnavailable;
-		}
-		else
-		{
-			errorStatus = GlobalStatus::Code::Workflow_TrustedChannel_Server_Error;
-			reason = FailureCode::Reason::Get_TcToken_Server_Error;
-		}
-	}
-	else if (statusCode >= 400)
-	{
-		errorStatus = GlobalStatus::Code::Workflow_TrustedChannel_Client_Error;
-		reason = FailureCode::Reason::Get_TcToken_Client_Error;
-	}
-	else
-	{
-		errorStatus = GlobalStatus::Code::Workflow_TrustedChannel_Server_Format_Error;
-		reason = FailureCode::Reason::Get_TcToken_Invalid_Server_Reply;
-	}
-
-	const GlobalStatus::ExternalInfoMap infoMap {
-		{GlobalStatus::ExternalInformation::HTTP_STATUS_CODE, QString::number(statusCode)},
-		{GlobalStatus::ExternalInformation::LAST_URL, mReply->url().toString()}
-	};
-	updateStatus({errorStatus, infoMap});
-	Q_EMIT fireAbort({reason,
-					  {FailureCode::Info::Http_Status_Code, QString::number(statusCode)}
+	qCCritical(network) << NetworkManager::toStatus(mReply);
+	updateStatus(NetworkManager::toTrustedChannelStatus(mReply));
+	Q_EMIT fireAbort({FailureCode::Reason::Get_TcToken_Invalid_Server_Reply,
+					  {FailureCode::Info::Network_Error, mReply->errorString()}
 			});
 }
 

@@ -12,7 +12,7 @@ DecisionView {
 	agreeButtonText: qsTr("Enable manual redirection")
 
 	//: INFO ALL_PLATFORMS
-	descriptionTextsModel: [qsTr("You are currently using automatic redirection. This may cause the screen reader to miss some information during the authentication process. To ensure all information are received, please enable manual redirection."),
+	descriptionTextsModel: [qsTr("Currently, the app automatically redirects you back to the service provider after authentication. This may not allow your screen reader to provide all information. To ensure you receive all information, enable manual redirection to the service provider."),
 		//: INFO ALL_PLATFORMS
 		qsTr("You can change your preference at any time in the settings.")]
 	disagreeButtonHighlighted: false

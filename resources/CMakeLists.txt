@@ -15,23 +15,6 @@ function(WRITE_GLOB_QRC _dest_file _dir _prefix)
 	WRITE_QRC("${_dest_file}" "${_dir}" "${_prefix}" "${files}")
 endfunction()
 
-function(ADD_SHADERS_TO_TARGET _target)
-	if(TARGET ${Qt}::Qml AND NOT INTEGRATED_SDK)
-		file(GLOB QT_SHADERS "${RESOURCES_DIR}/shader/*.frag")
-		foreach(shaderPath ${QT_SHADERS})
-			get_filename_component(shaderName ${shaderPath} NAME)
-			list(APPEND QT_SHADER_OUTPUTS ${shaderName})
-		endforeach()
-
-		qt_add_shaders(${_target} "${_target}_shader"
-				PRECOMPILE
-				PREFIX "/shader"
-				FILES "${QT_SHADERS}"
-				OUTPUTS "${QT_SHADER_OUTPUTS}"
-				QUIET)
-	endif()
-endfunction()
-
 
 if(EXISTS "${CMAKE_DIR}/SmartService.internal.cmake")
 	include(SmartService.internal)

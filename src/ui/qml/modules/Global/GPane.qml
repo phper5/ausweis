@@ -1,0 +1,57 @@
+/**
+ * Copyright (c) 2016-2025 Governikus GmbH & Co. KG, Germany
+ */
+
+import QtQuick
+import QtQuick.Layouts
+
+import Governikus.Global
+import Governikus.Style
+
+GPaneBackground {
+	id: root
+
+	property int contentPadding: Style.dimens.pane_padding
+	property alias contentSpacing: paneContent.spacing
+	default property alias data: paneContent.data
+	property alias spacing: containerCol.spacing
+	property alias title: titleText.text
+	property int titleMargins: Style.dimens.pane_padding
+	property alias titleTextStyle: titleText.textStyle
+
+	Accessible.focusable: true
+	Accessible.ignored: title === ""
+	Accessible.name: title
+	Accessible.role: Accessible.Grouping
+	Layout.maximumHeight: containerCol.Layout.maximumHeight
+	implicitHeight: containerCol.implicitHeight
+	implicitWidth: containerCol.implicitWidth
+
+	onFocusChanged: if (focus)
+		Utils.positionViewAtItem(this)
+
+	ColumnLayout {
+		id: containerCol
+
+		anchors.fill: parent
+		spacing: 0
+
+		PaneTitle {
+			id: titleText
+
+			Layout.leftMargin: root.titleMargins
+			Layout.rightMargin: root.titleMargins
+			Layout.topMargin: root.titleMargins
+		}
+		ColumnLayout {
+			id: paneContent
+
+			Layout.bottomMargin: root.contentPadding
+			Layout.leftMargin: root.contentPadding
+			Layout.maximumWidth: Number.POSITIVE_INFINITY
+			Layout.rightMargin: root.contentPadding
+			Layout.topMargin: titleText.visible ? Style.dimens.pane_spacing : root.contentPadding
+			spacing: Style.dimens.pane_spacing
+		}
+	}
+}

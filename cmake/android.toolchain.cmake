@@ -60,7 +60,11 @@ endif()
 
 if(QT_TOOLCHAIN_FILE)
 	message(STATUS "QT_TOOLCHAIN_FILE: ${QT_TOOLCHAIN_FILE}")
+	set(ARCH ${CMAKE_ANDROID_ARCH_ABI})
 	include(${QT_TOOLCHAIN_FILE})
+	if(ARCH AND NOT ARCH STREQUAL CMAKE_ANDROID_ARCH_ABI)
+		message(FATAL_ERROR "Requested architecture (${ARCH}) not compatible with Qt architecture (${CMAKE_ANDROID_ARCH_ABI})")
+	endif()
 endif()
 
 set(ANDROID_BUILD_NAME android-build)

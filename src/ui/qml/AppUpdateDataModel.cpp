@@ -20,14 +20,22 @@ Q_DECLARE_LOGGING_CATEGORY(update)
 
 AppUpdateDataModel::AppUpdateDataModel()
 	: QObject()
+	, mAppcastFinished(false)
 	, mUpdateAvailable(false)
 	, mMissingPlatform(false)
 	, mDownloadProgress(0)
 	, mDownloadTotal(0)
+	, mAppcastProgress(0)
+	, mAppcastTotal(0)
 {
 	connect(Env::getSingleton<AppUpdater>(), &AppUpdater::fireAppcastCheckFinished, this, &AppUpdateDataModel::onAppcastFinished);
+	connect(Env::getSingleton<AppUpdater>(), &AppUpdater::fireAppcastProgress, this, &AppUpdateDataModel::onAppcastProgress);
 	connect(Env::getSingleton<AppUpdater>(), &AppUpdater::fireAppDownloadProgress, this, &AppUpdateDataModel::onAppDownloadProgress);
 	connect(Env::getSingleton<AppUpdater>(), &AppUpdater::fireAppDownloadFinished, this, &AppUpdateDataModel::onAppDownloadFinished);
+	connect(Env::getSingleton<AppUpdater>(), &AppUpdater::fireDownloadTypeChanged, this, &AppUpdateDataModel::fireDownloadProgressChanged);
+
+	connect(this, &AppUpdateDataModel::fireAppUpdateDataChanged, this, &AppUpdateDataModel::fireAppcastStatusChanged);
+	connect(this, &AppUpdateDataModel::fireDownloadProgressChanged, this, &AppUpdateDataModel::fireAppcastStatusChanged);
 }
 
 
@@ -74,23 +82,35 @@ QString AppUpdateDataModel::supportInfoFromStatusCode(GlobalStatus::Code pCode) 
 
 void AppUpdateDataModel::onAppcastFinished(bool pUpdateAvailable, const GlobalStatus& pStatus)
 {
+	mAppcastProgress = pStatus.isError() ? 0 : mAppcastTotal;
+	Q_EMIT fireDownloadProgressChanged();
+
+	mAppcastFinished = pStatus.getStatusCode() != GlobalStatus::Code::Downloader_Aborted;
 	mUpdateAvailable = pUpdateAvailable;
 	mMissingPlatform = pStatus.getStatusCode() == GlobalStatus::Code::Downloader_Missing_Platform;
 	Q_EMIT fireAppUpdateDataChanged();
 }
 
 
+void AppUpdateDataModel::onAppcastProgress(qint64 pBytesReceived, qint64 pBytesTotal)
+{
+	mAppcastProgress = static_cast<int>(pBytesReceived / 1000);
+	mAppcastTotal = static_cast<int>(pBytesTotal / 1000);
+	Q_EMIT fireDownloadProgressChanged();
+}
+
+
 void AppUpdateDataModel::onAppDownloadProgress(qint64 pBytesReceived, qint64 pBytesTotal)
 {
-	mDownloadProgress = static_cast<int>(pBytesReceived / 1024);
-	mDownloadTotal = static_cast<int>(pBytesTotal / 1024);
+	mDownloadProgress = static_cast<int>(pBytesReceived / 1000);
+	mDownloadTotal = static_cast<int>(pBytesTotal / 1000);
 	Q_EMIT fireDownloadProgressChanged();
 }
 
 
 void AppUpdateDataModel::onAppDownloadFinished(const GlobalStatus& pError)
 {
-	mDownloadTotal = getSize() / 1024;
+	mDownloadTotal = getSize() / 1000;
 	if (pError.isError())
 	{
 		mDownloadProgress = 0;
@@ -141,12 +161,6 @@ bool AppUpdateDataModel::isUpdateAvailable() const
 }
 
 
-bool AppUpdateDataModel::isMissingPlatform() const
-{
-	return mMissingPlatform;
-}
-
-
 bool AppUpdateDataModel::isValid() const
 {
 	return Env::getSingleton<AppUpdater>()->getUpdateData().isValid();
@@ -156,6 +170,73 @@ bool AppUpdateDataModel::isValid() const
 bool AppUpdateDataModel::isCompatible() const
 {
 	return Env::getSingleton<AppUpdater>()->getUpdateData().isCompatible();
+}
+
+
+int AppUpdateDataModel::getAppcastProgress() const
+{
+	return mAppcastProgress;
+}
+
+
+int AppUpdateDataModel::getAppcastTotal() const
+{
+	return mAppcastTotal;
+}
+
+
+QString AppUpdateDataModel::getAppcastStatus() const
+{
+	if (isAppcastRunning())
+	{
+		//: LABEL DESKTOP
+		return tr("Searching for software updates...");
+	}
+
+	if (!mAppcastFinished)
+	{
+		return QString();
+	}
+
+	if (isValid())
+	{
+		if (mUpdateAvailable)
+		{
+			//: LABEL DESKTOP An update is available, the new version is supplied to the user.
+			return tr("An update is available (version %1).").arg(getVersion());
+		}
+
+		//: LABEL DESKTOP %1 is replaced with the version number of the software and %2 is replaced with the application name.
+		return tr("Your version %1 of %2 is up to date.").arg(QCoreApplication::applicationVersion(), QCoreApplication::applicationName());
+	}
+
+	if (mMissingPlatform)
+	{
+		//: LABEL DESKTOP
+		return tr("An update information for your platform is not available.");
+	}
+
+	if (mUpdateAvailable)
+	{
+		//: LABEL DESKTOP The updater found an update but not all required update information are valid, this should be a very rare case.
+		return tr("An update is available but retrieving the information failed.");
+	}
+
+	//: LABEL DESKTOP
+	return tr("The update information could not be retrieved. Please check your network connection.");
+}
+
+
+bool AppUpdateDataModel::isAppcastRunning() const
+{
+	return Env::getSingleton<AppUpdater>()->getDownloadType() == AppUpdater::DownloadType::UPDATEINFO;
+}
+
+
+bool AppUpdateDataModel::isDownloadRunning() const
+{
+	const auto& downloadType = Env::getSingleton<AppUpdater>()->getDownloadType();
+	return downloadType == AppUpdater::DownloadType::CHECKSUM || downloadType == AppUpdater::DownloadType::APPLICATION;
 }
 
 
@@ -209,31 +290,18 @@ const QUrl& AppUpdateDataModel::getChecksumUrl() const
 }
 
 
-const QUrl& AppUpdateDataModel::getNotesUrl() const
-{
-	return Env::getSingleton<AppUpdater>()->getUpdateData().getNotesUrl();
-}
-
-
-const QString& AppUpdateDataModel::getNotes() const
-{
-	return Env::getSingleton<AppUpdater>()->getUpdateData().getNotes();
-}
-
-
 bool AppUpdateDataModel::download()
 {
 	mDownloadProgress = 0;
-	const auto success = Env::getSingleton<AppUpdater>()->downloadUpdate();
 	Q_EMIT fireDownloadProgressChanged();
-	return success;
+	return Env::getSingleton<AppUpdater>()->downloadUpdate();
 }
 
 
 bool AppUpdateDataModel::abortDownload()
 {
-	mDownloadProgress = 0;
 	const auto success = Env::getSingleton<AppUpdater>()->abortDownload();
+	mDownloadProgress = 0;
 	Q_EMIT fireDownloadProgressChanged();
 	return success;
 }

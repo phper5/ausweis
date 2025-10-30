@@ -25,12 +25,9 @@ ColumnLayout {
 	Layout.rightMargin: Style.dimens.pane_padding
 	spacing: Style.dimens.pane_spacing
 
-	GText {
+	Heading {
 		id: title
 
-		Layout.alignment: Qt.AlignHCenter
-		horizontalAlignment: Text.AlignHCenter
-		textStyle: Style.text.headline
 		visible: text !== ""
 	}
 	Loader {
@@ -42,10 +39,9 @@ ColumnLayout {
 		Layout.minimumHeight: item ? (item as Item).Layout.minimumHeight : -1
 		Layout.preferredHeight: item ? (item as Item).Layout.preferredHeight : -1
 	}
-	GText {
+	Subheading {
 		id: subTitle
 
-		textStyle: Style.text.subline
 		visible: text !== ""
 	}
 	GText {

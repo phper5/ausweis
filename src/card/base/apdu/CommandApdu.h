@@ -29,7 +29,6 @@ defineTypedEnumType(Ins, uchar,
 		RESET_RETRY_COUNTER = 0x2C,
 		SELECT = 0xA4,
 		READ_BINARY = 0xB0,
-		GET_RESPONSE = 0xC0,
 		UPDATE_BINARY = 0xD6
 		)
 

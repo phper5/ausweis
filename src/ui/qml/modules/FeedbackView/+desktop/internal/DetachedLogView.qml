@@ -23,12 +23,17 @@ Rectangle {
 	color: Style.color.background
 
 	Keys.onPressed: event => {
-		listView.handleKeyPress(event.key);
+		listView.handleKeyPress(event);
 	}
 
+	LogModel {
+		id: logModel
+
+	}
 	LogFilterModel {
 		id: filterModel
 
+		sourceModel: logModel
 	}
 	LogTextStyle {
 		id: logTextStyle
@@ -43,30 +48,15 @@ Rectangle {
 			Layout.margins: root.spacing
 			spacing: root.spacing
 
-			ColumnLayout {
-				GText {
-					//: LABEL DESKTOP
-					text: qsTr("Select log:")
-					textStyle: logTextStyle
-				}
-				GComboBox {
-					Layout.preferredWidth: 200
-					horizontalPadding: root.horizontalPadding
-					model: LogModel.logFileNames
-					radius: root.controlRadius
-					textStyle: logTextStyle
-					verticalPadding: root.verticalPadding
-
-					background: GPaneBackground {
-						border.color: logTextStyle.textColor
-						border.width: 1
-						color: Style.color.transparent
-						drawShadow: false
-						radius: root.controlRadius
-					}
-
-					onCurrentIndexChanged: LogModel.setLogFile(currentIndex)
-				}
+			GText {
+				Accessible.role: Accessible.Heading
+				Layout.alignment: Qt.AlignBottom
+				//: LABEL DESKTOP
+				text: qsTr("Current Log")
+				textStyle: Style.text.title
+			}
+			GSpacer {
+				Layout.fillWidth: true
 			}
 			ColumnLayout {
 				GText {
@@ -102,16 +92,13 @@ Rectangle {
 
 				onClicked: filter = !filter
 			}
-			Item {
-				Layout.fillWidth: true
-			}
 			LogButton {
 				icon.source: "qrc:///images/desktop/save_icon.svg"
 				//: LABEL DESKTOP
 				text: qsTr("Save log")
 
 				onClicked: {
-					let filenameSuggestion = LogModel.createLogFileName(LogModel.getCurrentLogFileDate());
+					let filenameSuggestion = logModel.createLogFileName();
 					fileDialog.selectFile(filenameSuggestion);
 				}
 
@@ -125,7 +112,7 @@ Rectangle {
 					//: LABEL DESKTOP
 					title: qsTr("Save log")
 
-					onAccepted: LogModel.saveCurrentLogFile(file)
+					onAccepted: logModel.saveLogFile(selectedFile, true)
 				}
 			}
 		}
@@ -225,17 +212,9 @@ Rectangle {
 			Layout.fillWidth: true
 			Layout.leftMargin: root.spacing
 			Layout.topMargin: root.spacing
-			activeFocusOnTab: true
 			clip: true
 			model: filterModel
 
-			ScrollBar.vertical: GScrollBar {
-				borderWidth: 1
-				bottomPadding: 0
-				implicitWidth: 6 + leftPadding + rightPadding
-				rightPadding: 3
-				topPadding: 0
-			}
 			delegate: LogViewDelegate {
 				required property int index
 
@@ -253,7 +232,7 @@ Rectangle {
 						listView.positionViewAtEnd();
 				}
 
-				target: LogModel
+				target: logModel
 			}
 			GText {
 				horizontalAlignment: Text.AlignHCenter

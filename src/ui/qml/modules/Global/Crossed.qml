@@ -75,7 +75,7 @@ Item {
 	component Line: Rectangle {
 		antialiasing: true
 		color: Style.color.warning
-		height: Style.dimens.separator_size_large
+		height: 2 * Style.dimens.border_width
 		width: d.c
 	}
 }

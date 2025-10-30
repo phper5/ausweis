@@ -133,6 +133,12 @@ void HttpRequest::triggerSocketBuffer()
 }
 
 
+bool HttpRequest::send(http_status pStatus)
+{
+	return send(HttpResponse(pStatus));
+}
+
+
 bool HttpRequest::send(const HttpResponse& pResponse)
 {
 	return send(pResponse.getMessage());

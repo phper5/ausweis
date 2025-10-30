@@ -176,7 +176,7 @@ class test_RemoteWebSocketServer
 			QVERIFY(mServer->listen(QStringLiteral("TestServer")));
 			QVERIFY(mServer->isPairingAnnounced());
 
-			client.open(QStringLiteral("wss://127.0.0.1:").append(QString::number(mServer->getServerPort())));
+			client.open(QUrl(QStringLiteral("wss://127.0.0.1:").append(QString::number(mServer->getServerPort()))));
 
 			QTRY_COMPARE(spy.count(), 1); // clazy:exclude=qstring-allocations
 			QCOMPARE(client.state(), QAbstractSocket::SocketState::ConnectedState);
@@ -200,7 +200,7 @@ class test_RemoteWebSocketServer
 			QSignalSpy spy(&client, &QWebSocket::connected);
 
 			PskHandler pskHandler(&client);
-			client.open(QStringLiteral("wss://127.0.0.1:").append(QString::number(mServer->getServerPort())));
+			client.open(QUrl(QStringLiteral("wss://127.0.0.1:").append(QString::number(mServer->getServerPort()))));
 
 			QTRY_COMPARE(spy.count(), 1); // clazy:exclude=qstring-allocations
 			QCOMPARE(client.state(), QAbstractSocket::SocketState::ConnectedState);
@@ -245,10 +245,10 @@ class test_RemoteWebSocketServer
 			QSignalSpy spy1(&client1, &QWebSocket::connected);
 			QSignalSpy spy2(&client2, &QWebSocket::disconnected);
 
-			client1.open(QStringLiteral("wss://127.0.0.1:").append(QString::number(mServer->getServerPort())));
+			client1.open(QUrl(QStringLiteral("wss://127.0.0.1:").append(QString::number(mServer->getServerPort()))));
 			QTRY_COMPARE(spy1.count(), 1); // clazy:exclude=qstring-allocations
 
-			client2.open(QStringLiteral("wss://127.0.0.1:").append(QString::number(mServer->getServerPort())));
+			client2.open(QUrl(QStringLiteral("wss://127.0.0.1:").append(QString::number(mServer->getServerPort()))));
 			QTRY_COMPARE(spy2.count(), 1); // clazy:exclude=qstring-allocations
 
 			QCOMPARE(client1.state(), QAbstractSocket::SocketState::ConnectedState);
@@ -277,7 +277,7 @@ class test_RemoteWebSocketServer
 
 			PskHandler pskHandler(&client, mServer.data());
 			mServer->setPairing();
-			client.open(QStringLiteral("wss://127.0.0.1:").append(QString::number(mServer->getServerPort())));
+			client.open(QUrl(QStringLiteral("wss://127.0.0.1:").append(QString::number(mServer->getServerPort()))));
 			QVERIFY(mServer->isPairingAnnounced());
 
 			QTRY_COMPARE(newConnectionSpy.count(), 1); // clazy:exclude=qstring-allocations

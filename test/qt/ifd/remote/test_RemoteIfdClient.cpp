@@ -6,7 +6,9 @@
 
 #include "DatagramHandler.h"
 #include "Env.h"
+#include "IfdListImpl.h"
 #include "LogHandler.h"
+#include "TestFileHelper.h"
 #include "messages/Discovery.h"
 #include "messages/IfdEstablishContext.h"
 
@@ -54,54 +56,20 @@ DatagramHandlerMock::~DatagramHandlerMock()
 }
 
 
-class IfdListMock
-	: public IfdList
-{
-	Q_OBJECT
-
-	public:
-		IfdListMock(int pI1, int pI2)
-			: IfdList()
-		{
-			Q_UNUSED(pI1)
-			Q_UNUSED(pI2)
-		}
-
-
-		~IfdListMock() override;
-
-		void update(const IfdDescriptor&) override
-		{
-			Q_EMIT fireDeviceAppeared(QSharedPointer<IfdListEntry>());
-		}
-
-
-		void clear() override
-		{
-		}
-
-
-};
-
-IfdListMock::~IfdListMock()
-{
-}
-
-
 class RemoteConnectorMock
 	: public IfdConnector
 {
 	Q_OBJECT
 
 	public Q_SLOTS:
-		void onConnectRequest(const IfdDescriptor& pRemoteDeviceDescriptor, const QByteArray& pPsk) override;
+		void onConnectRequest(const Discovery& pDiscovery, const QByteArray& pPsk) override;
 
 	Q_SIGNALS:
 		void fireConnectionRequestReceived();
 };
 
 
-void RemoteConnectorMock::onConnectRequest(const IfdDescriptor&, const QByteArray&)
+void RemoteConnectorMock::onConnectRequest(const Discovery&, const QByteArray&)
 {
 	Q_EMIT fireConnectionRequestReceived();
 }
@@ -116,7 +84,7 @@ class test_RemoteIfdClient
 
 	private:
 		QPointer<DatagramHandlerMock> mDatagramHandlerMock;
-		QPointer<IfdListMock> mIfdListMock;
+		QPointer<IfdList> mIfdList;
 		QPointer<RemoteConnectorMock> mRemoteConnectorMock;
 
 	private Q_SLOTS:
@@ -134,8 +102,8 @@ class test_RemoteIfdClient
 					}));
 
 			Env::setCreator<IfdList*>(std::function<IfdList* ()>([this] {
-						mIfdListMock = new IfdListMock(0, 0);
-						return mIfdListMock;
+						mIfdList = new IfdListImpl(5000, 5000);
+						return mIfdList;
 					}));
 
 			Env::setCreator<IfdConnector*>(std::function<IfdConnector* ()>([this] {
@@ -150,7 +118,7 @@ class test_RemoteIfdClient
 			QVERIFY(Env::getCounter<DatagramHandler*>() <= 2);
 			Env::clear();
 			QVERIFY(mDatagramHandlerMock.isNull());
-			QVERIFY(mIfdListMock.isNull());
+			QVERIFY(mIfdList.isNull());
 			QVERIFY(mRemoteConnectorMock.isNull());
 		}
 
@@ -177,24 +145,110 @@ class test_RemoteIfdClient
 		}
 
 
-		void testReceiveUnparsable()
+		void testOnNewMessage_data()
 		{
-			QSignalSpy logSpy(Env::getSingleton<LogHandler>()->getEventHandler(), &LogEventHandler::fireLog);
+			const QByteArray missingIFDID(R"({
+								"IF__DID": "fingerprint",
+								"IFDName": "Sony Xperia Z5 compact",
+								"SupportedAPI": [ "IFDInterface_WebSocket_v2" ],
+								"msg": "REMOTE_IFD",
+								"pairing": true,
+								"port": 24728
+							   })");
 
-			const QByteArray unparsableJson("{\n"
-											"    \"device___Name\": \"Sony Xperia Z5 compact\",\n"
-											"    \"encrypted\": true,\n"
-											"    \"port\": 24728,\n"
-											"    \"availableApiLevels\": [1, 2, 3, 4]\n"
+			const QByteArray emptyAddresses(R"({
+								"IFDID": "fingerprint",
+								"IFDName": "Sony Xperia Z5 compact",
+								"SupportedAPI": [ "IFDInterface_WebSocket_v2" ],
+								"msg": "REMOTE_IFD",
+								"pairing": true,
+								"port": 24728,
+								"addresses": []
+							   })");
+
+			const QByteArray invalidAddresses(R"({
+								"IFDID": "fingerprint",
+								"IFDName": "Sony Xperia Z5 compact",
+								"SupportedAPI": [ "IFDInterface_WebSocket_v2" ],
+								"msg": "REMOTE_IFD",
+								"pairing": true,
+								"port": 24728,
+								"addresses": [ "FooBar" ]
+							   })");
+
+			const QByteArray validAddresses("{"
+											"	\"IFDID\": \"fingerprint\","
+											"	\"IFDName\": \"Sony Xperia Z5 compact\","
+											"	\"SupportedAPI\": [ \"IFDInterface_WebSocket_v2\" ],"
+											"	\"msg\": \"REMOTE_IFD\","
+											"	\"pairing\": true,"
+											"	\"port\": 24728,"
+											"	\"addresses\": [ \"wss://192.168.1.87:24728\" ]"
 											"}");
 
+			QTest::addColumn<QByteArray>("discovery");
+			QTest::addColumn<QHostAddress>("sender");
+			QTest::addColumn<QList<QLatin1String>>("logging");
+
+			QTest::newRow("Missing IFDID - No sender")
+				<< missingIFDID << QHostAddress()
+				<< QList<QLatin1String>({"Missing value \"IFDID\""_L1, "Discarding unparsable message"_L1});
+
+			QTest::newRow("Empty addresses - No sender")
+				<< emptyAddresses << QHostAddress()
+				<< QList<QLatin1String>({"At least one entry is required for \"addresses\""_L1, "Discarding unparsable message"_L1});
+
+			QTest::newRow("Invalid address - No sender")
+				<< invalidAddresses << QHostAddress()
+				<< QList<QLatin1String>({"Found \"addresses\" entry with wrong scheme: "_L1, "Discarding unparsable message"_L1});
+
+			QTest::newRow("Valid address - No sender")
+				<< validAddresses << QHostAddress()
+				<< QList<QLatin1String>();
+
+			QTest::newRow("Empty addresses - Valid sender")
+				<< emptyAddresses
+				<< QHostAddress("192.168.1.88"_L1)
+				<< QList<QLatin1String>({"At least one entry is required for \"addresses\""_L1, "Discarding unparsable message"_L1});
+
+			QTest::newRow("Invalid address - Valid sender")
+				<< invalidAddresses << QHostAddress("192.168.1.88"_L1)
+				<< QList<QLatin1String>({"Found \"addresses\" entry with wrong scheme: "_L1, "Discarding unparsable message"_L1});
+
+			QTest::newRow("Valid address - Valid sender")
+				<< validAddresses << QHostAddress("192.168.1.88"_L1)
+				<< QList<QLatin1String>();
+
+		}
+
+
+		void testOnNewMessage()
+		{
+			QFETCH(QByteArray, discovery);
+			QFETCH(QHostAddress, sender);
+			QFETCH(QList<QLatin1String>, logging);
+
+			QSignalSpy logSpy(Env::getSingleton<LogHandler>()->getEventHandler(), &LogEventHandler::fireLog);
+
 			RemoteIfdClient client;
+			QSignalSpy deviceAppeared(&client, &RemoteIfdClient::fireDeviceAppeared);
 			client.startDetection();
 			QVERIFY(!mDatagramHandlerMock.isNull());
 
-			Q_EMIT mDatagramHandlerMock->fireNewMessage(unparsableJson, QHostAddress("192.168.1.88"_L1));
-			QCOMPARE(logSpy.count(), 6);
-			QVERIFY(logSpy.at(5).at(0).toString().contains("Discarding unparsable message"_L1));
+			Q_EMIT mDatagramHandlerMock->fireNewMessage(discovery, sender);
+			QCOMPARE(logSpy.count(), logging.size());
+			for (const auto& log : logging)
+			{
+				QVERIFY(TestFileHelper::containsLog(logSpy, log));
+			}
+
+			if (logging.isEmpty())
+			{
+				QCOMPARE(deviceAppeared.size(), 1);
+				QCOMPARE(client.getAnnouncingRemoteDevices().size(), 1);
+				QCOMPARE(client.getAnnouncingRemoteDevices().at(0)->getDiscovery().getAddresses().size(), 1);
+				QCOMPARE(*client.getAnnouncingRemoteDevices().at(0)->getDiscovery().getAddresses().constBegin(), QUrl("wss://192.168.1.87:24728"_L1));
+			}
 		}
 
 
@@ -263,8 +317,8 @@ class test_RemoteIfdClient
 			client.startDetection();
 			QVERIFY(!mDatagramHandlerMock.isNull());
 
-			QVERIFY(!mIfdListMock.isNull());
-			QSignalSpy spyAppearedList(mIfdListMock.data(), &IfdListMock::fireDeviceAppeared);
+			QVERIFY(!mIfdList.isNull());
+			QSignalSpy spyAppearedList(mIfdList.data(), &IfdList::fireDeviceAppeared);
 			QSignalSpy spyAppeared(&client, &IfdClient::fireDeviceAppeared);
 
 			Q_EMIT mDatagramHandlerMock->fireNewMessage(offerJson, QHostAddress(hostAddress));
@@ -273,7 +327,7 @@ class test_RemoteIfdClient
 
 			QSignalSpy spyVanished(&client, &IfdClient::fireDeviceVanished);
 			QCOMPARE(spyVanished.count(), 0);
-			Q_EMIT mIfdListMock->fireDeviceVanished(QSharedPointer<IfdListEntry>());
+			Q_EMIT mIfdList->fireDeviceVanished(QSharedPointer<IfdListEntry>());
 			QCOMPARE(spyVanished.count(), 1);
 		}
 
@@ -308,14 +362,13 @@ class test_RemoteIfdClient
 			QSignalSpy spyConnectionRequest(mRemoteConnectorMock.data(), &RemoteConnectorMock::fireConnectionRequestReceived);
 			Discovery discovery(QString(), QByteArrayLiteral("0123456789ABCDEF"), 12345, {IfdVersion::Version::latest, IfdVersion::Version::v2});
 			discovery.setAddresses({QHostAddress("192.168.1.88"_L1)});
-			const IfdDescriptor descr(discovery);
-			QSharedPointer<IfdListEntry> emptyEntry(new IfdListEntry(descr));
+			QSharedPointer<IfdListEntry> emptyEntry(new IfdListEntry(discovery));
 			client.establishConnection(emptyEntry, "password1");
 
 			QTRY_COMPARE(spyConnectionRequest.count(), 1); // clazy:exclude=qstring-allocations
 
 			QSignalSpy spyConnectionDone(&client, &IfdClient::fireEstablishConnectionDone);
-			Q_EMIT mRemoteConnectorMock->fireDispatcherError(emptyEntry->getIfdDescriptor(),
+			Q_EMIT mRemoteConnectorMock->fireDispatcherError(emptyEntry->getDiscovery().getIfdId(),
 					IfdErrorCode::CONNECTION_ERROR);
 			QCOMPARE(spyConnectionDone.count(), 1);
 		}

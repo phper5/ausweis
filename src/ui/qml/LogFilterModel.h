@@ -4,6 +4,9 @@
 
 #pragma once
 
+#include "LogModel.h"
+
+#include <QPointer>
 #include <QSet>
 #include <QSortFilterProxyModel>
 #include <QStringList>
@@ -27,6 +30,7 @@ class LogFilterModel
 	private:
 		QSet<QString> mSelectedLevels;
 		QSet<QString> mSelectedCategories;
+		QPointer<LogModel> mSourceModel;
 
 	private Q_SLOTS:
 		void onLevelsChanged();
@@ -43,6 +47,7 @@ class LogFilterModel
 		[[nodiscard]] QStringList getSelectedLevels() const;
 		[[nodiscard]] QStringList getCategories() const;
 		[[nodiscard]] QStringList getSelectedCategories() const;
+		void setSourceModel(QAbstractItemModel* pSourceModel) override;
 
 		Q_INVOKABLE void configureLevel(const QString& pLevel, bool pEnabled);
 		Q_INVOKABLE void configureCategory(const QString& pCategory, bool pEnabled);
@@ -51,5 +56,6 @@ class LogFilterModel
 		void fireLevelsChanged();
 		void fireCategoriesChanged();
 };
+
 
 } // namespace governikus

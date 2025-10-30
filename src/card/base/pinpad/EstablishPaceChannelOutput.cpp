@@ -94,6 +94,9 @@ CardReturnCode EstablishPaceChannelOutput::parseReturnCode(quint32 pPaceReturnCo
 				return CardReturnCode::INVALID_PASSWORD;
 			}
 			break;
+
+		default:
+			break;
 	}
 
 	return CardReturnCode::UNKNOWN;

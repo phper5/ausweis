@@ -1,3 +1,5 @@
+.. _desktop:
+
 Desktop
 =======
 This chapter deals with the desktop specific properties of the |AppName| SDK.

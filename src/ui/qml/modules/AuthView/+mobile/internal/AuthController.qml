@@ -74,7 +74,7 @@ Controller {
 			}
 			break;
 		case "StateCertificateDescriptionCheck":
-			if (ApplicationModel.isScreenReaderRunning && SettingsModel.autoRedirectAfterAuthentication && SettingsModel.remindUserOfAutoRedirect) {
+			if (ApplicationModel.screenReaderRunning && SettingsModel.autoRedirectAfterAuthentication && SettingsModel.remindUserOfAutoRedirect) {
 				push(a11yAutoRedirectDecision);
 			} else {
 				AuthModel.continueWorkflow();
@@ -155,12 +155,6 @@ Controller {
 			}
 			AuthModel.continueWorkflow();
 			break;
-		case "StateActivateStoreFeedbackDialog":
-			if (ApplicationModel.currentWorkflow === ApplicationModel.Workflow.SELF_AUTHENTICATION) {
-				showRemoveCardFeedback(AuthModel, true);
-			}
-			AuthModel.continueWorkflow();
-			break;
 		case "StateShowResult":
 			replace(selfAuthenticationData);
 			break;
@@ -187,7 +181,6 @@ Controller {
 			} else if (userCancelAndManualRedirect) {
 				AuthModel.continueWorkflow();
 			} else if (AuthModel.error && !AuthModel.hasNextWorkflowPending && !AuthModel.shouldSkipResultView()) {
-				showRemoveCardFeedback(AuthModel, false);
 				replace(authResult);
 			} else {
 				AuthModel.continueWorkflow();
@@ -254,6 +247,8 @@ Controller {
 				root.isInitialState ? qsTr("Acquiring provider certificate") :
 				//: INFO ANDROID IOS Header of the progress status message during the authentication process.
 				qsTr("Authentication in progress"))
+			//: LABEL ANDROID IOS Name of an progress indicator during an authentication read by screen readers
+			progressBarA11yText: qsTr("Authentication progress")
 			progressBarVisible: root.workflowProgressVisible
 			progressText: AuthModel.progressMessage
 			progressValue: AuthModel.progressValue
@@ -419,7 +414,7 @@ Controller {
 			title: root.title
 
 			navigationAction: NavigationAction {
-				action: !root.isSelfAuth ? NavigationAction.Cancel : root.startedByOnboarding ? NavigationAction.Back : NavigationAction.Close
+				action: !root.isSelfAuth ? NavigationAction.Action.Cancel : root.startedByOnboarding ? NavigationAction.Action.Back : NavigationAction.Action.Close
 				enabled: root.isSelfAuth
 
 				onClicked: AuthModel.continueWorkflow()
@@ -484,7 +479,12 @@ Controller {
 				AuthModel.continueWorkflow();
 				AuthModel.invokeStatusHintAction();
 			}
-			onMailClicked: LogModel.mailLog("support@ausweisapp.de", AuthModel.getEmailHeader(), AuthModel.getEmailBody())
+			onMailClicked: logModel.mailLogFile("support@ausweisapp.de", AuthModel.getEmailHeader(), AuthModel.getEmailBody())
+
+			LogModel {
+				id: logModel
+
+			}
 		}
 	}
 	Component {

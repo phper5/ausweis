@@ -69,7 +69,7 @@
 
         <activity
             android:name="com.governikus.ausweisapp2.MainActivity"
-            android:configChanges="orientation|uiMode|screenLayout|screenSize|smallestScreenSize|layoutDirection|fontScale|keyboard|keyboardHidden|navigation|mcc|mnc|density"
+            android:configChanges="orientation|uiMode|screenLayout|screenSize|smallestScreenSize|layoutDirection|fontScale|fontWeightAdjustment|keyboard|keyboardHidden|navigation|mcc|mnc|density"
             android:exported="true"
             android:launchMode="singleTask"
             android:resizeableActivity="true"

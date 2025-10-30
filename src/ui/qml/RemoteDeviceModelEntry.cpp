@@ -11,13 +11,13 @@ using namespace governikus;
 
 
 RemoteDeviceModelEntry::RemoteDeviceModelEntry(const QSharedPointer<IfdListEntry>& pListEntry)
-	: mDeviceName(RemoteServiceSettings::escapeDeviceName(pListEntry->getIfdDescriptor().getIfdName()))
-	, mId(pListEntry->getIfdDescriptor().getIfdId())
+	: mDeviceName(RemoteServiceSettings::escapeDeviceName(pListEntry->getDiscovery().getIfdName()))
+	, mId(pListEntry->getDiscovery().getIfdId())
 	, mPaired(false)
-	, mIsPairing(pListEntry->getIfdDescriptor().isPairing())
+	, mIsPairing(pListEntry->getDiscovery().isPairing())
 	, mNetworkVisible(false)
 	, mConnected(false)
-	, mSupported(pListEntry->getIfdDescriptor().isSupported())
+	, mSupported(pListEntry->getDiscovery().isSupported())
 	, mLastConnected()
 	, mRemoteDeviceListEntry(pListEntry)
 {

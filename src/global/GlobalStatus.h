@@ -8,8 +8,9 @@
 
 #include <QCoreApplication>
 #include <QMap>
-#include <QPair>
 #include <QSharedData>
+
+#include <utility>
 
 
 namespace governikus
@@ -170,7 +171,7 @@ class GlobalStatus
 				}
 
 
-				InternalStatus(Code pStatusCode, const QPair<ExternalInformation, QString>& pExternalInformation, const Origin pOrigin)
+				InternalStatus(Code pStatusCode, const std::pair<ExternalInformation, QString>& pExternalInformation, const Origin pOrigin)
 					: mStatusCode(pStatusCode)
 					, mExternalInformation({
 								{pExternalInformation.first, pExternalInformation.second}
@@ -202,7 +203,7 @@ class GlobalStatus
 		}
 
 
-		GlobalStatus(Code pStatusCode, const QPair<ExternalInformation, QString>& pExternalInformation, const Origin pOrigin = Origin::Client)
+		GlobalStatus(Code pStatusCode, const std::pair<ExternalInformation, QString>& pExternalInformation, const Origin pOrigin = Origin::Client)
 			: d(new InternalStatus(pStatusCode, pExternalInformation, pOrigin))
 		{
 		}

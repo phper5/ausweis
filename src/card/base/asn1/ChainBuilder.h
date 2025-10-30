@@ -62,9 +62,9 @@ class ChainBuilder
 		}
 
 	protected:
-		QMutableListIterator<QList<T>> getChainIterator()
+		void removeFromChains(const std::function<bool(const QList<T>& pChain)>& pFunc)
 		{
-			return QMutableListIterator<QList<T>>(mChains);
+			erase_if(mChains, pFunc);
 		}
 
 	public:

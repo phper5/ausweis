@@ -20,13 +20,9 @@ BaseOnboardingView {
 		onClicked: root.leaveView()
 	}
 
-	GText {
-		Layout.alignment: Qt.AlignHCenter
-		horizontalAlignment: Text.AlignHCenter
-
+	Heading {
 		//: LABEL ANDROID IOS
 		text: qsTr("Do you want to also use the %1 on a PC/Mac?").arg(Qt.application.name)
-		textStyle: Style.text.headline
 		wrapMode: Text.WordWrap
 	}
 	GText {

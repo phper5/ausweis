@@ -1,7 +1,7 @@
 import common.LibraryReview
 import common.Constants
 
-for(ARCH in Constants.AndroidArchLibsReview)
+for(ARCH in Constants.AndroidArch)
 {
 
 def j = new LibraryReview

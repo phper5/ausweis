@@ -17,17 +17,10 @@ FlickableSectionPage {
 
 	signal continueClicked
 
-	Keys.onEnterPressed: root.continueClicked()
-	Keys.onEscapePressed: root.leaveView()
-	Keys.onReturnPressed: root.continueClicked()
-
-	GText {
-		Layout.alignment: Qt.AlignHCenter
+	Heading {
 		Layout.bottomMargin: Style.dimens.pane_spacing
-		horizontalAlignment: Text.AlignHCenter
 		//: LABEL ALL_PLATFORMS
 		text: qsTr("5-digit Transport PIN")
-		textStyle: Style.text.headline
 	}
 	AnimationLoader {
 		id: animation
@@ -35,12 +28,11 @@ FlickableSectionPage {
 		Layout.alignment: Qt.AlignHCenter
 		Layout.bottomMargin: Style.dimens.pane_spacing
 		animated: false
-		type: AnimationLoader.TRANSPORT_PIN
+		type: AnimationLoader.Type.TRANSPORT_PIN
 	}
-	GText {
+	Subheading {
 		//: LABEL ALL_PLATFORMS
 		text: qsTr("Have your documents ready")
-		textStyle: Style.text.subline
 	}
 	GText {
 		Layout.bottomMargin: Style.dimens.text_spacing

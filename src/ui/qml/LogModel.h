@@ -4,9 +4,6 @@
 
 #pragma once
 
-#include "Env.h"
-#include "SingletonCreator.h"
-
 #include <QAbstractListModel>
 #include <QDateTime>
 #include <QObject>
@@ -23,39 +20,29 @@ class test_LogModel;
 namespace governikus
 {
 
-class LogModel final
+class LogModel
 	: public QAbstractListModel
-	, public SingletonCreator<LogModel>
 {
 	Q_OBJECT
 	QML_ELEMENT
-	QML_SINGLETON
 
 	friend class Env;
 	friend class ::test_LogModel;
 
-	Q_PROPERTY(QStringList logFileNames READ getLogFileNames NOTIFY fireLogFileNamesChanged)
+	Q_PROPERTY(QString source READ getSource WRITE setSource NOTIFY fireSourceChanged)
 
 	private:
-		QStringList mLogFiles;
-		int mSelectedLogFile;
 		QStringList mLogEntries;
-
 		QSet<QString> mLevels;
 		QSet<QString> mCategories;
+		QString mLogFilePath;
 
-		LogModel();
-		~LogModel() override = default;
-
-		void reset();
 		void addLogEntry(const QString& pEntry);
 		void setLogEntries(QTextStream& pTextStream);
+		[[nodiscard]] bool isCurrentLog() const;
 
 	private Q_SLOTS:
 		void onNewLogMsg(const QString& pMsg);
-
-	public Q_SLOTS:
-		void onTranslationChanged();
 
 	public:
 		enum LogModelRoles
@@ -66,31 +53,32 @@ class LogModel final
 			MessageRole
 		};
 
-		QStringList getLogFileNames() const;
+		LogModel();
+		~LogModel() override = default;
+
 		[[nodiscard]] const QSet<QString>& getLevels() const;
 		[[nodiscard]] const QSet<QString>& getCategories() const;
-		Q_INVOKABLE QDateTime getCurrentLogFileDate() const;
-		Q_INVOKABLE void removeOtherLogFiles();
-		Q_INVOKABLE void setLogFile(int pIndex);
-		Q_INVOKABLE void saveCurrentLogFile(const QUrl& pFilename) const;
-		Q_INVOKABLE void saveDummyLogFile(const QDateTime& pTimeStamp = QDateTime());
-		Q_INVOKABLE void mailLog(const QString& pEmail = QStringLiteral("support@ausweisapp.de"),
-				const QString& pSubject = tr("Mobile logfile"),
-				const QString& pMsg = tr("<Please describe the error>")) const;
-
+		void setSource(const QString& pLogFilePath);
+		[[nodiscard]] QString getSource() const;
+		[[nodiscard]] Q_INVOKABLE bool saveLogFile(const QUrl& pFilename, bool pShowFeedback) const;
+		Q_INVOKABLE void mailLogFile(
+			const QString& pEmail = QStringLiteral("support@ausweisapp.de"),
+			const QString& pSubject = tr("Mobile logfile"),
+			const QString& pMsg = tr("<Please describe the error>")) const;
 		// \a popupPosition will be used on an iPad as the origin of the share bubble
-		Q_INVOKABLE void shareLog(QPoint popupPosition) const;
+		Q_INVOKABLE void shareLogFile(const QPoint popupPosition) const;
+		[[nodiscard]] Q_INVOKABLE QString createLogFileName() const;
 
-		int rowCount(const QModelIndex& pIndex = QModelIndex()) const override;
+		int rowCount(const QModelIndex& pIndex) const override;
 		QHash<int, QByteArray> roleNames() const override;
 		QVariant data(const QModelIndex& pIndex, int pRole = Qt::DisplayRole) const override;
-		Q_INVOKABLE static QString createLogFileName(const QDateTime& pDateTime = QDateTime::currentDateTime());
 
 	Q_SIGNALS:
-		void fireLogFileNamesChanged();
 		void fireLevelsChanged();
 		void fireCategoriesChanged();
 		void fireNewLogMsg();
+		void fireSourceChanged();
 };
+
 
 } // namespace governikus

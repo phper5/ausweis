@@ -43,7 +43,7 @@ class test_NotificationModel
 
 		void test_OnNewLogMsg()
 		{
-			QSignalSpy spy(mModel, &NotificationModel::fireLastTypeChanged);
+			QSignalSpy spy(mModel, &QAbstractItemModel::rowsInserted);
 
 			const QLatin1String msg("message");
 			const QLoggingCategory develMode("developermode");
@@ -53,7 +53,6 @@ class test_NotificationModel
 				qCDebug(develMode).noquote() << msg;
 				QTRY_VERIFY(mModel->mNotificationEntries.size() > i);
 				QCOMPARE(mModel->mNotificationEntries.at(i).mText, msg);
-				QCOMPARE(mModel->mNotificationEntries.at(i).mType, QLatin1String(develMode.categoryName()));
 			}
 
 			const QLatin1String newMsg("new message");
@@ -62,7 +61,6 @@ class test_NotificationModel
 
 			QTRY_VERIFY(spy.count() > 20);
 			QCOMPARE(mModel->mNotificationEntries.at(20).mText, newMsg);
-			QCOMPARE(mModel->mNotificationEntries.at(20).mType, QLatin1String(feedback.categoryName()));
 		}
 
 
@@ -73,12 +71,10 @@ class test_NotificationModel
 			QTest::addColumn<int>("role");
 			QTest::addColumn<QVariant>("output");
 
-			int type = NotificationModel::UserRoles::TYPE;
 			int time = NotificationModel::UserRoles::TIME;
 
 			QTest::newRow("entriesEmpty") << 0 << 0 << 0 << QVariant();
-			QTest::newRow("RowNumberEqualsSize") << 2 << 2 << type << QVariant();
-			QTest::newRow("entriesFirstIndex0Type") << 4 << 5 << type << QVariant("developermode"_L1);
+			QTest::newRow("RowNumberEqualsSize") << 2 << 2 << time << QVariant();
 			QTest::newRow("entriesFirstIndex2Text") << 3 << 22 << 5 << QVariant("message"_L1);
 			QTest::newRow("indexOutOfRange") << 10 << 5 << time << QVariant();
 		}
@@ -91,7 +87,7 @@ class test_NotificationModel
 			QFETCH(int, role);
 			QFETCH(QVariant, output);
 
-			QSignalSpy spy(mModel, &NotificationModel::fireLastTypeChanged);
+			QSignalSpy spy(mModel, &QAbstractItemModel::rowsInserted);
 			QModelIndex index = mModel->createIndex(row, 0);
 
 			const QLatin1String msg("message");

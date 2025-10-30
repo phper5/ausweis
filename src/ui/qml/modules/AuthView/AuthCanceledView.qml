@@ -1,6 +1,7 @@
 /**
  * Copyright (c) 2025 Governikus GmbH & Co. KG, Germany
  */
+
 import QtQuick
 import QtQuick.Layouts
 
@@ -18,25 +19,21 @@ FlickableSectionPage {
 
 	spacing: Style.dimens.pane_spacing
 
-	GText {
-		Layout.alignment: Qt.AlignHCenter
-		horizontalAlignment: Text.AlignHCenter
+	Heading {
 		//: LABEL ALL_PLATFORMS
 		text: qsTr("Authentication was canceled")
-		textStyle: Style.text.headline
 		visible: text !== ""
 	}
 	AnimationLoader {
 		Layout.alignment: Qt.AlignHCenter
 		symbol: Symbol.Type.ERROR
-		type: AnimationLoader.STATUS
+		type: AnimationLoader.Type.STATUS
 	}
-	GText {
+	Subheading {
 		Layout.alignment: Qt.AlignHCenter
 		horizontalAlignment: Text.AlignHCenter
 		//: LABEL ALL_PLATFORMS
 		text: qsTr("The authentication is being canceled at the provider (%1)").arg(CertificateDescriptionModel.subjectName)
-		textStyle: Style.text.subline
 		visible: text !== ""
 	}
 	GText {
@@ -47,6 +44,8 @@ FlickableSectionPage {
 		visible: text !== ""
 	}
 	GProgressBar {
+		//: LABEL ALL_PLATFORMS Name of an progress indicator during the cancellation of an authentication read by screen readers
+		Accessible.name: qsTr("Cancellation progress")
 		Layout.alignment: Qt.AlignHCenter
 		Layout.fillWidth: true
 		Layout.maximumWidth: Style.dimens.max_text_width
@@ -59,9 +58,11 @@ FlickableSectionPage {
 		//: LABEL ALL_PLATFORMS
 		qsTr("The authentication was cancelled successfully.") + "<br>" +
 		//: LABEL ALL_PLATFORMS
-		(AuthModel.statusCode === GlobalStatusCode.Card_Cancellation_By_User ? qsTr("The cancellation was triggered on the card reader.") + "<br>" : "") +
-		//: LABEL ALL_PLATFORMS
-		qsTr("You may start a new authentication after pressing the button.") : ""
+		(AuthModel.statusCode === GlobalStatusCode.Card_Cancellation_By_User ? qsTr("The cancellation was triggered on the card reader.") + "<br>" : "") + (Style.is_layout_desktop ?
+			//: LABEL DESKTOP
+			qsTr("You may start a new authentication after clicking the button.") :
+			//: LABEL ANDROID IOS
+			qsTr("You may start a new authentication after tapping the button.")) : ""
 		visible: text !== ""
 	}
 	GSpacer {

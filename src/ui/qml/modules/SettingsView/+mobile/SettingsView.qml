@@ -18,21 +18,16 @@ import Governikus.Style
 FlickableSectionPage {
 	id: root
 
-	function platformId(pName) {
-		return "mobile," + pName.replace(" ", "").toLowerCase();
-	}
-
 	enableTileStyle: false
 	spacing: Style.dimens.pane_spacing
 	//: LABEL ANDROID IOS
 	title: qsTr("Settings")
 
 	GOptionsContainer {
-		Layout.fillWidth: true
 		//: LABEL ANDROID IOS
 		title: qsTr("General")
 
-		GCollapsible {
+		GRadioGroup {
 			id: languageCollapsible
 
 			contentBottomMargin: 0
@@ -40,84 +35,44 @@ FlickableSectionPage {
 			contentSpacing: 0
 			contentTopMargin: 0
 			drawTopCorners: true
-			selectionIcon: "qrc:///images/location_flag_%1.svg".arg(SettingsModel.language)
-			selectionTitle: {
-				switch (SettingsModel.language) {
-				case "de":
-					return "Deutsch";
-				case "ru":
-					return "Русский";
-				case "uk":
-					return "Українська";
-				default:
-					return "English";
-				}
-			}
 			//: LABEL ANDROID IOS
 			title: qsTr("Change language")
-			width: parent.width
 
-			GRepeater {
-				delegate: GCollapsibleSubButton {
-					required property string a11yDescription
-					required property string a11yName
-					required property string language
-					required property string languageText
+			LanguageButtons {
+				id: languageButtons
 
-					Accessible.description: a11yDescription
-					Accessible.name: a11yName
-					Layout.fillWidth: true
-					text: languageText
-
-					onClicked: {
-						SettingsModel.language = language;
-						languageCollapsible.expanded = false;
-					}
-				}
-				model: LanguageButtonData {
-				}
+				onButtonClicked: languageCollapsible.onOptionSelected()
 			}
 		}
-		GSeparator {
-			anchors.left: parent.left
-			anchors.leftMargin: Style.dimens.pane_spacing
-			anchors.right: parent.right
-			anchors.rightMargin: Style.dimens.pane_spacing
+		SettingsViewSeparator {
 		}
-		GCollapsible {
+		GRadioGroup {
 			id: appearanceCollapsible
 
 			contentBottomMargin: 0
 			contentHorizontalMargin: 0
 			contentSpacing: 0
 			contentTopMargin: 0
-			selectionIcon: modeButtons.selectedIconPath
-			selectionTitle: modeButtons.selectedText
 			tintIcon: true
 			//: LABEL ANDROID IOS
 			title: qsTr("Appearance")
-			width: parent.width
 
 			DarkModeButtons {
 				id: modeButtons
 
 				width: parent.width
 
-				onButtonClicked: appearanceCollapsible.expanded = false
+				onButtonClicked: appearanceCollapsible.onOptionSelected()
 			}
 		}
-		GSeparator {
-			anchors.left: parent.left
-			anchors.leftMargin: Style.dimens.pane_spacing
-			anchors.right: parent.right
-			anchors.rightMargin: Style.dimens.pane_spacing
+		SettingsViewSeparator {
 		}
 		GSwitch {
+			Layout.fillWidth: true
 			//: LABEL ANDROID IOS
 			description: qsTr("Toggling will restart the %1").arg(Qt.application.name)
 			//: LABEL ANDROID IOS
 			text: qsTr("Use system font")
-			width: parent.width
 
 			Component.onCompleted: {
 				checked = SettingsModel.useSystemFont;
@@ -129,11 +84,7 @@ FlickableSectionPage {
 				}
 			}
 		}
-		GSeparator {
-			anchors.left: parent.left
-			anchors.leftMargin: Style.dimens.pane_spacing
-			anchors.right: parent.right
-			anchors.rightMargin: Style.dimens.pane_spacing
+		SettingsViewSeparator {
 			visible: technologySwitch.visible
 		}
 		TechnologySwitch {
@@ -145,7 +96,6 @@ FlickableSectionPage {
 			contentTopMargin: 0
 			drawBottomCorners: true
 			visible: hasSelection
-			width: parent.width
 		}
 	}
 	GOptionsContainer {
@@ -154,43 +104,35 @@ FlickableSectionPage {
 		title: qsTr("Accessibility")
 
 		GSwitch {
+			Layout.fillWidth: true
 			checked: !SettingsModel.useAnimations
 			drawTopCorners: true
 
 			//: LABEL ANDROID IOS
 			text: qsTr("Use images instead of animations")
-			width: parent.width
 
 			onCheckedChanged: SettingsModel.useAnimations = !checked
 		}
-		GSeparator {
-			anchors.left: parent.left
-			anchors.leftMargin: Style.dimens.pane_spacing
-			anchors.right: parent.right
-			anchors.rightMargin: Style.dimens.pane_spacing
+		SettingsViewSeparator {
 		}
 		GSwitch {
+			Layout.fillWidth: true
 			checked: SettingsModel.visualPrivacy
 			//: LABEL ANDROID IOS
 			text: qsTr("Hide key animations when entering PIN")
-			width: parent.width
 
 			onCheckedChanged: SettingsModel.visualPrivacy = checked
 		}
-		GSeparator {
-			anchors.left: parent.left
-			anchors.leftMargin: Style.dimens.pane_spacing
-			anchors.right: parent.right
-			anchors.rightMargin: Style.dimens.pane_spacing
+		SettingsViewSeparator {
 		}
 		GSwitch {
+			Layout.fillWidth: true
 			checked: !SettingsModel.autoRedirectAfterAuthentication
 			//: LABEL ANDROID IOS
 			description: qsTr("After identification, you will only be redirected back to the provider after confirmation. Otherwise, you will be redirected automatically after a few seconds.")
 			drawBottomCorners: true
 			//: LABEL ANDROID IOS
 			text: qsTr("Manual redirection back to the provider")
-			width: parent.width
 
 			onCheckedChanged: SettingsModel.autoRedirectAfterAuthentication = !checked
 		}
@@ -208,7 +150,6 @@ FlickableSectionPage {
 			selectionTitle: expanded ? "" : SettingsModel.deviceName
 			//: LABEL ANDROID IOS
 			title: qsTr("Device name")
-			width: parent.width
 
 			GTextField {
 				function saveInput() {
@@ -222,54 +163,43 @@ FlickableSectionPage {
 				text: SettingsModel.deviceName
 
 				onAccepted: saveInput()
-				onFocusChanged: focus ? root.positionViewAtItem(this) : saveInput()
+				onFocusChanged: if (!focus)
+					saveInput()
 			}
 		}
-		GSeparator {
-			anchors.left: parent.left
-			anchors.leftMargin: Style.dimens.pane_spacing
-			anchors.right: parent.right
-			anchors.rightMargin: Style.dimens.pane_spacing
+		SettingsViewSeparator {
 		}
 		GSwitch {
+			Layout.fillWidth: true
 			checked: SettingsModel.pinPadMode
 
 			//: LABEL ANDROID IOS
 			text: qsTr("Enter PIN on this device")
-			width: parent.width
 
 			onCheckedChanged: SettingsModel.pinPadMode = checked
 		}
-		GSeparator {
-			anchors.left: parent.left
-			anchors.leftMargin: Style.dimens.pane_spacing
-			anchors.right: parent.right
-			anchors.rightMargin: Style.dimens.pane_spacing
+		SettingsViewSeparator {
 		}
 		GSwitch {
+			Layout.fillWidth: true
 			checked: SettingsModel.showAccessRights
 			enabled: SettingsModel.pinPadMode
 
 			//: LABEL ANDROID IOS
 			text: qsTr("Show requested rights on this device as well")
-			width: parent.width
 
 			onCheckedChanged: SettingsModel.showAccessRights = checked
 		}
-		GSeparator {
-			anchors.left: parent.left
-			anchors.leftMargin: Style.dimens.pane_spacing
-			anchors.right: parent.right
-			anchors.rightMargin: Style.dimens.pane_spacing
+		SettingsViewSeparator {
 		}
 		GMenuItem {
+			Layout.fillWidth: true
 			//: LABEL ANDROID IOS
 			description: qsTr("Add and remove devices")
 			drawBottomCorners: true
 
 			//: LABEL ANDROID IOS
 			title: qsTr("Manage pairings")
-			width: parent.width
 
 			onClicked: root.push(remoteServiceSettings)
 
@@ -291,6 +221,7 @@ FlickableSectionPage {
 		title: qsTr("Numeric keypad")
 
 		GSwitch {
+			Layout.fillWidth: true
 			checked: SettingsModel.shuffleScreenKeyboard
 			//: LABEL ANDROID IOS
 			description: qsTr("Makes it difficult for outsiders to detect PIN entry")
@@ -298,17 +229,13 @@ FlickableSectionPage {
 
 			//: LABEL ANDROID IOS
 			text: qsTr("Shuffle keys")
-			width: parent.width
 
 			onCheckedChanged: SettingsModel.shuffleScreenKeyboard = checked
 		}
-		GSeparator {
-			anchors.left: parent.left
-			anchors.leftMargin: Style.dimens.pane_spacing
-			anchors.right: parent.right
-			anchors.rightMargin: Style.dimens.pane_spacing
+		SettingsViewSeparator {
 		}
 		GSwitch {
+			Layout.fillWidth: true
 			checked: SettingsModel.visualPrivacy
 			//: LABEL ANDROID IOS
 			description: qsTr("Makes it difficult for outsiders to detect PIN entry")
@@ -316,7 +243,6 @@ FlickableSectionPage {
 
 			//: LABEL ANDROID IOS
 			text: qsTr("Hide key animations")
-			width: parent.width
 
 			onCheckedChanged: SettingsModel.visualPrivacy = checked
 		}
@@ -325,14 +251,14 @@ FlickableSectionPage {
 		Layout.fillWidth: true
 		//: LABEL ANDROID IOS
 		title: qsTr("Smart-eID")
-		visible: ApplicationModel.isSmartSupported
+		visible: ApplicationModel.smartSupported
 
 		GMenuItem {
+			Layout.fillWidth: true
 			//: LABEL ANDROID IOS
 			description: qsTr("Reset Smart-eID data on your device")
 			//: LABEL ANDROID IOS
 			title: qsTr("Reset Smart-eID")
-			width: parent.width
 
 			onClicked: root.push(smartDeleteView)
 
@@ -351,29 +277,25 @@ FlickableSectionPage {
 		visible: SettingsModel.advancedSettings
 
 		GSwitch {
+			Layout.fillWidth: true
 			checked: SettingsModel.enableCanAllowed
 			drawTopCorners: true
 
 			//: LABEL ANDROID IOS
 			text: qsTr("Support CAN allowed mode for on-site reading")
-			width: parent.width
 
 			onCheckedChanged: SettingsModel.enableCanAllowed = checked
 		}
-		GSeparator {
-			anchors.left: parent.left
-			anchors.leftMargin: Style.dimens.pane_spacing
-			anchors.right: parent.right
-			anchors.rightMargin: Style.dimens.pane_spacing
+		SettingsViewSeparator {
 		}
 		GSwitch {
+			Layout.fillWidth: true
 			checked: SettingsModel.skipRightsOnCanAllowed
 			drawBottomCorners: true
 			enabled: SettingsModel.enableCanAllowed
 
 			//: LABEL ANDROID IOS
 			text: qsTr("Skip rights page")
-			width: parent.width
 
 			onCheckedChanged: SettingsModel.skipRightsOnCanAllowed = checked
 		}
@@ -387,6 +309,7 @@ FlickableSectionPage {
 		GSwitch {
 			id: testUriSwitch
 
+			Layout.fillWidth: true
 			checked: SettingsModel.useSelfauthenticationTestUri
 			//: LABEL ANDROID IOS
 			description: qsTr("Allow test sample card usage")
@@ -394,17 +317,13 @@ FlickableSectionPage {
 
 			//: LABEL ANDROID IOS
 			text: qsTr("Testmode for the self-authentication")
-			width: parent.width
 
 			onCheckedChanged: SettingsModel.useSelfauthenticationTestUri = checked
 		}
-		GSeparator {
-			anchors.left: parent.left
-			anchors.leftMargin: Style.dimens.pane_spacing
-			anchors.right: parent.right
-			anchors.rightMargin: Style.dimens.pane_spacing
+		SettingsViewSeparator {
 		}
 		GSwitch {
+			Layout.fillWidth: true
 			checked: SettingsModel.enableSimulator
 			//: LABEL ANDROID IOS
 			description: qsTr("Simulate a test sample card in authentications")
@@ -412,7 +331,6 @@ FlickableSectionPage {
 
 			//: LABEL ANDROID IOS
 			text: qsTr("Internal card simulator")
-			width: parent.width
 
 			onCheckedChanged: SettingsModel.enableSimulator = checked
 		}
@@ -425,6 +343,7 @@ FlickableSectionPage {
 		visible: UiPluginModel.debugBuild
 
 		GSwitch {
+			Layout.fillWidth: true
 			checked: SettingsModel.developerMode
 			//: LABEL ANDROID IOS
 			description: qsTr("Use a more tolerant mode")
@@ -432,24 +351,19 @@ FlickableSectionPage {
 
 			//: LABEL ANDROID IOS
 			text: qsTr("Developer mode")
-			width: parent.width
 
 			onCheckedChanged: SettingsModel.developerMode = checked
 		}
-		GSeparator {
-			anchors.left: parent.left
-			anchors.leftMargin: Style.dimens.pane_spacing
-			anchors.right: parent.right
-			anchors.rightMargin: Style.dimens.pane_spacing
+		SettingsViewSeparator {
 		}
 		GMenuItem {
+			Layout.fillWidth: true
 			//: LABEL ANDROID IOS
 			description: qsTr("Show Transport PIN reminder, store feedback and close reminder dialogs.")
 			drawBottomCorners: true
 			icon.source: "qrc:///images/material_refresh.svg"
 			//: LABEL ANDROID IOS
 			title: qsTr("Reset hideable dialogs")
-			width: parent.width
 
 			onClicked: SettingsModel.resetHideableDialogs()
 		}
@@ -462,9 +376,9 @@ FlickableSectionPage {
 		visible: UiPluginModel.debugBuild
 
 		Flow {
+			Layout.fillWidth: true
 			padding: Style.dimens.pane_padding
 			spacing: Style.dimens.pane_spacing
-			width: parent.width
 
 			GButton {
 				Layout.minimumWidth: implicitHeight
@@ -502,7 +416,6 @@ FlickableSectionPage {
 
 		ColumnLayout {
 			spacing: Style.dimens.pane_spacing
-			width: parent.width
 
 			GButton {
 				Layout.leftMargin: Style.dimens.pane_padding
@@ -513,7 +426,7 @@ FlickableSectionPage {
 				text: qsTr("New Logfile")
 
 				onClicked: {
-					LogModel.saveDummyLogFile();
+					LogFilesModel.saveDummyLogFile();
 					ApplicationModel.showFeedback("Created new logfile.");
 				}
 			}
@@ -528,10 +441,16 @@ FlickableSectionPage {
 				onClicked: {
 					let date = new Date();
 					date.setDate(new Date().getDate() - 15);
-					LogModel.saveDummyLogFile(date);
+					LogFilesModel.saveDummyLogFile(date);
 					ApplicationModel.showFeedback("Created old logfile.");
 				}
 			}
 		}
+	}
+
+	component SettingsViewSeparator: GSeparator {
+		Layout.fillWidth: true
+		Layout.leftMargin: Style.dimens.pane_spacing
+		Layout.rightMargin: Layout.leftMargin
 	}
 }

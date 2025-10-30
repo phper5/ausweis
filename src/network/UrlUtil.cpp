@@ -85,7 +85,7 @@ void UrlUtil::setHiddenSettings(const QUrlQuery& pUrl)
 }
 
 
-QPair<UrlQueryRequest, QString> UrlUtil::getRequest(const QUrlQuery& pUrl)
+std::pair<UrlQueryRequest, QString> UrlUtil::getRequest(const QUrlQuery& pUrl)
 {
 	const auto queryItems = pUrl.queryItems();
 	for (const auto& [key, value] : queryItems)

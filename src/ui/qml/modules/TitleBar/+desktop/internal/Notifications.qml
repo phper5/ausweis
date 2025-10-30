@@ -14,14 +14,7 @@ import Governikus.View
 Item {
 	id: root
 
-	readonly property color iconColor: {
-		if (d.unreadMsg) {
-			if (NotificationModel.lastType === "developermode")
-				return Style.color.warning;
-			return Style.color.textSubline.basic;
-		}
-		return Style.color.textNormal.basic;
-	}
+	readonly property color iconColor: d.unreadMsg ? Style.color.textSubline.basic : Style.color.textNormal.basic
 	readonly property bool unreadMessages: d.unreadMsg
 	readonly property bool visibleToUser: d.fadeIn && !fadeOutTimer.running
 
@@ -98,7 +91,6 @@ Item {
 				required property int index
 				required property string text
 				required property string time
-				required property string type
 
 				Accessible.name: notificationTime.text + " " + notificationBody.text
 				Accessible.role: Accessible.StaticText
@@ -129,14 +121,13 @@ Item {
 						}
 						root.newNotification();
 						//: LABEL DESKTOP %1 will be replaced with a notification text
-						GAccessible.announce(logEntry, qsTr("Notification: %1").arg(notificationBody.text));
+						logEntry.Accessible.announce(qsTr("Notification: %1").arg(notificationBody.text));
 					}
 
 					GText {
 						id: notificationTime
 
 						Accessible.ignored: true
-						activeFocusOnTab: false
 						color: Style.color.control.content.basic
 						text: logEntry.time
 					}
@@ -144,10 +135,7 @@ Item {
 						id: notificationBody
 
 						Accessible.ignored: true
-						activeFocusOnTab: false
 						color: Style.color.control.content.basic
-						style: logEntry.type === "developermode" ? Text.Outline : Text.Normal
-						styleColor: Style.color.warning
 						text: logEntry.text
 						width: logEntryList.width - 2 * Style.dimens.pane_padding - notificationTime.width - 3 * logEntryList.spacing
 					}

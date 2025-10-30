@@ -30,7 +30,7 @@ Notwendige Bibliotheken:
 
 Notwendige Tools:
 
-- CMake >= 3.19.0
+- CMake >= 3.25.0
 
   - http://www.cmake.org
 

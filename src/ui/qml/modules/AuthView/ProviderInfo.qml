@@ -1,21 +1,22 @@
 /**
  * Copyright (c) 2016-2025 Governikus GmbH & Co. KG, Germany
  */
+
 import QtQuick
 import QtQuick.Layouts
-import QtQuick.Controls
+
 import Governikus.Global
 import Governikus.Style
 import Governikus.View
 
-AbstractButton {
+GAbstractButton {
 	id: root
 
 	required property string name
 
 	//: LABEL DESKTOP
-	Accessible.description: Style.is_layout_desktop ? qsTr("Show more information about the service provider") : ""
-	Accessible.name: labelText.label + ". " + labelText.text + (Style.is_layout_desktop ? "" : (". " + link.text))
+	Accessible.description: Style.is_layout_desktop ? qsTr("Show more information about the service provider") : link.text
+	Accessible.name: labelText.label + ". " + labelText.text
 	Accessible.role: Accessible.Button
 	padding: Style.dimens.pane_padding
 
@@ -66,7 +67,7 @@ AbstractButton {
 				//: LABEL DESKTOP
 				qsTr("Details about the provider") :
 				//: LABEL ANDROID IOS
-				qsTr("Touch for more details")
+				qsTr("Tap for more details")
 				textStyle: Style.text.link
 			}
 		}
@@ -77,9 +78,6 @@ AbstractButton {
 			tintColor: labelText.textColor
 		}
 	}
-
-	onFocusChanged: if (focus)
-		Utils.positionViewAtItem(this)
 
 	HoverHandler {
 		id: hoverHandler

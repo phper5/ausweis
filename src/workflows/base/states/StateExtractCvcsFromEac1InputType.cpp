@@ -4,9 +4,9 @@
 
 #include "StateExtractCvcsFromEac1InputType.h"
 
-#include "AppSettings.h"
 
 using namespace governikus;
+
 
 StateExtractCvcsFromEac1InputType::StateExtractCvcsFromEac1InputType(const QSharedPointer<WorkflowContext>& pContext)
 	: AbstractState(pContext)

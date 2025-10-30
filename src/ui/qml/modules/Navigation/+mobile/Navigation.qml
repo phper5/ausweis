@@ -9,7 +9,7 @@ import QtQuick.Layouts
 import Governikus.Style
 import Governikus.Type
 
-RowLayout {
+Item {
 	id: root
 
 	readonly property int activeModule: d.activeModule
@@ -29,16 +29,22 @@ RowLayout {
 	}
 
 	enabled: !lockedAndHidden
-	height: lockedAndHidden ? 0 : (UiPluginModel.safeAreaMargins.bottom + implicitHeight)
-	visible: height > 0
+	height: UiPluginModel.safeAreaMargins.bottom + navigationView.implicitHeight
 
-	Behavior on height {
-		id: heightAnimation
+	states: State {
+		when: d.lockedAndHidden
 
-		enabled: !ApplicationModel.isScreenReaderRunning
+		PropertyChanges {
+			root.height: UiPluginModel.safeAreaMargins.bottom
+		}
+	}
+	transitions: Transition {
+		enabled: !ApplicationModel.screenReaderRunning
 
 		NumberAnimation {
 			duration: Style.animation_duration
+			property: "height"
+			target: root
 		}
 	}
 
@@ -52,16 +58,29 @@ RowLayout {
 
 		Component.onCompleted: root.show(startupModule, initialLockedAndHidden)
 	}
-	NavigationView {
-		id: navigationView
+	ColumnLayout {
+		anchors.left: parent.left
+		anchors.right: parent.right
 
-		Accessible.ignored: d.lockedAndHidden
-		Layout.alignment: Qt.AlignHCenter | Qt.AlignTop
-		activeModule: d.activeModule
+		NavigationView {
+			id: navigationView
 
-		onShow: pModule => {
-			root.resetContentArea();
-			root.show(pModule);
+			Accessible.ignored: d.lockedAndHidden
+			Layout.alignment: Qt.AlignHCenter
+			activeModule: d.activeModule
+			visible: root.height > UiPluginModel.safeAreaMargins.bottom
+
+			onShow: pModule => {
+				root.resetContentArea();
+				root.show(pModule);
+			}
 		}
+	}
+	Rectangle {
+		anchors.bottom: parent.bottom
+		anchors.left: parent.left
+		anchors.right: parent.right
+		color: d.lockedAndHidden ? Style.color.background : Style.color.pane.background.basic
+		height: UiPluginModel.safeAreaMargins.bottom
 	}
 }

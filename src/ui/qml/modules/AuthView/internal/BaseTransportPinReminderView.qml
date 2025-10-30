@@ -25,14 +25,11 @@ FlickableSectionPage {
 	MultiInfoData {
 		id: infoData
 
-		contentType: MultiInfoData.CHANGE_PIN
+		contentType: MultiInfoData.Type.CHANGE_PIN
 	}
-	GText {
-		Layout.alignment: Qt.AlignHCenter
-
+	Heading {
 		//: LABEL ALL_PLATFORMS
 		text: qsTr("Set up card PIN")
-		textStyle: Style.text.headline
 	}
 	GText {
 		Layout.alignment: Qt.AlignHCenter
@@ -44,18 +41,17 @@ FlickableSectionPage {
 		Layout.alignment: Qt.AlignHCenter
 		text: infoData.linkText
 
-		onClicked: root.showInfoView(MultiInfoData.CHANGE_PIN)
+		onClicked: root.showInfoView(MultiInfoData.Type.CHANGE_PIN)
 	}
-	GText {
+	Subheading {
 		//: LABEL ALL_PLATFORMS
 		text: qsTr("What kind of PIN do you have?")
-		textStyle: Style.text.subline
 	}
 	PinSelectionButtons {
 		Layout.alignment: Qt.AlignHCenter
 
 		onFiveDigitPin: root.showTransportPinInfo()
-		onNoPinAvailable: root.showInfoView(MultiInfoData.NO_PIN)
+		onNoPinAvailable: root.showInfoView(MultiInfoData.Type.NO_PIN)
 		onSixDigitPin: root.pinKnown()
 	}
 }

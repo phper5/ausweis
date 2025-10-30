@@ -38,7 +38,7 @@ ResultView {
 		visible: root.hasErrorDetails
 
 		GText {
-			font.weight: Font.Bold
+			font.weight: Style.font.bold
 			text: root.errorCode
 		}
 		GText {

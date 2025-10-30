@@ -2,14 +2,13 @@
  * Copyright (c) 2016-2025 Governikus GmbH & Co. KG, Germany
  */
 import QtQuick
-import QtQuick.Controls
 import QtQuick.Layouts
 import Governikus.Global
 import Governikus.Style
 import Governikus.View
 import Governikus.Type
 
-AbstractButton {
+GAbstractButton {
 	id: root
 
 	property alias colorStyle: colors.linkStyle
@@ -25,6 +24,7 @@ AbstractButton {
 	Layout.maximumWidth: Math.ceil(implicitWidth)
 	background: null
 	font.pixelSize: linkText.textStyle.textSize
+	font.underline: UiPluginModel.a11yButtonShapeActive
 	font.weight: linkText.textStyle.fontWeight
 	horizontalPadding: Style.dimens.control_horizontalPadding
 	verticalPadding: Style.dimens.control_verticalPadding
@@ -44,7 +44,7 @@ AbstractButton {
 				source: root.icon.source
 				sourceSize.height: 1.5 * linkText.effectiveFirstLineHeight
 				tintColor: colors.linkColor
-				visible: root.icon.source != ""
+				visible: root.icon.source.toString() !== ""
 
 				Behavior on source {
 					enabled: SettingsModel.useAnimations && !Style.is_layout_desktop
@@ -75,7 +75,6 @@ AbstractButton {
 				Accessible.ignored: true
 				Layout.alignment: Qt.AlignHCenter
 				Layout.maximumWidth: Number.POSITIVE_INFINITY
-				activeFocusOnTab: false
 				color: colors.linkColor
 				elide: Text.ElideRight
 				font: root.font
@@ -96,8 +95,6 @@ AbstractButton {
 
 	onActiveFocusOnTabChanged: if (!activeFocusOnTab)
 		focus = false
-	onFocusChanged: if (focus)
-		Utils.positionViewAtItem(this)
 
 	HoverHandler {
 		id: hoverHandler

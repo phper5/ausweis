@@ -33,10 +33,6 @@ spec:
               value: '5'
             - name: EXECUTOR
               value: '2'
-            - name: MAKE_FLAGS
-              value: '-j5'
-            - name: PROCESSOR_COUNT
-              value: '5'
             - name: FINGERPRINTS
               valueFrom:
                 secretKeyRef:

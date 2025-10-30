@@ -5,6 +5,7 @@
 import QtQuick
 
 import Governikus.Global
+import Governikus.Style
 import Governikus.Type
 
 GText {
@@ -22,7 +23,7 @@ GText {
 	readonly property string privacyStatementUrl: smart ? "https://www.ausweisapp.bund.de/%1/aa2/bmi/privacy".arg(SettingsModel.language) : "https://www.ausweisapp.bund.de/%1/aa2/privacy".arg(SettingsModel.language)
 	property bool smart: false
 
-	font.weight: Font.Bold
+	font.weight: Style.font.bold
 	text: privacyStatementText.arg(privacyStatementLink)
 	wrapMode: Text.WordWrap
 }

@@ -8,7 +8,8 @@
 #include "WebSocketChannel.h"
 
 #include <QLoggingCategory>
-#include <QMutableListIterator>
+
+#include <algorithm>
 
 
 Q_DECLARE_LOGGING_CATEGORY(ifd)
@@ -30,20 +31,19 @@ using namespace governikus;
 
 QSharedPointer<ConnectRequest> IfdConnectorImpl::removeRequest(ConnectRequest const* pRequest)
 {
-	QMutableListIterator<QSharedPointer<ConnectRequest>> requestIterator(mPendingRequests);
-	while (requestIterator.hasNext())
-	{
-		const QSharedPointer<ConnectRequest> item = requestIterator.next();
-		Q_ASSERT(item);
+	const auto& iter = std::find_if(mPendingRequests.begin(), mPendingRequests.end(),
+			[&pRequest](const auto& pCurrentRequest){
+				return pCurrentRequest == pRequest;
+			});
 
-		if (item.data() == pRequest)
-		{
-			requestIterator.remove();
-			return item;
-		}
+	if (iter == mPendingRequests.end())
+	{
+		return QSharedPointer<ConnectRequest>();
 	}
 
-	return QSharedPointer<ConnectRequest>();
+	const auto request = *iter;
+	mPendingRequests.erase(iter);
+	return request;
 }
 
 
@@ -55,11 +55,11 @@ void IfdConnectorImpl::onConnectionCreated(ConnectRequest const* pRequest, const
 		return;
 	}
 
-	const auto& ifdDescriptor = connectRequest->getIfdDescriptor();
+	const auto& discovery = connectRequest->getDiscovery();
 	const QSharedPointer<DataChannel> channel(new WebSocketChannel(pWebSocket), &QObject::deleteLater);
-	const IfdVersion::Version latestSupportedVersion = IfdVersion::selectLatestSupported(ifdDescriptor.getSupportedApis());
+	const IfdVersion::Version latestSupportedVersion = IfdVersion::selectLatestSupported(discovery.getSupportedApis());
 	const QSharedPointer<IfdDispatcherClient> dispatcher(Env::create<IfdDispatcherClient*>(latestSupportedVersion, channel), &QObject::deleteLater);
-	Q_EMIT fireDispatcherCreated(ifdDescriptor, dispatcher);
+	Q_EMIT fireDispatcherCreated(discovery.getIfdId(), dispatcher);
 }
 
 
@@ -71,7 +71,7 @@ void IfdConnectorImpl::onConnectionError(ConnectRequest const* pRequest, const I
 		return;
 	}
 
-	Q_EMIT fireDispatcherError(connectRequest->getIfdDescriptor(), pError);
+	Q_EMIT fireDispatcherError(connectRequest->getDiscovery().getIfdId(), pError);
 }
 
 
@@ -82,21 +82,21 @@ IfdConnectorImpl::IfdConnectorImpl(int pConnectTimeoutMs)
 }
 
 
-void IfdConnectorImpl::onConnectRequest(const IfdDescriptor& pIfdDescriptor, const QByteArray& pPsk)
+void IfdConnectorImpl::onConnectRequest(const Discovery& pDiscovery, const QByteArray& pPsk)
 {
-	if (pIfdDescriptor.isNull() || pIfdDescriptor.getIfdName().isEmpty())
+	if (pDiscovery.getIfdName().isEmpty() || pDiscovery.addressesMissing())
 	{
-		Q_EMIT fireDispatcherError(pIfdDescriptor, IfdErrorCode::INVALID_REQUEST);
+		Q_EMIT fireDispatcherError(pDiscovery.getIfdId(), IfdErrorCode::INVALID_REQUEST);
 		return;
 	}
 
-	if (!pIfdDescriptor.isSupported())
+	if (!pDiscovery.isSupported())
 	{
-		Q_EMIT fireDispatcherError(pIfdDescriptor, IfdErrorCode::NO_SUPPORTED_API_LEVEL);
+		Q_EMIT fireDispatcherError(pDiscovery.getIfdId(), IfdErrorCode::NO_SUPPORTED_API_LEVEL);
 		return;
 	}
 
-	const QSharedPointer<ConnectRequest> newRequest(new ConnectRequest(pIfdDescriptor, pPsk, mConnectTimeoutMs), &QObject::deleteLater);
+	const QSharedPointer<ConnectRequest> newRequest(new ConnectRequest(pDiscovery, pPsk, mConnectTimeoutMs), &QObject::deleteLater);
 	mPendingRequests += newRequest;
 	connect(newRequest.data(), &ConnectRequest::fireConnectionCreated, this, &IfdConnectorImpl::onConnectionCreated);
 	connect(newRequest.data(), &ConnectRequest::fireConnectionError, this, &IfdConnectorImpl::onConnectionError);

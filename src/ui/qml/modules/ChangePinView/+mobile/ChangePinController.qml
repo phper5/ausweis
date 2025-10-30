@@ -49,9 +49,15 @@ Controller {
 		continueWorkflowIfComfortReader();
 	}
 	function displaySuccessView(pPasswordType) {
-		push(inputSuccessView, {
-			passwordType: pPasswordType
-		});
+		if (stackView.currentItem instanceof InputSuccessView) {
+			replace(inputSuccessView, {
+				passwordType: pPasswordType
+			});
+		} else {
+			push(inputSuccessView, {
+				passwordType: pPasswordType
+			});
+		}
 		continueWorkflowIfComfortReader();
 	}
 	function processStateChange(pState) {
@@ -98,18 +104,18 @@ Controller {
 		case "StateUnfortunateCardPosition":
 			push(cardPositionView);
 			break;
-		case "StatePrepareChangePin":
-			d.setWorkflowProgress(3);
-			if (stackView.currentItem instanceof InputSuccessView) {
-				pop();
-			}
-			if (ChangePinModel.requestTransportPin && !root.isNewPin) {
-				displaySuccessView(NumberModel.PasswordType.TRANSPORT_PIN);
-				return;
-			}
-			ChangePinModel.continueWorkflow();
-			break;
 		case "StateEnterNewPacePin":
+			d.setWorkflowProgress(3);
+			if (ChangePinModel.requestTransportPin && !root.isNewPin) {
+				switch (NumberModel.passwordType) {
+				case NumberModel.PasswordType.NEW_PIN_CONFIRMATION:
+				case NumberModel.PasswordType.NEW_SMART_PIN_CONFIRMATION:
+					break;
+				default:
+					displaySuccessView(NumberModel.PasswordType.TRANSPORT_PIN);
+					return;
+				}
+			}
 			if (NumberModel.inputError !== "") {
 				displayInputError();
 				NumberModel.newPin = "";
@@ -119,7 +125,6 @@ Controller {
 			requestInput();
 			break;
 		case "FinalState":
-			showRemoveCardFeedback(ChangePinModel, false);
 			if (ChangePinModel.shouldSkipResultView()) {
 				ChangePinModel.continueWorkflow();
 				break;
@@ -267,16 +272,8 @@ Controller {
 			}
 
 			onContinueClicked: {
-				pop();
-				switch (passwordType) {
-				case NumberModel.PasswordType.CAN:
-				case NumberModel.PasswordType.PUK:
-					root.requestInput();
-					break;
-				case NumberModel.PasswordType.TRANSPORT_PIN:
-					root.pop();
-					ChangePinModel.continueWorkflow();
-				}
+				root.pop();
+				root.requestInput();
 			}
 		}
 	}
@@ -368,9 +365,9 @@ Controller {
 					break;
 				case NumberModel.PasswordType.NEW_PIN_CONFIRMATION:
 				case NumberModel.PasswordType.NEW_SMART_PIN_CONFIRMATION:
+					root.isNewPin = true;
 					if (NumberModel.commitNewPin()) {
 						d.setWorkflowProgress(5);
-						root.isNewPin = true;
 						ChangePinModel.continueWorkflow();
 					} else {
 						root.rerunCurrentState();

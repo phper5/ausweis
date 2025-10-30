@@ -8,12 +8,12 @@ def getJobs()
 {
 	def list = ['Formatting', 'Source', 'Docs']
 
-	def packages = ['Container', 'MacOS_DMG_PKG', 'Win64_GNU_MSI', 'Win64_MSVC_MSI', 'iOS_IPA', 'iOS_Framework', 'iOS_Framework_Simulator', 'iOS_Framework_Simulator_arm64']
-	for(ARCH in Constants.AndroidArchAARReview)
+	def packages = ['Container', 'MacOS_DMG_PKG', 'Win64_GNU_MSI', 'Win64_MSVC_MSI', 'iOS_IPA', 'iOS_Framework_OS', 'iOS_Framework_Simulator_x86_64', 'iOS_Framework_Simulator_arm64']
+	for(ARCH in Constants.AndroidArch)
 	{
 		packages << 'Android_AAR_' + ARCH
 	}
-	for(ARCH in Constants.AndroidArchAPKReview)
+	for(ARCH in Constants.AndroidArch)
 	{
 		packages << 'Android_APK_' + ARCH
 	}
@@ -78,12 +78,12 @@ j.with
 
 		phase('Packages', 'UNSTABLE')
 		{
-			for(ARCH in Constants.AndroidArchAARReview)
+			for(ARCH in Constants.AndroidArch)
 			{
 				phaseJob(getName('Android_AAR_' + ARCH))
 			}
 
-			for(ARCH in Constants.AndroidArchAPKReview)
+			for(ARCH in Constants.AndroidArch)
 			{
 				phaseJob(getName('Android_APK_' + ARCH))
 			}
@@ -96,9 +96,9 @@ j.with
 
 			phaseJob(getName('iOS_IPA'))
 
-			phaseJob(getName('iOS_Framework'))
+			phaseJob(getName('iOS_Framework_OS'))
 
-			phaseJob(getName('iOS_Framework_Simulator'))
+			phaseJob(getName('iOS_Framework_Simulator_x86_64'))
 
 			phaseJob(getName('iOS_Framework_Simulator_arm64'))
 
@@ -111,7 +111,7 @@ j.with
 			{
 				parameters
 				{
-					for(ARCH in Constants.AndroidArchAARReview)
+					for(ARCH in Constants.AndroidArch)
 					{
 						predefinedProp(getNameParam('Android_AAR_' + ARCH), getEnvNumber(getName('Android_AAR_' + ARCH)))
 					}
@@ -122,8 +122,8 @@ j.with
 			{
 				parameters
 				{
-					predefinedProp('iOS_Framework_Build', getEnvNumber(getName('iOS_Framework')))
-					predefinedProp('iOS_Framework_Simulator_Build', getEnvNumber(getName('iOS_Framework_Simulator')))
+					predefinedProp('iOS_Framework_OS_Build', getEnvNumber(getName('iOS_Framework_OS')))
+					predefinedProp('iOS_Framework_Simulator_x86_64_Build', getEnvNumber(getName('iOS_Framework_Simulator_x86_64')))
 					predefinedProp('iOS_Framework_Simulator_arm64_Build', getEnvNumber(getName('iOS_Framework_Simulator_arm64')))
 				}
 			}

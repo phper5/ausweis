@@ -4,11 +4,12 @@
 
 #pragma once
 
+#include "PcscReader.h"
 #include "PcscUtils.h"
-#include "Reader.h"
 #include "ReaderManagerPlugin.h"
 
 #include <QMap>
+#include <QSharedPointer>
 #include <QStringList>
 #include <QTimer>
 
@@ -30,7 +31,7 @@ class PcscReaderManagerPlugin
 	private:
 		SCARDCONTEXT mContextHandle;
 		QTimer mTimer;
-		QMap<QString, Reader*> mReaders;
+		QMap<QString, QSharedPointer<PcscReader>> mReaders;
 
 	private:
 		PCSC_RETURNCODE readReaderNames(QStringList& pReaderNames) const;
@@ -44,10 +45,12 @@ class PcscReaderManagerPlugin
 		PcscReaderManagerPlugin();
 		~PcscReaderManagerPlugin() override;
 
-		[[nodiscard]] QList<Reader*> getReaders() const override;
+		[[nodiscard]] QPointer<Reader> getReader(const QString& pReaderName) const override;
 
 		void startScan(bool pAutoConnect) override;
 		void stopScan(const QString& pError = QString()) override;
+
+		void shelveAll() const override;
 };
 
 } // namespace governikus

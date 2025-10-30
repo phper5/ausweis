@@ -6,7 +6,6 @@ RUN apt-get update && \
     apt-get -y install cmake make g++ clazy clang clang-tidy ccache gcovr cloc pkg-config ninja-build binutils-gold lld \
                        valgrind tree libpcsclite-dev libhttp-parser-dev libssl-dev libudev-dev \
                        libqt6opengl6-dev \
-                       libqt6shadertools6-dev \
                        libqt6svg6-dev \
                        libqt6websockets6-dev \
                        qt6-base-dev \

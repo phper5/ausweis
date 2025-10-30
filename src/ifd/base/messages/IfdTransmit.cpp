@@ -6,7 +6,6 @@
 #include "IfdTransmit.h"
 
 #include <QJsonArray>
-#include <QJsonObject>
 #include <QLoggingCategory>
 
 
@@ -18,7 +17,6 @@ using namespace governikus;
 
 namespace
 {
-VALUE_NAME(SLOT_HANDLE, "SlotHandle")
 VALUE_NAME(COMMAND_APDUS, "CommandAPDUs")
 VALUE_NAME(INPUT_APDU, "InputAPDU")
 VALUE_NAME(DISPLAY_TEXT, "DisplayText")
@@ -76,8 +74,7 @@ void IfdTransmit::parseInputApdu(const QJsonObject& pMessageObject)
 
 
 IfdTransmit::IfdTransmit(const QString& pSlotHandle, const QByteArray& pInputApdu, const QString& pDisplayText)
-	: IfdMessage(IfdMessageType::IFDTransmit)
-	, mSlotHandle(pSlotHandle)
+	: IfdSlotHandle<IfdMessage>(IfdMessageType::IFDTransmit, pSlotHandle)
 	, mInputApdu(pInputApdu)
 	, mDisplayText(pDisplayText)
 {
@@ -85,13 +82,10 @@ IfdTransmit::IfdTransmit(const QString& pSlotHandle, const QByteArray& pInputApd
 
 
 IfdTransmit::IfdTransmit(const QJsonObject& pMessageObject)
-	: IfdMessage(pMessageObject)
-	, mSlotHandle()
+	: IfdSlotHandle<IfdMessage>(pMessageObject)
 	, mInputApdu()
 	, mDisplayText()
 {
-	mSlotHandle = getStringValue(pMessageObject, SLOT_HANDLE());
-
 	parseInputApdu(pMessageObject);
 
 	if (pMessageObject.contains(DISPLAY_TEXT()))
@@ -100,12 +94,6 @@ IfdTransmit::IfdTransmit(const QJsonObject& pMessageObject)
 	}
 
 	ensureType(IfdMessageType::IFDTransmit);
-}
-
-
-const QString& IfdTransmit::getSlotHandle() const
-{
-	return mSlotHandle;
 }
 
 
@@ -124,8 +112,6 @@ const QString& IfdTransmit::getDisplayText() const
 QByteArray IfdTransmit::toByteArray(IfdVersion::Version pIfdVersion, const QString& pContextHandle) const
 {
 	QJsonObject result = createMessageBody(pContextHandle);
-
-	result[SLOT_HANDLE()] = mSlotHandle;
 
 	if (pIfdVersion >= IfdVersion::Version::v2)
 	{

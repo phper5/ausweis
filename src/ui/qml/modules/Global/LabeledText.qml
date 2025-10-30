@@ -1,9 +1,9 @@
 /**
  * Copyright (c) 2016-2025 Governikus GmbH & Co. KG, Germany
  */
+
 import QtQuick
 import Governikus.Style
-import Governikus.Type
 import Governikus.View
 
 Item {
@@ -23,9 +23,11 @@ Item {
 
 	Accessible.name: labelText.text + d.effectiveSeparator + bodyText.text
 	Accessible.role: Accessible.StaticText
-	activeFocusOnTab: ApplicationModel.isScreenReaderRunning
 	implicitHeight: column.height
 	implicitWidth: Math.max(labelText.implicitWidth, bodyText.implicitWidth)
+
+	Accessible.onScrollDownAction: Utils.scrollPageDownOnGFlickable(this)
+	Accessible.onScrollUpAction: Utils.scrollPageUpOnGFlickable(this)
 
 	QtObject {
 		id: d
@@ -50,7 +52,6 @@ Item {
 			id: labelText
 
 			Accessible.ignored: true
-			activeFocusOnTab: false
 			horizontalAlignment: root.alignment
 			text: root.label
 			textStyle: Style.text.subline
@@ -60,8 +61,7 @@ Item {
 		GText {
 			id: bodyText
 
-			Accessible.ignored: !hasLink
-			activeFocusOnTab: hasLink
+			Accessible.ignored: true
 			horizontalAlignment: root.alignment
 			text: root.text
 			visible: !!text

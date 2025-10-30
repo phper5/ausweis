@@ -23,6 +23,7 @@ ApplicationWindow {
 			d.detachedLogView = detachedLogViewWindow.createObject();
 		} else {
 			d.detachedLogView.raise();
+			d.detachedLogView.requestActivate();
 		}
 	}
 
@@ -39,6 +40,7 @@ ApplicationWindow {
 		contentItem: (contentArea.currentItem as SectionPage)
 		showPane: contentArea.depth > 1
 
+		onShowUpdate: contentArea.setUiModule(UiModule.UPDATEINFORMATION)
 		onStartClicked: contentArea.pop(null)
 	}
 
@@ -50,6 +52,7 @@ ApplicationWindow {
 			case ApplicationWindow.Maximized:
 			case ApplicationWindow.FullScreen:
 				UiPluginModel.showUpdateInformationIfPending();
+			// fall through
 			default:
 				break;
 			}
@@ -193,7 +196,6 @@ ApplicationWindow {
 
 		readonly property var currentSectionPage: contentArea.currentItem
 
-		activeFocusOnTab: ApplicationModel.isScreenReaderRunning
 		progress: currentSectionPage ? currentSectionPage.progress : null
 		visible: progress !== null && progress.enabled
 
@@ -253,11 +255,33 @@ ApplicationWindow {
 			d.showMainWindow();
 			closeHandler.closeOpenDialogs();
 			d.showDetachedLogViewIfPresent();
-			contentArea.setUiModule(pModule);
 			d.ensureScreenFit();
+
+			switch (ApplicationModel.currentWorkflow) {
+			case ApplicationModel.Workflow.CHANGE_PIN:
+				if (pModule !== UiModule.PINMANAGEMENT) {
+					return;
+				}
+				break;
+			case ApplicationModel.Workflow.SELF_AUTHENTICATION:
+			case ApplicationModel.Workflow.AUTHENTICATION:
+				if (pModule !== UiModule.IDENTIFY) {
+					return;
+				}
+				break;
+			case ApplicationModel.Workflow.REMOTE_SERVICE:
+			case ApplicationModel.Workflow.SMART:
+			case ApplicationModel.Workflow.NONE:
+				break;
+			}
+			contentArea.setUiModule(pModule);
 		}
 		function onIsUpdatePendingChanged() {
-			if (UiPluginModel.isUpdatePending && contentArea.activeModule === UiModule.DEFAULT) {
+			if (!UiPluginModel.isUpdatePending) {
+				return;
+			}
+
+			if (root.active && contentArea.activeModule === UiModule.DEFAULT) {
 				UiPluginModel.showUpdateInformationIfPending();
 			}
 		}

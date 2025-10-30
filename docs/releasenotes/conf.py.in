@@ -65,7 +65,7 @@ language = '@SPHINX_LANG@'
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
-exclude_patterns = ['appcast.rst']
+exclude_patterns = []
 
 
 
@@ -80,7 +80,6 @@ html_favicon = '@SPHINX_DOCS_DIR@/../../resources/images/desktop/npa.ico'
 
 html_theme_path = ['@SPHINX_DOCS_DIR@/_themes']
 
-#html_theme = 'appcast'
 html_theme = 'sphinx_rtd_theme'
 
 # If false, no module index is generated.

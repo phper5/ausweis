@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include "NetworkManager.h"
 #include "TcToken.h"
 #include "UrlUtil.h"
 #include "asn1/CVCertificate.h"
@@ -31,9 +30,11 @@
 
 #include <functional>
 
+
 class test_StateRedirectBrowser;
 class test_StatePreVerification;
 class test_StateCertificateDescriptionCheck;
+
 
 namespace governikus
 {
@@ -82,12 +83,16 @@ class AuthContext
 		CVCertificateChainBuilder mCvcChainBuilderProd;
 		CVCertificateChainBuilder mCvcChainBuilderTest;
 		QByteArray mSslSession;
+		QByteArray mSslSessionPsk;
 		BrowserHandler mBrowserHandler;
+
+		const QList<QSharedPointer<const CVCertificate>>& logCertificates(const QString& pSource, const QList<QSharedPointer<const CVCertificate>>& pCertificates) const;
 
 	Q_SIGNALS:
 		void fireShowChangePinViewChanged();
 		void fireDidAuthenticateEac1Changed();
 		void fireAccessRightManagerCreated(QSharedPointer<AccessRightManager> pAccessRightManager);
+		void fireRefreshUrlChanged();
 
 	protected:
 		explicit AuthContext(const Action pAction, bool pActivateUi = true, const QUrl& pActivationUrl = QUrl(), const BrowserHandler& pHandler = BrowserHandler());
@@ -230,7 +235,11 @@ class AuthContext
 
 		void setRefreshUrl(const QUrl& pRefreshUrl)
 		{
-			mRefreshUrl = pRefreshUrl;
+			if (mRefreshUrl != pRefreshUrl)
+			{
+				mRefreshUrl = pRefreshUrl;
+				Q_EMIT fireRefreshUrlChanged();
+			}
 		}
 
 
@@ -421,6 +430,10 @@ class AuthContext
 
 		[[nodiscard]] const QByteArray& getSslSession() const;
 		void setSslSession(const QByteArray& pSession);
+		[[nodiscard]] const QByteArray& getSslSessionPsk() const;
+		void setSslSessionPsk(const QByteArray& pSession);
+
 };
+
 
 } // namespace governikus

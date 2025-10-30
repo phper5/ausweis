@@ -33,7 +33,7 @@ void SelfAuthModel::onSelfAuthenticationDataChanged()
 			{
 				Q_ASSERT(!mSelfData.isEmpty());
 				const auto& [lastKey, lastValue] = mSelfData.takeLast();
-				mSelfData << qMakePair(lastKey, lastValue + QLatin1Char('\n') + value);
+				mSelfData << std::make_pair(lastKey, lastValue + QLatin1Char('\n') + value);
 			}
 			else
 			{
@@ -102,7 +102,7 @@ int SelfAuthModel::rowCount(const QModelIndex&) const
 
 QVariant SelfAuthModel::data(const QModelIndex& pIndex, int pRole) const
 {
-	if (pIndex.isValid() && pIndex.row() < rowCount())
+	if (pIndex.isValid() && pIndex.row() < rowCount(pIndex))
 	{
 		const auto& [name, value] = mSelfData.at(pIndex.row());
 		if (pRole == Qt::DisplayRole || pRole == NAME)

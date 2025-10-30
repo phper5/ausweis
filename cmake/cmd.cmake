@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.19)
+cmake_minimum_required(VERSION 3.25)
 
 ###########################################
 #### Usage: cmake -DCMD= -P cmake/cmd.cmake
@@ -16,42 +16,13 @@ function(MESSAGE type)
 	endif()
 endfunction()
 
+function(CHECK_WIX_LOG EXPECTED_LOGGING)
+	list(LENGTH EXPECTED_LOGGING EXPECTED_COUNT)
 
-function(HASH)
-	if(NOT FILES)
-		message(FATAL_ERROR "You need to specify 'FILES'")
-	endif()
-
-	if(NOT ALGORITHM)
-		set(ALGORITHM SHA256)
-	endif()
-	string(TOLOWER "${ALGORITHM}" HASHFILE_ENDING)
-
-	file(GLOB GLOBBED_FILES RELATIVE "${CMAKE_CURRENT_BINARY_DIR}" "${FILES}")
-
-	foreach(f ${GLOBBED_FILES})
-		file(${ALGORITHM} ${f} fHash)
-		set(OUTPUT "${fHash}  ${f}")
-		message(STDOUT ${OUTPUT})
-		if(CREATE_FILE)
-			file(WRITE ${f}.${HASHFILE_ENDING} "${OUTPUT}\n")
-		endif()
-	endforeach()
-endfunction()
-
-function(CHECK_WIX_WARNING)
-	list(APPEND EXPECTED_WARNINGS "CNDL1077.*WixShellExecTarget.*INSTALL_ROOT")
-	list(APPEND EXPECTED_WARNINGS "CNDL1077.*WixShellExecTarget.*ProductName")
-	list(APPEND EXPECTED_WARNINGS "LGHT1076.*ICE03.*CustomInstallDirDlg.SystemSettingsCheckBox")
-	list(APPEND EXPECTED_WARNINGS "LGHT1076.*ICE30.*AusweisApp2.*ProxyService")
-	list(APPEND EXPECTED_WARNINGS "LGHT1076.*ICE30.*AusweisApp2.*ProxyService")
-	list(APPEND EXPECTED_WARNINGS "LGHT1076.*ICE61.*product.*version")
-	list(LENGTH EXPECTED_WARNINGS EXPECTED_COUNT)
-
-	file(STRINGS "${FILE}" WIX_WARNINGS REGEX "warning")
+	file(STRINGS "${FILE}" WIX_WARNINGS REGEX "warning|error")
 	foreach(m ${WIX_WARNINGS})
 		unset(KNOWN_WARNING)
-		foreach(e ${EXPECTED_WARNINGS})
+		foreach(e ${EXPECTED_LOGGING})
 			string(REGEX MATCH "${e}" KNOWN_WARNING "${m}")
 			if(KNOWN_WARNING)
 				MATH(EXPR WARNING_COUNT "${WARNING_COUNT}+1")
@@ -80,74 +51,26 @@ function(CHECK_WIX_WARNING)
 	endif()
 endfunction()
 
+function(CHECK_WIX_MSI)
+	list(APPEND EXPECTED_LOGGING "warning WIX1077.*WixShellExecTarget.*INSTALL_ROOT")
+	list(APPEND EXPECTED_LOGGING "warning WIX1077.*WixShellExecTarget.*ProductName")
 
-function(DEPLOY_NEXUS)
-	find_program(MVN_BIN mvn)
-	if(NOT MVN_BIN)
-		message(FATAL_ERROR "Cannot find mvn")
-	endif()
+	CHECK_WIX_LOG("${EXPECTED_LOGGING}")
+endfunction()
 
-	set(SETTINGS_XML "
-		<settings><servers>
-			<server>
-				<id>nexus</id>
-				<username>\${env.NEXUS_USERNAME}</username>
-				<password>\${env.NEXUS_PSW}</password>
-			</server>
-			<server>
-				<id>central</id>
-				<username>\${env.CENTRAL_USERNAME}</username>
-				<password>\${env.CENTRAL_PSW}</password>
-			</server>
-		</servers></settings>
-	")
-	file(WRITE settings.xml "${SETTINGS_XML}")
+function(CHECK_WIX_VALIDATION)
+	list(APPEND EXPECTED_LOGGING "warning WIX1076.*ICE03.*String overflow.*CustomInstallDirDlg\\.SystemSettingsCheckBox")
+	list(APPEND EXPECTED_LOGGING "warning WIX1076.*ICE30.*AusweisApp2.*ProxyService.*mutually exclusive")
+	list(APPEND EXPECTED_LOGGING "warning WIX1076.*ICE30.*AusweisApp2.*ProxyService.*mutually exclusive")
+	list(APPEND EXPECTED_LOGGING "error WIX0204.*ICE38.*DesktopShortcut.*user profile.*KeyPath.*HKCU")
+	list(APPEND EXPECTED_LOGGING "error WIX0204.*ICE38.*StartmenuShortcut.*user profile.*KeyPath.*HKCU")
+	list(APPEND EXPECTED_LOGGING "error WIX0204.*ICE43.*DesktopShortcut.*non-advertised shortcuts.*KeyPath.*HKCU")
+	list(APPEND EXPECTED_LOGGING "error WIX0204.*ICE43.*StartmenuShortcut.*non-advertised shortcuts.*KeyPath.*HKCU")
+	list(APPEND EXPECTED_LOGGING "error WIX0204.*ICE57.*'DesktopShortcut' has both.*data with a per-machine KeyPath")
+	list(APPEND EXPECTED_LOGGING "error WIX0204.*ICE57.*'StartmenuShortcut' has both.*data with a per-machine KeyPath")
+	list(APPEND EXPECTED_LOGGING "warning WIX1076.*ICE61.*This product should remove only older versions of itself.")
 
-	function(get_file _suffix _out_var)
-		file(GLOB file RELATIVE ${CMAKE_BINARY_DIR} ${_suffix})
-
-		list(LENGTH file list_length)
-		if(list_length GREATER 1)
-			message(FATAL_ERROR "Found more than one entry: ${file}")
-		elseif(asc_length EQUAL 0)
-			message(FATAL_ERROR "File ${file} not found. Maybe signature is missing?")
-		endif()
-
-		set(${_out_var} ${file} PARENT_SCOPE)
-	endfunction()
-
-	get_file("*.aar" FILE_AAR)
-	get_file("*.pom" FILE_POM)
-	get_file("*-sources.jar" FILE_JAR)
-
-	file(STRINGS "${FILE_POM}" is_snapshot REGEX "<version>.+-SNAPSHOT</version>")
-	if(is_snapshot)
-		set(NEXUS_URL https://repo.govkg.de/repository/ausweisapp-snapshots)
-	else()
-		set(NEXUS_URL https://repo.govkg.de/repository/ausweisapp-releases)
-	endif()
-
-	set(MVN_CMD ${MVN_BIN} deploy:3.1.3:deploy-file -Dfile=${FILE_AAR} -DpomFile=${FILE_POM} -Dsources=${FILE_JAR} --settings settings.xml)
-	EXECUTE(${MVN_CMD} -DrepositoryId=nexus -Durl=${NEXUS_URL})
-
-	if(PUBLISH AND NOT is_snapshot)
-		set(CENTRAL_PARAMS -DrepositoryId=central -Durl=https://s01.oss.sonatype.org/service/local/staging/deploy/maven2)
-		EXECUTE(${MVN_CMD} ${CENTRAL_PARAMS})
-
-		get_file("*.aar.asc" FILE_AAR_ASC)
-		get_file("*.pom.asc" FILE_POM_ASC)
-		get_file("*-sources.jar.asc" FILE_SOURCES_ASC)
-
-		function(mvn_upload _file _packaging _classifier)
-			EXECUTE(${MVN_BIN} deploy:3.1.3:deploy-file -Dfile=${_file} -Dpackaging=${_packaging} -Dclassifier=${_classifier} -DpomFile=${FILE_POM} ${CENTRAL_PARAMS} --settings settings.xml)
-		endfunction()
-
-		mvn_upload("${FILE_AAR_ASC}" "aar.asc" "")
-		mvn_upload("${FILE_POM_ASC}" "pom.asc" "")
-		mvn_upload("${FILE_SOURCES_ASC}" "jar.asc" "sources")
-	endif()
-
-	file(REMOVE settings.xml)
+	CHECK_WIX_LOG("${EXPECTED_LOGGING}")
 endfunction()
 
 function(CHECK_FAILURE_CODES)
@@ -301,6 +224,119 @@ function(CHECK_QMLTYPES)
 
 	if(failed)
 		message(FATAL_ERROR "Enum in qmltypes is not scoped")
+	endif()
+endfunction()
+
+function(CHECK_QMLENUMS)
+	file(GLOB_RECURSE QML "${CMAKE_CURRENT_BINARY_DIR}/*.qml")
+
+	foreach(file ${QML})
+		file(STRINGS "${file}" filecontent)
+		unset(ENUM_NAME)
+
+		foreach(line ${filecontent})
+			if(ENUM_NAME)
+				if(line MATCHES "}")
+					unset(ENUM_NAME)
+				elseif(line MATCHES "([A-Za-z0-9_]+)")
+					list(APPEND ENUMS "${ENUM_NAME}.${CMAKE_MATCH_1}")
+				endif()
+			elseif(NOT ENUM_NAME AND line MATCHES "enum ([A-Za-z]+) {")
+				cmake_path(GET file STEM stem)
+				set(ENUM_NAME "${stem}.${CMAKE_MATCH_1}")
+			endif()
+		endforeach()
+	endforeach()
+
+	unset(bad_enum_regex)
+	foreach(enum IN LISTS ENUMS)
+		cmake_path(GET enum STEM enum_component)
+		cmake_path(GET enum EXTENSION LAST_ONLY enum_value)
+		list(APPEND bad_enum_regex ${enum_component}${enum_value})
+	endforeach()
+	list(JOIN bad_enum_regex "|" bad_enum_regex)
+
+	foreach(file ${QML})
+		file(STRINGS "${file}" filecontent REGEX "(${bad_enum_regex})")
+		if(filecontent)
+			message(STATUS "File contains wrong values: ${file}")
+			set(failed TRUE)
+
+			foreach(line ${filecontent})
+				foreach(enum IN LISTS ENUMS)
+					cmake_path(GET enum STEM enum_component)
+					cmake_path(GET enum EXTENSION LAST_ONLY enum_value)
+					if(line MATCHES "${enum_component}${enum_value}")
+						message("   Value: ${enum_component}${enum_value}\n   Enum: ${enum}\n   Line: ${line}")
+					endif()
+				endforeach()
+			endforeach()
+		endif()
+	endforeach()
+
+	if(failed)
+		message(FATAL_ERROR "Enum in QML is not scoped")
+	endif()
+endfunction()
+
+function(GENERATE_APPCAST)
+	set(APPCAST_URL https://updates.autentapp.de)
+	set(APPCAST_ITEM "
+		{
+			\"date\": \"APPCAST_DATE\",
+			\"platform\": \"APPCAST_PLATFORM\",
+			\"minimum_platform\": \"APPCAST_MINIMUM_PLATFORM\",
+			\"version\": \"APPCAST_VERSION\",
+			\"url\": \"APPCAST_URL\",
+			\"size\": APPCAST_SIZE,
+			\"checksum\": \"APPCAST_CHECKSUM\",
+			\"notes\": \"APPCAST_NOTES\"
+		}")
+	set(APPCAST "{
+	\"items\":
+	[APPCAST_ITEMS
+	]
+}")
+
+	macro(ADD_APPCAST_FILE _files _system _min)
+		string(TIMESTAMP APPCAST_DATE "%Y-%m-%dT%H:%M:%S")
+
+		foreach(filePath ${_files})
+			file(SIZE ${filePath} fileSize)
+			get_filename_component(file ${filePath} NAME)
+
+			if(NOT DEFINED fileSize)
+				message(FATAL_ERROR "Cannot get file size of: ${file}")
+			endif()
+
+			message(STATUS "Processing: ${file}")
+
+			string(REPLACE "AusweisApp-" "" APPCAST_FILE_VERSION ${file})
+			string(REPLACE ".msi" "" APPCAST_FILE_VERSION ${APPCAST_FILE_VERSION})
+
+			set(item ${APPCAST_ITEM})
+			string(REPLACE "APPCAST_DATE" "${APPCAST_DATE}" item ${item})
+			string(REPLACE "APPCAST_PLATFORM" ${_system} item ${item})
+			string(REPLACE "APPCAST_MINIMUM_PLATFORM" ${_min} item ${item})
+			string(REPLACE "APPCAST_VERSION" "${APPCAST_FILE_VERSION}" item ${item})
+			string(REPLACE "APPCAST_URL" "${APPCAST_URL}/${file}" item ${item})
+			string(REPLACE "APPCAST_SIZE" "${fileSize}" item ${item})
+			string(REPLACE "APPCAST_CHECKSUM" "${APPCAST_URL}/${file}.sha256" item ${item})
+			string(REPLACE "APPCAST_NOTES" "${APPCAST_URL}/ReleaseNotes.html" item ${item})
+
+			set(APPCAST_ITEMS "${APPCAST_ITEMS}${item},")
+		endforeach()
+	endmacro()
+
+	file(GLOB MSI_FILES ${CMAKE_BINARY_DIR}/*.msi)
+	if(MSI_FILES)
+		ADD_APPCAST_FILE("${MSI_FILES}" "win" "10")
+	endif()
+
+	if(APPCAST_ITEMS)
+		string(REGEX REPLACE ",$" "" APPCAST_ITEMS "${APPCAST_ITEMS}")
+		string(REPLACE "APPCAST_ITEMS" "${APPCAST_ITEMS}" APPCAST "${APPCAST}")
+		file(CONFIGURE OUTPUT "${CMAKE_BINARY_DIR}/AppcastInfo.json" CONTENT "${APPCAST}" @ONLY NEWLINE_STYLE UNIX)
 	endif()
 endfunction()
 

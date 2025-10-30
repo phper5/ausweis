@@ -6,11 +6,27 @@
 
 #include "AppSettings.h"
 #include "SecureStorage.h"
-#include "asn1/Chat.h"
-#include "paos/retrieve/DidAuthenticateEac1Parser.h"
 
 
+using namespace Qt::Literals::StringLiterals;
 using namespace governikus;
+
+
+Q_DECLARE_LOGGING_CATEGORY(card)
+
+
+const QList<QSharedPointer<const CVCertificate>>& AuthContext::logCertificates(const QString& pSource, const QList<QSharedPointer<const CVCertificate>>& pCertificates) const
+{
+	if (!pCertificates.isEmpty())
+	{
+		qCDebug(card) << "    Source:" << pSource;
+		for (const auto& cvc : pCertificates)
+		{
+			qCDebug(card) << "        " << cvc;
+		}
+	}
+	return pCertificates;
+}
 
 
 AuthContext::AuthContext(const Action pAction, bool pActivateUi, const QUrl& pActivationUrl, const BrowserHandler& pHandler)
@@ -104,6 +120,18 @@ void AuthContext::setSslSession(const QByteArray& pSession)
 }
 
 
+const QByteArray& AuthContext::getSslSessionPsk() const
+{
+	return mSslSessionPsk;
+}
+
+
+void AuthContext::setSslSessionPsk(const QByteArray& pSession)
+{
+	mSslSessionPsk = pSession;
+}
+
+
 QByteArray AuthContext::encodeEffectiveChat()
 {
 	if (!mAccessRightManager)
@@ -157,12 +185,14 @@ void AuthContext::initCvcChainBuilder(const QList<QSharedPointer<const CVCertifi
 {
 	Q_ASSERT(mDIDAuthenticateEAC1);
 
+	qCDebug(card) << "Initialize ChainBuilder with certificates";
+
 	QList<QSharedPointer<const CVCertificate>> cvcs;
-	cvcs += CVCertificate::fromRaw(Env::getSingleton<AppSettings>()->getPreVerificationSettings().getLinkCertificates());
-	cvcs += getDidAuthenticateEac1()->getCvCertificates();
-	cvcs += pAdditionalCertificates;
+	cvcs += logCertificates("PreVerification"_L1, CVCertificate::fromRaw(Env::getSingleton<AppSettings>()->getPreVerificationSettings().getLinkCertificates()));
+	cvcs += logCertificates("Eac1"_L1, getDidAuthenticateEac1()->getCvCertificates());
+	cvcs += logCertificates("Eac2"_L1, pAdditionalCertificates);
 
 	const auto* secureStorage = Env::getSingleton<SecureStorage>();
-	mCvcChainBuilderProd = CVCertificateChainBuilder(cvcs + CVCertificate::fromRaw(secureStorage->getCVRootCertificates(true)), true);
-	mCvcChainBuilderTest = CVCertificateChainBuilder(cvcs + CVCertificate::fromRaw(secureStorage->getCVRootCertificates(false)), false);
+	mCvcChainBuilderProd = CVCertificateChainBuilder(cvcs + logCertificates("Productive"_L1, CVCertificate::fromRaw(secureStorage->getCVRootCertificates(true))), true);
+	mCvcChainBuilderTest = CVCertificateChainBuilder(cvcs + logCertificates("Test"_L1, CVCertificate::fromRaw(secureStorage->getCVRootCertificates(false))), false);
 }

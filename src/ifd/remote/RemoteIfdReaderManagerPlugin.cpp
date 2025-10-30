@@ -40,13 +40,13 @@ void RemoteIfdReaderManagerPlugin::continueConnectToPairedReaders(const QList<QS
 	const RemoteServiceSettings& remoteServiceSettings = Env::getSingleton<AppSettings>()->getRemoteServiceSettings();
 	for (const QSharedPointer<IfdListEntry>& remoteDevice : pRemoteDevices)
 	{
-		const auto& ifdDescriptor = remoteDevice->getIfdDescriptor();
-		if (!ifdDescriptor.isSupported() || ifdDescriptor.isPairing())
+		const auto& discovery = remoteDevice->getDiscovery();
+		if (!discovery.isSupported() || discovery.isPairing())
 		{
 			continue;
 		}
 
-		const QByteArray ifdId = ifdDescriptor.getIfdId();
+		const QByteArray ifdId = discovery.getIfdId();
 
 		// If already connected: skip.
 		if (getDispatchers().contains(ifdId))
@@ -71,7 +71,7 @@ void RemoteIfdReaderManagerPlugin::continueConnectToPairedReaders(const QList<QS
 
 void RemoteIfdReaderManagerPlugin::onDeviceVanished(const QSharedPointer<IfdListEntry>& pEntry)
 {
-	const auto& ifdId = pEntry->getIfdDescriptor().getIfdId();
+	const auto& ifdId = pEntry->getDiscovery().getIfdId();
 	if (mConnectionAttempts.contains(ifdId))
 	{
 		qCInfo(card_remote) << "Removing" << ifdId.toHex() << "from connection attempt list as it has vanished";
@@ -82,7 +82,7 @@ void RemoteIfdReaderManagerPlugin::onDeviceVanished(const QSharedPointer<IfdList
 
 void RemoteIfdReaderManagerPlugin::onEstablishConnectionDone(const QSharedPointer<IfdListEntry>& pEntry, const GlobalStatus& pStatus)
 {
-	const auto& ifdId = pEntry->getIfdDescriptor().getIfdId();
+	const auto& ifdId = pEntry->getDiscovery().getIfdId();
 	if (mConnectionAttempts.contains(ifdId))
 	{
 		qCInfo(card_remote) << "Removing" << ifdId.toHex() << "from connection attempt list as the request finished with" << pStatus;

@@ -1,8 +1,10 @@
 /**
  * Copyright (c) 2015-2025 Governikus GmbH & Co. KG, Germany
  */
+
 import QtQuick
 import QtQuick.Controls
+
 import Governikus.Global
 import Governikus.TitleBar
 import Governikus.Navigation
@@ -29,7 +31,11 @@ ApplicationWindow {
 		feedback.close();
 	}
 
-	flags: Qt.platform.os === "ios" ? Qt.Window | Qt.MaximizeUsingFullscreenGeometryHint : Qt.Window
+	bottomPadding: footer.height
+	flags: Qt.platform.os === "ios" ? Qt.Window | Qt.ExpandedClientAreaHint : Qt.Window
+	leftPadding: 0
+	rightPadding: 0
+	topPadding: menuBar.height
 	visible: true
 
 	background: Rectangle {
@@ -72,7 +78,7 @@ ApplicationWindow {
 		// back button pressed
 		pClose.accepted = false;
 		if (contentArea.visibleItem) {
-			if (contentArea.activeModule === UiModule.DEFAULT) {
+			if (contentArea.activeModule === UiModule.DEFAULT && Style.is_layout_android) {
 				let currentTime = new Date();
 				if (currentTime - d.lastCloseInvocation < 1000) {
 					UiPluginModel.fireQuitApplicationRequest();
@@ -81,7 +87,7 @@ ApplicationWindow {
 				}
 				d.lastCloseInvocation = currentTime;
 				//: INFO ANDROID IOS Hint that is shown if the users pressed the "back" button on the top-most navigation level for the first time (a second press closes the app).
-				ApplicationModel.showFeedback(qsTr("To close the app, press the back button 2 times."));
+				ApplicationModel.showFeedback(qsTr("To close the app, tap the back button 2 times."));
 				return;
 			}
 			let activeStackView = contentArea.visibleItem;
@@ -114,6 +120,28 @@ ApplicationWindow {
 	}
 	Connections {
 		function onFireShowRequest(pModule) {
+			switch (ApplicationModel.currentWorkflow) {
+			case ApplicationModel.Workflow.CHANGE_PIN:
+				if (pModule !== UiModule.PINMANAGEMENT) {
+					return;
+				}
+				break;
+			case ApplicationModel.Workflow.SELF_AUTHENTICATION:
+			case ApplicationModel.Workflow.AUTHENTICATION:
+				if (pModule !== UiModule.IDENTIFY) {
+					return;
+				}
+				break;
+			case ApplicationModel.Workflow.REMOTE_SERVICE:
+				if (pModule !== UiModule.REMOTE_SERVICE) {
+					return;
+				}
+				break;
+			case ApplicationModel.Workflow.SMART:
+			case ApplicationModel.Workflow.NONE:
+				break;
+			}
+
 			switch (pModule) {
 			case UiModule.CURRENT:
 				break;
@@ -129,6 +157,7 @@ ApplicationWindow {
 					navigation.show(UiModule.SELF_AUTHENTICATION);
 					break;
 				}
+			// fall through
 			default:
 				navigation.show(pModule);
 				break;
@@ -177,6 +206,9 @@ ApplicationWindow {
 		onBackGestureTriggered: titleBar.navigationAction.clicked()
 	}
 	Connections {
+		function onFireA11yFocusChanged(pItem) {
+			Utils.positionViewAtItem(pItem);
+		}
 		function onFireFeedbackChanged() {
 			root.closeFeedbackPopup();
 			if (ApplicationModel.feedback !== "") {
@@ -193,10 +225,10 @@ ApplicationWindow {
 		id: toast
 
 		ConfirmationPopup {
-			closePolicy: ApplicationModel.isScreenReaderRunning ? Popup.NoAutoClose : Popup.CloseOnReleaseOutside
+			closePolicy: ApplicationModel.screenReaderRunning ? Popup.NoAutoClose : Popup.CloseOnReleaseOutside
 			dim: true
-			modal: ApplicationModel.isScreenReaderRunning
-			style: ApplicationModel.isScreenReaderRunning ? ConfirmationPopup.PopupStyle.OkButton : ConfirmationPopup.PopupStyle.NoButtons
+			modal: ApplicationModel.screenReaderRunning
+			style: ApplicationModel.screenReaderRunning ? ConfirmationPopup.PopupStyle.OkButton : ConfirmationPopup.PopupStyle.NoButtons
 
 			onConfirmed: ApplicationModel.onShowNextFeedback()
 		}

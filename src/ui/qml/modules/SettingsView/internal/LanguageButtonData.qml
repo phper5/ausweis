@@ -6,38 +6,34 @@ import QtQuick
 ListModel {
 	ListElement {
 		//: LABEL ALL_PLATFORMS
-		a11yDescription: qsTr("Set language to german")
+		desc: qsTr("Set language to german")
+		img: "qrc:///images/location_flag_de.svg"
 		//: LABEL ALL_PLATFORMS
-		a11yName: qsTr("German")
-		image: "qrc:///images/location_flag_de.svg"
-		language: "de"
-		languageText: "Deutsch"
+		name: qsTr("German")
+		value: "de"
 	}
 	ListElement {
 		//: LABEL ALL_PLATFORMS
-		a11yDescription: qsTr("Set language to english")
+		desc: qsTr("Set language to english")
+		img: "qrc:///images/location_flag_en.svg"
 		//: LABEL ALL_PLATFORMS
-		a11yName: qsTr("English")
-		image: "qrc:///images/location_flag_en.svg"
-		language: "en"
-		languageText: "English"
+		name: qsTr("English")
+		value: "en"
 	}
 	ListElement {
 		//: LABEL ALL_PLATFORMS
-		a11yDescription: qsTr("Set language to ukrainian")
+		desc: qsTr("Set language to ukrainian")
+		img: "qrc:///images/location_flag_uk.svg"
 		//: LABEL ALL_PLATFORMS
-		a11yName: qsTr("Ukrainian")
-		image: "qrc:///images/location_flag_uk.svg"
-		language: "uk"
-		languageText: "Українська"
+		name: qsTr("Ukrainian")
+		value: "uk"
 	}
 	ListElement {
 		//: LABEL ALL_PLATFORMS
-		a11yDescription: qsTr("Set language to russian")
+		desc: qsTr("Set language to russian")
+		img: "qrc:///images/location_flag_ru.svg"
 		//: LABEL ALL_PLATFORMS
-		a11yName: qsTr("Russian")
-		image: "qrc:///images/location_flag_ru.svg"
-		language: "ru"
-		languageText: "Русский"
+		name: qsTr("Russian")
+		value: "ru"
 	}
 }

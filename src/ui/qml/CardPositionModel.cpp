@@ -6,22 +6,25 @@
 
 #include <QQmlEngine>
 
+
 using namespace governikus;
+
 
 CardPositionModel::CardPositionModel()
 	: QObject()
 	, mCyclingClock(5000)
 	, mCurrentIndex(0)
-#if defined(Q_OS_IOS)
-	, mCardPositions({CardPosition(0.5, 0.0, -1)})
-#else
 	, mCardPositions({
-				CardPosition(0.5, 0.5, -1, 90),
-				CardPosition(0.5, 0.5, -1),
-				CardPosition(0.5, 0.25, -1),
-				CardPosition(0.5, 0.75, -1)
-			})
+#if defined(Q_OS_IOS)
+				{0.5, 0.0}
+
+#else
+				{0.5, 0.5, 90},
+				{0.5, 0.5},
+				{0.5, 0.25},
+				{0.5, 0.75}
 #endif
+			})
 {
 	connect(&mCyclingTimer, &QTimer::timeout, this, &CardPositionModel::onTimerTimeout);
 }

@@ -5,7 +5,6 @@
 #include "LogModel.h"
 
 #include "ApplicationModel.h"
-#include "LogHandler.h"
 #include "PlatformTools.h"
 
 #import <MessageUI/MessageUI.h>
@@ -13,11 +12,14 @@
 
 #include <QFile>
 #include <QLoggingCategory>
+#include <QUrl>
+
 
 Q_DECLARE_LOGGING_CATEGORY(qml)
 
 
 using namespace governikus;
+
 
 @interface MailComposeController
 	: MFMailComposeViewController<MFMailComposeViewControllerDelegate>
@@ -38,45 +40,13 @@ using namespace governikus;
 @end
 
 
-static QString getTemporaryLogFile(const QString& pSourceFile = QString())
+static QString getTemporaryLogFilePath(const QString& pTargetFileName)
 {
-	LogHandler* logHandler = Env::getSingleton<LogHandler>();
-
-	QString destinationFileName;
-	if (pSourceFile.isEmpty())
-	{
-		destinationFileName = LogModel::createLogFileName();
-	}
-	else
-	{
-		destinationFileName = LogModel::createLogFileName(logHandler->getFileDate(QFileInfo(pSourceFile)));
-	}
-
-	QString destinationFilePath = QString::fromNSString([NSTemporaryDirectory() stringByAppendingPathComponent: destinationFileName.toNSString()]);
-
-	if (QFile::exists(destinationFilePath))
-	{
-		QFile::remove(destinationFilePath);
-	}
-
-	if (pSourceFile.isEmpty())
-	{
-		logHandler->copy(destinationFilePath);
-	}
-	else
-	{
-		if (!QFile::copy(pSourceFile, destinationFilePath))
-		{
-			qCCritical(qml) << "Cannot copy logfile to" << destinationFilePath;
-			return QString();
-		}
-	}
-
-	return destinationFilePath;
+	return QString::fromNSString([NSTemporaryDirectory() stringByAppendingPathComponent: pTargetFileName.toNSString()]);
 }
 
 
-void LogModel::mailLog(const QString& pEmail, const QString& pSubject, const QString& pMsg) const
+void LogModel::mailLogFile(const QString& pEmail, const QString& pSubject, const QString& pMsg) const
 {
 	if (![MFMailComposeViewController canSendMail])
 	{
@@ -84,10 +54,11 @@ void LogModel::mailLog(const QString& pEmail, const QString& pSubject, const QSt
 		return;
 	}
 
-	QString fileName = LogModel::createLogFileName();
-	const auto& logFile = getTemporaryLogFile();
-	if (logFile.isEmpty())
+	const auto fileName = createLogFileName();
+	const auto& logFile = getTemporaryLogFilePath(fileName);
+	if (!saveLogFile(QUrl::fromLocalFile(logFile), false))
 	{
+		qCCritical(qml) << "Can't copy log file to" << logFile;
 		return;
 	}
 
@@ -113,11 +84,12 @@ void LogModel::mailLog(const QString& pEmail, const QString& pSubject, const QSt
 }
 
 
-void LogModel::shareLog(const QPoint popupPosition) const
+void LogModel::shareLogFile(const QPoint popupPosition) const
 {
-	const QString& logFile = mSelectedLogFile == 0 ? getTemporaryLogFile() : getTemporaryLogFile(mLogFiles.at(mSelectedLogFile));
-	if (logFile.isEmpty())
+	const auto& logFile = getTemporaryLogFilePath(createLogFileName());
+	if (!saveLogFile(QUrl::fromLocalFile(logFile), false))
 	{
+		qCCritical(qml) << "Can't copy log file to" << logFile;
 		return;
 	}
 

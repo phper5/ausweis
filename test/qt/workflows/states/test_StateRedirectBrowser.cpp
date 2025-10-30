@@ -24,7 +24,6 @@ class test_StateRedirectBrowser
 	{
 		const auto& context = QSharedPointer<AuthContext>::create(true, QUrl(), pHandler);
 		QSharedPointer<StateRedirectBrowser> state(StateBuilder::createState<StateRedirectBrowser>(context));
-		state->onEntry(nullptr);
 		return state;
 	}
 
@@ -110,13 +109,14 @@ class test_StateRedirectBrowser
 			auto state = getStateRedirectBrowser();
 			QSignalSpy spyAbort(state.data(), &StateRedirectBrowser::fireAbort);
 			QSignalSpy spyContinue(state.data(), &StateRedirectBrowser::fireContinue);
-
 			auto context = state->getContext();
 			context->setRefreshUrl(QUrl("https://www.foo.bar"_L1));
 			context->setStatus(status);
 			context->setStartPaosResult(result);
-			state->run();
+
+			state->onEntry(nullptr);
 			QCOMPARE(context->getRefreshUrl(), url);
+			state->run();
 			QCOMPARE(spyAbort.count(), 0);
 			QCOMPARE(spyContinue.count(), 1);
 		}
@@ -128,6 +128,7 @@ class test_StateRedirectBrowser
 			QSignalSpy spyAbort(state.data(), &StateRedirectBrowser::fireAbort);
 			QSignalSpy spyContinue(state.data(), &StateRedirectBrowser::fireContinue);
 
+			state->onEntry(nullptr);
 			state->run();
 			QCOMPARE(state->getContext()->getStatus(), GlobalStatus::Code::No_Error);
 			QCOMPARE(spyAbort.count(), 0);
@@ -145,6 +146,7 @@ class test_StateRedirectBrowser
 			QSignalSpy spyContinue(state.data(), &StateRedirectBrowser::fireContinue);
 
 			QTest::ignoreMessage(QtCriticalMsg, "Cannot send page to caller: \"failing\"");
+			state->onEntry(nullptr);
 			state->run();
 			QCOMPARE(state->getContext()->getStatus().getStatusCode(), GlobalStatus::Code::Workflow_Browser_Transmission_Error);
 			QCOMPARE(state->getContext()->getStatus().getExternalInfo(), QLatin1String("failing"));
@@ -175,8 +177,9 @@ class test_StateRedirectBrowser
 			QTest::ignoreMessage(QtDebugMsg, "Refresh URL is not valid: QUrl(\"\")");
 			QTest::ignoreMessage(QtDebugMsg, "CommunicationErrorAddress is not valid: QUrl(\"\")");
 
+			state->onEntry(nullptr);
 			state->run();
-			QCOMPARE(context->getRefreshUrl(), QString());
+			QCOMPARE(context->getRefreshUrl(), QUrl());
 			QCOMPARE(spyAbort.count(), 0);
 			QCOMPARE(spyContinue.count(), 1);
 		}
@@ -206,8 +209,9 @@ class test_StateRedirectBrowser
 			context->setTcToken(QSharedPointer<TcToken>::create(tokenData));
 			QTest::ignoreMessage(QtDebugMsg, "Refresh URL is not valid: QUrl(\"\")");
 
+			state->onEntry(nullptr);
 			state->run();
-			QCOMPARE(context->getRefreshUrl(), QStringLiteral("https://flupp?ResultMajor=error&ResultMinor=communicationError"));
+			QCOMPARE(context->getRefreshUrl(), QUrl(QStringLiteral("https://flupp?ResultMajor=error&ResultMinor=communicationError")));
 			QCOMPARE(spyAbort.count(), 0);
 			QCOMPARE(spyContinue.count(), 1);
 		}
@@ -238,8 +242,9 @@ class test_StateRedirectBrowser
 			context->setTcToken(QSharedPointer<TcToken>::create(tokenData));
 			QTest::ignoreMessage(QtDebugMsg, "Refresh URL is not valid: QUrl(\"\")");
 
+			state->onEntry(nullptr);
 			state->run();
-			QCOMPARE(context->getRefreshUrl(), QStringLiteral("https://flupp?ResultMajor=error&ResultMinor=communicationError"));
+			QCOMPARE(context->getRefreshUrl(), QUrl(QStringLiteral("https://flupp?ResultMajor=error&ResultMinor=communicationError")));
 			QCOMPARE(spyAbort.count(), 0);
 			QCOMPARE(spyContinue.count(), 1);
 		}

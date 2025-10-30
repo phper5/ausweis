@@ -43,6 +43,7 @@ class AuthModel
 	Q_PROPERTY(QString resultViewButtonIcon READ getResultViewButtonIcon NOTIFY fireResultChanged)
 	Q_PROPERTY(QString resultViewButtonText READ getResultViewButtonText NOTIFY fireResultChanged)
 	Q_PROPERTY(QUrl resultViewButtonLink READ getResultViewButtonLink NOTIFY fireResultChanged)
+	Q_PROPERTY(QUrl refreshUrl READ getRefreshUrl NOTIFY fireRefreshUrlChanged)
 
 	private:
 		QSharedPointer<AuthContext> mContext;
@@ -65,6 +66,7 @@ class AuthModel
 		[[nodiscard]] QString getResultViewButtonIcon() const;
 		[[nodiscard]] QString getResultViewButtonText() const;
 		[[nodiscard]] QUrl getResultViewButtonLink() const;
+		[[nodiscard]] QUrl getRefreshUrl() const;
 
 		Q_INVOKABLE void cancelWorkflowToChangeTransportPin();
 
@@ -75,6 +77,7 @@ class AuthModel
 		void fireChangeTransportPinChanged();
 		void fireTransactionInfoChanged();
 		void fireProgressChanged();
+		void fireRefreshUrlChanged();
 };
 
 

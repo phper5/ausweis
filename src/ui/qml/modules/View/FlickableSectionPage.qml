@@ -13,8 +13,8 @@ SectionPage {
 	property real margins: Style.dimens.pane_padding
 	property alias spacing: flickable.spacing
 
-	function positionViewAtItem(pItem) {
-		flickable.positionViewAtItem(pItem);
+	function positionViewAtItem(pItem, pPositionItemAtMiddle = false) {
+		Utils.positionFlickableAtItem(flickable, pItem, pPositionItemAtMiddle);
 	}
 	function scrollPageDown() {
 		flickable.scrollPageDown();
@@ -26,7 +26,7 @@ SectionPage {
 	contentIsScrolled: !flickable.atYBeginning
 
 	Keys.onPressed: event => {
-		flickable.handleKeyPress(event.key);
+		flickable.handleKeyPress(event);
 	}
 
 	Connections {

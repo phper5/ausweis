@@ -85,10 +85,7 @@ void TlsConfiguration::load(const QJsonObject& pConfig)
 	mConfiguration.setCiphers(ciphers);
 	mConfiguration.setEllipticCurves(ellipticCurves);
 	mConfiguration.setBackendConfigurationOption(QByteArrayLiteral("SignatureAlgorithms"), signatureAlgorithms.join(':'));
-
-#if defined(GOVERNIKUS_QT) || (QT_VERSION >= QT_VERSION_CHECK(6, 7, 0))
 	mConfiguration.setDiffieHellmanParameters(QSslDiffieHellmanParameters()); // use SSL_CTX_set_dh_auto
-#endif
 }
 
 

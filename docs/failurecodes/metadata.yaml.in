@@ -1,0 +1,10 @@
+pdfauthor: @VENDOR@
+app_name: @PROJECT_NAME@
+pdfsubject: Failure_Codes
+pdfkeywords: failure, codes, sdk, api
+author: @VENDOR@
+documenttitle: @PROJECT_NAME@ Failure_Codes
+subtitle: @VERSION_DVCS@
+language_iso639: en
+language_babel: english
+tocdepth: 3

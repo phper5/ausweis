@@ -1,10 +1,11 @@
 /**
  * Copyright (c) 2021-2025 Governikus GmbH & Co. KG, Germany
  */
+
 import QtQuick
 import QtQuick.Controls
+
 import Governikus.TitleBar
-import Governikus.Type
 import Governikus.Global
 
 Item {
@@ -12,32 +13,13 @@ Item {
 
 	property bool contentIsScrolled: false
 	property ProgressTracker progress: null
+	property bool skipFocusUpdate: false
 
 	signal activate
 	signal leaveView
 
-	function showRemoveCardFeedback(workflowModel, success) {
-		if (workflowModel.showRemoveCardFeedback) {
-			workflowModel.showRemoveCardFeedback = false;
-			if (Qt.platform.os === "ios") {
-				// The feedback notification will crash Apple's VoiceOver if it happens at the same time the app is redirecting
-				// back to the browser. This happens with both the iOS toasts and our own toast-like replacement. To work around
-				// this, we will not show the notification during an authentication on iOS with VoiceOver running.
-				if (ApplicationModel.isScreenReaderRunning && ApplicationModel.currentWorkflow === ApplicationModel.Workflow.AUTHENTICATION) {
-					return;
-				}
-			}
-			if (success) {
-				//: INFO ALL_PLATFORMS The workflow finished successfully, the ID card may (and should) be removed from the card reader.
-				ApplicationModel.showFeedback(qsTr("Process finished successfully. You may now remove your ID card from the device."));
-			} else {
-				//: INFO ALL_PLATFORMS The workflow is completed, the ID card may (and should) be removed from the card reader.
-				ApplicationModel.showFeedback(qsTr("You may now remove your ID card from the device."));
-			}
-		}
-	}
 	function updateFocus() {
-		if (!visible) {
+		if (!visible || skipFocusUpdate) {
 			return;
 		}
 		if (d.forceFocusFirstA11yItem(root)) {

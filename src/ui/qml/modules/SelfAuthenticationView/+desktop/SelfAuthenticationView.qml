@@ -13,12 +13,10 @@ SelfAuthStartView {
 	disagreeButtonText: ""
 
 	titleBarSettings: TitleBarSettings {
-		navigationAction: NavigationAction.Back
+		navigationAction: NavigationAction.Action.Back
 
 		onNavigationActionClicked: root.pop()
 	}
 
-	Keys.onEnterPressed: root.startSelfAuth()
-	Keys.onReturnPressed: root.startSelfAuth()
 	onStartSelfAuth: SelfAuthModel.startWorkflow()
 }

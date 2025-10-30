@@ -1,7 +1,7 @@
 @PACKAGE_INIT@
 
-set(GOVERNIKUS_QT ON)
-set(LIBS_SYSTEM @SYSTEM_NAME@)
+set(LIBS_GOVERNIKUS ON)
+set(LIBS_SYSTEM @CMAKE_SYSTEM_NAME@)
 set(LIBS_BUILD_DATE "@stamp@")
 set(LIBS_REVISION "@dvcs_revision@")
 set(LIBS_BRANCH "@dvcs_branch@")
@@ -11,5 +11,6 @@ set(LIBS_QT_PATCHES @QT_PATCHES@)
 set(LIBS_OPENSSL "@OPENSSL@")
 set(LIBS_OPENSSL_PATCHES @OPENSSL_PATCHES@)
 set(LIBS_TARBALL "@compressed_filename@")
+set(LIBS_IDENTIFIER "@IDENTIFIER@")
 
 check_required_components(Governikus)

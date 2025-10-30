@@ -152,7 +152,6 @@ Controller {
 			break;
 		case "StateGetSessionId":
 			skipSelectReader = true;
-			showRemoveCardFeedback(PersonalizationModel, false);
 			PersonalizationModel.continueWorkflow();
 			break;
 		case "StateEnterNewPacePin":

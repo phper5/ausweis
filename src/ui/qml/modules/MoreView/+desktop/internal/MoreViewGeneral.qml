@@ -7,23 +7,20 @@ import QtQuick.Layouts
 
 import Governikus.Global
 import Governikus.Type
-import Governikus.Style
 
 GPane {
 	id: root
 
 	signal startOnboarding
 
-	spacing: Style.dimens.pane_spacing
-
 	GMenuItem {
 		Layout.fillWidth: true
 		//: LABEL DESKTOP
-		buttonText: qsTr("Start onboarding")
+		buttonText: qsTr("Start setup")
 		iconSource: "qrc:/images/npa.svg"
 		tintIcon: false
 		//: LABEL DESKTOP
-		title: qsTr("Onboarding")
+		title: qsTr("Setup")
 
 		onClicked: root.startOnboarding()
 	}
@@ -37,11 +34,10 @@ GPane {
 		buttonText: qsTr("Open website")
 		buttonTooltip: "https://www.ausweisapp.bund.de/%1/aa2/faq".arg(SettingsModel.language)
 		iconSource: "qrc:/images/faq_icon.svg"
+		linkToOpen: buttonTooltip
 
 		//: LABEL DESKTOP
 		title: qsTr("FAQ - Frequently asked questions")
-
-		onClicked: Qt.openUrlExternally(buttonTooltip)
 	}
 	GSeparator {
 		Layout.fillWidth: true
@@ -53,11 +49,10 @@ GPane {
 		buttonText: qsTr("Open website")
 		buttonTooltip: "https://www.ausweisapp.bund.de/%1/aa2/support".arg(SettingsModel.language)
 		iconSource: "qrc:/images/desktop/help_icon.svg"
+		linkToOpen: buttonTooltip
 
 		//: LABEL DESKTOP
 		title: qsTr("Contact")
-
-		onClicked: Qt.openUrlExternally(buttonTooltip)
 	}
 	GSeparator {
 		Layout.fillWidth: true
@@ -69,10 +64,9 @@ GPane {
 		buttonText: qsTr("Open website")
 		buttonTooltip: "https://www.ausweisapp.bund.de/%1/aa2/providerlist".arg(SettingsModel.language)
 		iconSource: "qrc:/images/identify.svg"
+		linkToOpen: buttonTooltip
 
 		//: LABEL DESKTOP
 		title: qsTr("List of Providers")
-
-		onClicked: Qt.openUrlExternally(buttonTooltip)
 	}
 }

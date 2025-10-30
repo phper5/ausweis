@@ -9,92 +9,77 @@ import Governikus.Global
 import Governikus.Style
 import Governikus.Type
 
-Item {
+GPaneBackgroundDelegate {
 	id: root
 
-	property alias color: delegate.color
 	required property string content
 	required property int index
-	property real maximumContentWidth: Number.POSITIVE_INFINITY
-	property alias totalItemCount: delegate.count
 	required property int type
+
+	signal scrollDownAction
+	signal scrollUpAction
 
 	Accessible.focusable: true
 	Accessible.ignored: root.content === ""
 	Accessible.name: ApplicationModel.stripHtmlTags(root.content)
 	Accessible.role: {
-		if (Qt.platform.os === "android") {
-			return Accessible.StaticText;
-		}
-
 		switch (root.type) {
 		case FormattedTextModel.LineType.HEADER:
 		case FormattedTextModel.LineType.SECTION:
 		case FormattedTextModel.LineType.SUBSECTION:
-			return Accessible.Heading;
-		case FormattedTextModel.LineType.LISTITEM:
-			return Accessible.ListItem;
+			return Utils.useSpecialAppleTabRole(Accessible.Heading);
 		default:
-			return Qt.platform.os === "windows" ? Accessible.Paragraph : Accessible.StaticText;
+			return Qt.platform.os === "windows" ? Accessible.Paragraph : Utils.useSpecialAppleTabRole(Accessible.StaticText);
 		}
 	}
-	implicitHeight: delegate.implicitHeight
-	z: 0
+	idx: index
+	implicitHeight: row.implicitHeight
 
-	GPaneBackgroundDelegate {
-		id: delegate
+	Accessible.onScrollDownAction: root.scrollDownAction()
+	Accessible.onScrollUpAction: root.scrollUpAction()
 
-		anchors.centerIn: parent
-		anchors.horizontalCenterOffset: -Style.dimens.pane_padding / 2
-		idx: root.index
-		implicitHeight: row.implicitHeight
-		width: Math.min(root.width - Style.dimens.pane_padding, root.maximumContentWidth)
+	RowLayout {
+		id: row
 
-		RowLayout {
-			id: row
+		readonly property int horizontalPadding: Style.dimens.pane_padding
 
-			readonly property int horizontalPadding: Style.dimens.pane_padding
+		anchors.fill: parent
 
-			anchors.fill: parent
+		GText {
+			id: prefix
 
-			GText {
-				id: prefix
+			Accessible.ignored: true
+			Layout.fillHeight: true
+			fontSizeMode: Text.Fit
+			leftPadding: row.horizontalPadding
+			text: "•"
+			textStyle: contentText.textStyle
+			verticalAlignment: Text.AlignTop
+			visible: root.type === FormattedTextModel.LineType.LISTITEM
+		}
+		GText {
+			id: contentText
 
-				Accessible.ignored: true
-				Layout.fillHeight: true
-				activeFocusOnTab: false
-				fontSizeMode: Text.Fit
-				leftPadding: row.horizontalPadding
-				text: "•"
-				textStyle: contentText.textStyle
-				verticalAlignment: Text.AlignTop
-				visible: root.type === FormattedTextModel.LineType.LISTITEM
-			}
-			GText {
-				id: contentText
-
-				Accessible.ignored: true
-				Layout.maximumWidth: Number.POSITIVE_INFINITY
-				activeFocusOnTab: false
-				bottomPadding: delegate.isLast ? Style.dimens.pane_padding : 0
-				font.underline: root.type === FormattedTextModel.LineType.SECTION
-				leftPadding: prefix.visible ? 0 : row.horizontalPadding
-				rightPadding: row.horizontalPadding
-				text: root.content
-				textStyle: {
-					switch (root.type) {
-					case FormattedTextModel.LineType.HEADER:
-						return Style.text.title;
-					case FormattedTextModel.LineType.SECTION:
-						return Style.text.headline;
-					case FormattedTextModel.LineType.SUBSECTION:
-						return Style.text.subline;
-					default:
-						return Style.text.normal;
-					}
+			Accessible.ignored: true
+			Layout.maximumWidth: Number.POSITIVE_INFINITY
+			bottomPadding: root.isLast ? Style.dimens.pane_padding : 0
+			font.underline: root.type === FormattedTextModel.LineType.SECTION
+			leftPadding: prefix.visible ? 0 : row.horizontalPadding
+			rightPadding: row.horizontalPadding
+			text: root.content
+			textStyle: {
+				switch (root.type) {
+				case FormattedTextModel.LineType.HEADER:
+					return Style.text.title;
+				case FormattedTextModel.LineType.SECTION:
+					return Style.text.headline;
+				case FormattedTextModel.LineType.SUBSECTION:
+					return Style.text.subline;
+				default:
+					return Style.text.normal;
 				}
-				topPadding: delegate.isFirst ? Style.dimens.pane_padding : 0
 			}
+			topPadding: root.isFirst ? Style.dimens.pane_padding : 0
 		}
 	}
 }

@@ -45,7 +45,7 @@ set(DEPENDENCY_CHECK "
 
 # qt qml plugins (fixup_bundle needs to know this to fetch their dependencies)
 if((WIN32 OR MAC) AND TARGET ${Qt}::Qml)
-	set(modules QtQuick QtQml Qt)
+	set(modules QtQuick QtQml Qt QtCore)
 
 	foreach(entry ${modules})
 		set(_lib_dir ${QT_INSTALL_ARCHDATA}/qml/${entry})
@@ -70,6 +70,11 @@ if(WIN32)
 		FETCH_TARGET_LOCATION(libQuickControls2 "${Qt}::QuickControls2")
 		install(FILES ${libQuickControls2} DESTINATION . COMPONENT Runtime)
 		list(APPEND LIBS ${libQuickControls2})
+
+		FETCH_TARGET_LOCATION(libQmlCore "${Qt}::QmlCore")
+		install(FILES ${libQmlCore} DESTINATION . COMPONENT Runtime)
+		list(APPEND LIBS ${libQmlCore})
+
 		if(TARGET ${Qt}::QmlWorkerScript)
 			FETCH_TARGET_LOCATION(libQmlWorkerScript "${Qt}::QmlWorkerScript")
 			install(FILES ${libQmlWorkerScript} DESTINATION . COMPONENT Runtime)
@@ -91,12 +96,7 @@ if(WIN32)
 	FETCH_TARGET_LOCATION(pluginGif "${Qt}::QGifPlugin")
 	FETCH_TARGET_LOCATION(pluginJpeg "${Qt}::QJpegPlugin")
 	FETCH_TARGET_LOCATION(platformWin "${Qt}::QWindowsIntegrationPlugin")
-
-	if(QT_VERSION VERSION_LESS 6.7)
-		FETCH_TARGET_LOCATION(styleWin "${Qt}::QWindowsVistaStylePlugin")
-	else()
-		FETCH_TARGET_LOCATION(styleWin "${Qt}::QModernWindowsStylePlugin")
-	endif()
+	FETCH_TARGET_LOCATION(styleWin "${Qt}::QModernWindowsStylePlugin")
 
 	install(TARGETS AusweisAppBinary DESTINATION . COMPONENT Application)
 	install(FILES ${pluginSvg} DESTINATION imageformats COMPONENT Runtime)
@@ -148,7 +148,7 @@ elseif(MAC)
 	install_mac_plugins("${plugins}")
 
 	if(TARGET ${Qt}::Qml)
-		foreach(entry QtQuick QtQuick.2 QtQml Qt)
+		foreach(entry QtQuick QtQuick.2 QtQml Qt QtCore)
 			set(_dir "${QT_INSTALL_ARCHDATA}/qml")
 			file(GLOB_RECURSE DYLIB "${_dir}/${entry}/*.dylib")
 			foreach(_lib ${DYLIB})

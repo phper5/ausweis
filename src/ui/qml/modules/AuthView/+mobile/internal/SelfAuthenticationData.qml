@@ -6,6 +6,7 @@ pragma ComponentBehavior: Bound
 
 import QtQuick
 import QtQuick.Layouts
+
 import Governikus.Global
 import Governikus.View
 import Governikus.Type
@@ -20,6 +21,13 @@ FlickableSectionPage {
 	//: LABEL ANDROID IOS
 	title: qsTr("Identify")
 
+	GPane {
+		Layout.fillWidth: true
+
+		SelfAuthenticationHeader {
+			iconSize: Style.dimens.icon_size
+		}
+	}
 	GridLayout {
 		id: grid
 

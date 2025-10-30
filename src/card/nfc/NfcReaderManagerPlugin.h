@@ -24,7 +24,7 @@ class NfcReaderManagerPlugin
 	private:
 		static QAtomicPointer<NfcReaderManagerPlugin> instance;
 
-		QScopedPointer<NfcReader> mNfcReader;
+		QScopedPointer<NfcReader> mReader;
 
 	private Q_SLOTS:
 		void onNfcAdapterStateChanged(bool pEnabled);
@@ -37,13 +37,15 @@ class NfcReaderManagerPlugin
 		NfcReaderManagerPlugin();
 		~NfcReaderManagerPlugin() override;
 
-		[[nodiscard]] QList<Reader*> getReaders() const override;
+		[[nodiscard]] QPointer<Reader> getReader(const QString& pReaderName) const override;
 
 		void init() override;
 		void shutdown() override;
 
 		void startScan(bool pAutoConnect) override;
-		void stopScan(const QString& pError = QString()) override;
+		void stopScan(const QString& pError) override;
+
+		void shelveAll() const override;
 };
 
 } // namespace governikus

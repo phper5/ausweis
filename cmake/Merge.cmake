@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.21)
+cmake_minimum_required(VERSION 3.25)
 
 if(NOT CMAKE_SCRIPT_MODE_FILE)
 	message(FATAL_ERROR "Usage: cmake -P cmake/Merge.cmake")

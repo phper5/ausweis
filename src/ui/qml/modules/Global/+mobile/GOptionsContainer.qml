@@ -4,30 +4,37 @@
 
 import QtQuick
 import QtQuick.Layouts
+
 import Governikus.Global
 import Governikus.Style
 
 ColumnLayout {
-	default property alias containerData: pane.paneData
-	property alias containerPadding: pane.padding
-	property alias containerSpacing: pane.spacing
+	id: root
+
+	default property alias containerData: contentLayout.data
+	property alias containerPadding: contentLayout.anchors.margins
+	property alias containerSpacing: contentLayout.spacing
 	property alias title: titleText.text
 
 	spacing: Style.dimens.pane_spacing
 
-	GText {
+	Heading {
 		id: titleText
 
-		Accessible.role: Accessible.Heading
-		textStyle: Style.text.headline
+		Layout.alignment: Qt.AlignVCenter | Qt.AlignLeft
+		horizontalAlignment: Text.AlignLeft
 		visible: text !== ""
 	}
-	GPane {
-		id: pane
-
+	GPaneBackground {
 		Layout.fillWidth: true
-		color: Style.color.pane.background.basic
-		padding: 0
-		spacing: 0
+		implicitHeight: contentLayout.implicitHeight + contentLayout.anchors.bottomMargin + contentLayout.anchors.topMargin
+		implicitWidth: contentLayout.implicitWidth + contentLayout.anchors.leftMargin + contentLayout.anchors.rightMargin
+
+		ColumnLayout {
+			id: contentLayout
+
+			anchors.fill: parent
+			spacing: 0
+		}
 	}
 }

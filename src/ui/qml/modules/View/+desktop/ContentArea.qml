@@ -44,11 +44,15 @@ StackView {
 			push(moreView);
 			break;
 		case UiModule.IDENTIFY:
-			if (ApplicationModel.currentWorkflow === ApplicationModel.Workflow.NONE) {
+			switch (ApplicationModel.currentWorkflow) {
+			case ApplicationModel.Workflow.NONE:
+				pModule = UiModule.SELF_AUTHENTICATION;
 				push(selfAuthView);
-			}
-			if (ApplicationModel.currentWorkflow === ApplicationModel.Workflow.AUTHENTICATION || ApplicationModel.currentWorkflow === ApplicationModel.Workflow.SELF_AUTHENTICATION) {
+				break;
+			case ApplicationModel.Workflow.AUTHENTICATION:
+			case ApplicationModel.Workflow.SELF_AUTHENTICATION:
 				push(authView);
+				break;
 			}
 			break;
 		case UiModule.ONBOARDING:
@@ -64,7 +68,6 @@ StackView {
 		requestedModule = pModule;
 	}
 
-	Accessible.ignored: Qt.platform.os === "windows"
 	popEnter: null
 	popExit: null
 	pushEnter: null

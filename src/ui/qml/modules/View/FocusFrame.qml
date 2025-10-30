@@ -19,7 +19,13 @@ Rectangle {
 	anchors.fill: framee
 	anchors.margins: marginFactor * -size * 2
 	border.color: root.borderColor
-	border.width: scope.activeFocus && UiPluginModel.showFocusIndicator ? size : 0
+	border.width: {
+		if (Qt.platform.os !== "windows" && ApplicationModel.screenReaderRunning)
+			return 0;
+		if (scope.activeFocus && UiPluginModel.showFocusIndicator)
+			return size;
+		return 0;
+	}
 	color: Style.color.transparent
 	radius: Math.min(height / 4, Style.dimens.control_radius)
 }

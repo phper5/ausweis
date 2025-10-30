@@ -1,6 +1,13 @@
 Abkündigungen
 =============
 
+Mit der Version 2.5.0 der AusweisApp wird die Unterstützung
+folgender Systeme eingestellt.
+
+- macOS Ventura 13
+- iOS 16
+
+
 Mit der Version 2.3.0 der AusweisApp wurde die Unterstützung
 folgender Systeme eingestellt.
 

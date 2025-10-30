@@ -17,8 +17,8 @@ INIT_FUNCTION([] {
 		})
 
 
-IfdListEntry::IfdListEntry(const IfdDescriptor& pIfdDescriptor)
-	: mIfdDescriptor(pIfdDescriptor)
+IfdListEntry::IfdListEntry(const Discovery& pDiscovery)
+	: mDiscovery(pDiscovery)
 	, mLastSeen(QTime::currentTime())
 	, mLastSeenHistory()
 {
@@ -38,21 +38,14 @@ void IfdListEntry::setLastSeenToNow()
 
 bool IfdListEntry::cleanUpSeenTimestamps(int pReaderResponsiveTimeout)
 {
-	bool entryRemoved = false;
 	const auto visibilityOld = getPercentSeen();
-
 	const QTime threshold(QTime::currentTime().addMSecs(-pReaderResponsiveTimeout));
-	QMutableListIterator i(mLastSeenHistory);
-	while (i.hasNext())
-	{
-		if (i.next() < threshold)
-		{
-			i.remove();
-			entryRemoved = true;
-		}
-	}
 
-	return entryRemoved && getPercentSeen() != visibilityOld;
+	const auto removed = erase_if(mLastSeenHistory, [&threshold](const auto pValue){
+				return pValue < threshold;
+			});
+
+	return removed > 0 && getPercentSeen() != visibilityOld;
 }
 
 
@@ -68,15 +61,15 @@ int IfdListEntry::getPercentSeen(int pCheckInterval, int pTimeFrame) const
 }
 
 
-void IfdListEntry::setIfdDescriptor(const IfdDescriptor& pIfdDescriptor)
+void IfdListEntry::setDiscovery(const Discovery& pDiscovery)
 {
-	mIfdDescriptor = pIfdDescriptor;
+	mDiscovery = pDiscovery;
 }
 
 
-bool IfdListEntry::containsEquivalent(const IfdDescriptor& pIfdDescriptor) const
+bool IfdListEntry::containsIfdId(const QByteArray& pIfdId) const
 {
-	return mIfdDescriptor.isSameIfd(pIfdDescriptor);
+	return mDiscovery.getIfdId() == pIfdId;
 }
 
 
@@ -86,7 +79,7 @@ const QTime& IfdListEntry::getLastSeen() const
 }
 
 
-const IfdDescriptor& IfdListEntry::getIfdDescriptor() const
+const Discovery& IfdListEntry::getDiscovery() const
 {
-	return mIfdDescriptor;
+	return mDiscovery;
 }

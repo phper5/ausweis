@@ -7,15 +7,8 @@
 #include <QScopedPointer>
 #include <QtTest>
 
-using namespace governikus;
 
-bool operator==(const CardPosition& pLeft, const CardPosition& pRight)
-{
-	return pLeft.mXPosition == pRight.mXPosition
-		   && pLeft.mYPosition == pRight.mYPosition
-		   && pLeft.mZPosition == pRight.mZPosition
-		   && pLeft.mRotation == pRight.mRotation;
-}
+using namespace governikus;
 
 
 class test_CardPositionModel
@@ -75,9 +68,9 @@ class test_CardPositionModel
 			QCOMPARE(mModel->getIsRunning(), false);
 			QScopedPointer<CardPosition> cardPosition(qvariant_cast<CardPosition*>(mModel->getCardPosition()));
 #if defined(Q_OS_IOS)
-			QVERIFY(CardPosition(0.5, 0.0, -1) == *cardPosition);
+			QVERIFY(CardPosition({0.5, 0.0}) == *cardPosition);
 #else
-			QVERIFY(CardPosition(0.5, 0.5, -1, 90) == *cardPosition);
+			QVERIFY(CardPosition({0.5, 0.5, 90}) == *cardPosition);
 #endif
 		}
 
@@ -92,38 +85,38 @@ class test_CardPositionModel
 			QCOMPARE(mModel->getIsRunning(), true);
 			QCOMPARE(spyCardPositionChanged.count(), 1);
 			QScopedPointer<CardPosition> cardPosition(qvariant_cast<CardPosition*>(mModel->getCardPosition()));
-			QVERIFY(CardPosition(0.5, 0.5, -1, 90) == *cardPosition);
+			QVERIFY(CardPosition({0.5, 0.5, 90}) == *cardPosition);
 
 			mModel->onTimerTimeout();
 			QCOMPARE(spyCardPositionChanged.count(), 2);
 			cardPosition.reset(qvariant_cast<CardPosition*>(mModel->getCardPosition()));
-			QVERIFY(CardPosition(0.5, 0.5, -1) == *cardPosition);
+			QVERIFY(CardPosition({0.5, 0.5}) == *cardPosition);
 
 			mModel->onTimerTimeout();
 			QCOMPARE(spyCardPositionChanged.count(), 3);
 			cardPosition.reset(qvariant_cast<CardPosition*>(mModel->getCardPosition()));
-			QVERIFY(CardPosition(0.5, 0.25, -1) == *cardPosition);
+			QVERIFY(CardPosition({0.5, 0.25}) == *cardPosition);
 
 			mModel->onTimerTimeout();
 			QCOMPARE(spyCardPositionChanged.count(), 4);
 			cardPosition.reset(qvariant_cast<CardPosition*>(mModel->getCardPosition()));
-			QVERIFY(CardPosition(0.5, 0.75, -1) == *cardPosition);
+			QVERIFY(CardPosition({0.5, 0.75}) == *cardPosition);
 
 			mModel->onTimerTimeout();
 			QCOMPARE(spyCardPositionChanged.count(), 5);
 			cardPosition.reset(qvariant_cast<CardPosition*>(mModel->getCardPosition()));
-			QVERIFY(CardPosition(0.5, 0.5, -1, 90) == *cardPosition);
+			QVERIFY(CardPosition({0.5, 0.5, 90}) == *cardPosition);
 
 			mModel->onTimerTimeout();
 			QCOMPARE(spyCardPositionChanged.count(), 6);
 			cardPosition.reset(qvariant_cast<CardPosition*>(mModel->getCardPosition()));
-			QVERIFY(CardPosition(0.5, 0.5, -1) == *cardPosition);
+			QVERIFY(CardPosition({0.5, 0.5}) == *cardPosition);
 
 			mModel->setIsRunning(false);
 			mModel->setIsRunning(true);
 			QCOMPARE(spyCardPositionChanged.count(), 7);
 			cardPosition.reset(qvariant_cast<CardPosition*>(mModel->getCardPosition()));
-			QVERIFY(CardPosition(0.5, 0.5, -1, 90) == *cardPosition);
+			QVERIFY(CardPosition({0.5, 0.5, 90}) == *cardPosition);
 		}
 
 

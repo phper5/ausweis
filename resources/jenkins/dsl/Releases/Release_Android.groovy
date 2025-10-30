@@ -4,7 +4,7 @@ import static common.Constants.strip
 
 
 // ----------------------------------------------------------------- APK
-for(ARCH in Constants.AndroidArchAPK)
+for(ARCH in Constants.AndroidArch)
 {
 
 def j = new Release
@@ -51,7 +51,7 @@ j.with
 
 
 // ----------------------------------------------------------------- AAR
-for(ARCH in Constants.AndroidArchAAR)
+for(ARCH in Constants.AndroidArch)
 {
 
 def j = new Release
@@ -97,9 +97,7 @@ j.with
 {
 	parameters
 	{
-		booleanParam("PUBLISH", false, "Publish to maven central")
-
-		for(ARCH in Constants.AndroidArchAAR)
+		for(ARCH in Constants.AndroidArch)
 		{
 			buildSelectorParam(build.getSourceJobNameParam('Android_AAR_' + ARCH))
 			{
@@ -114,7 +112,7 @@ j.with
 
 	steps
 	{
-		for(ARCH in Constants.AndroidArchAAR)
+		for(ARCH in Constants.AndroidArch)
 		{
 			copyArtifacts(build.getSourceJobName('Android_AAR_' + ARCH))
 			{

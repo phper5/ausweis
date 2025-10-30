@@ -2,6 +2,7 @@
  * Copyright (c) 2019-2025 Governikus GmbH & Co. KG, Germany
  */
 
+import QtQuick
 import QtQuick.Layouts
 
 import Governikus.Global
@@ -16,7 +17,7 @@ ColumnLayout {
 	GPane {
 		Layout.fillWidth: true
 		contentPadding: 0
-		spacing: 0
+		contentSpacing: 0
 		//: LABEL DESKTOP
 		title: qsTr("Developer options")
 
@@ -63,10 +64,25 @@ ColumnLayout {
 			onFocusChanged: if (focus)
 				Utils.positionViewAtItem(this)
 		}
+		GSwitch {
+			Layout.fillWidth: true
+			checked: SettingsModel.showInAppNotifications
+
+			//: LABEL DESKTOP Only visible when the user activates the developer mode in the settings.
+			description: SettingsModel.developerMode ? qsTr("Using the developer mode forces the notifications to be enabled.") : ""
+			drawBottomCorners: true
+			enabled: !SettingsModel.developerMode
+
+			//: LABEL DESKTOP
+			text: qsTr("Show notifications inside of %1").arg(Qt.application.name)
+
+			onCheckedChanged: SettingsModel.showInAppNotifications = checked
+			onFocusChanged: if (focus)
+				Utils.positionViewAtItem(this)
+		}
 	}
 	GPane {
 		Layout.fillWidth: true
-		spacing: Style.dimens.pane_spacing
 		//: LABEL DESKTOP
 		title: qsTr("Custom config.json")
 
@@ -93,15 +109,15 @@ ColumnLayout {
 			GFileDialog {
 				id: fileDialog
 
+				currentFolder: ApplicationModel.customConfigPath
 				defaultSuffix: "json"
-				folder: ApplicationModel.customConfigPath
 				//: LABEL DESKTOP
 				nameFilters: qsTr("JSON config (*.json)")
 
 				//: LABEL DESKTOP
 				title: qsTr("Save config.json")
 
-				onAccepted: ApplicationModel.saveEmbeddedConfig(file)
+				onAccepted: ApplicationModel.saveEmbeddedConfig(selectedFile)
 			}
 		}
 	}

@@ -1,3 +1,5 @@
+.. _container:
+
 Container
 =========
 This chapter deals with the container specific properties of the |AppName| SDK.

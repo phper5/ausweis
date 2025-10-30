@@ -3,12 +3,9 @@
  */
 
 #include "LogFilterModel.h"
-
 #include "LogModel.h"
 
-
 using namespace governikus;
-
 
 void LogFilterModel::onLevelsChanged()
 {
@@ -16,7 +13,7 @@ void LogFilterModel::onLevelsChanged()
 	beginFilterChange();
 #endif
 
-	mSelectedLevels.intersect(Env::getSingleton<LogModel>()->getLevels());
+	mSelectedLevels.intersect(mSourceModel->getLevels());
 
 #if (QT_VERSION >= QT_VERSION_CHECK(6, 10, 0))
 	endFilterChange();
@@ -33,7 +30,7 @@ void LogFilterModel::onCategoriesChanged()
 	beginFilterChange();
 #endif
 
-	mSelectedCategories.intersect(Env::getSingleton<LogModel>()->getCategories());
+	mSelectedCategories.intersect(mSourceModel->getCategories());
 
 #if (QT_VERSION >= QT_VERSION_CHECK(6, 10, 0))
 	endFilterChange();
@@ -71,17 +68,20 @@ LogFilterModel::LogFilterModel()
 	: QSortFilterProxyModel()
 	, mSelectedLevels()
 	, mSelectedCategories()
+	, mSourceModel(nullptr)
 {
-	const auto& logModel = Env::getSingleton<LogModel>();
-	connect(logModel, &LogModel::fireLevelsChanged, this, &LogFilterModel::onLevelsChanged);
-	connect(logModel, &LogModel::fireCategoriesChanged, this, &LogFilterModel::onCategoriesChanged);
-	QSortFilterProxyModel::setSourceModel(logModel);
+
 }
 
 
 QStringList LogFilterModel::getLevels() const
 {
-	const auto& level = Env::getSingleton<LogModel>()->getLevels();
+	if (!mSourceModel)
+	{
+		return {};
+	}
+
+	const auto& level = mSourceModel->getLevels();
 	QStringList list(level.constBegin(), level.constEnd());
 	list.sort(Qt::CaseInsensitive);
 	return list;
@@ -96,7 +96,12 @@ QStringList LogFilterModel::getSelectedLevels() const
 
 QStringList LogFilterModel::getCategories() const
 {
-	const auto& categories = Env::getSingleton<LogModel>()->getCategories();
+	if (!mSourceModel)
+	{
+		return {};
+	}
+
+	const auto& categories = mSourceModel->getCategories();
 	QStringList list(categories.constBegin(), categories.constEnd());
 	list.sort(Qt::CaseInsensitive);
 	return list;
@@ -106,6 +111,37 @@ QStringList LogFilterModel::getCategories() const
 QStringList LogFilterModel::getSelectedCategories() const
 {
 	return QStringList(mSelectedCategories.constBegin(), mSelectedCategories.constEnd());
+}
+
+
+void LogFilterModel::setSourceModel(QAbstractItemModel* pSourceModel)
+{
+	auto* logModel = qobject_cast<LogModel*>(pSourceModel);
+	if (logModel == nullptr)
+	{
+		qWarning() << "Source model isn't a LogModel";
+		return;
+	}
+
+	if (mSourceModel == logModel)
+	{
+		return;
+	}
+
+	if (mSourceModel)
+	{
+		disconnect(mSourceModel, &LogModel::fireLevelsChanged, this, &LogFilterModel::onLevelsChanged);
+		disconnect(mSourceModel, &LogModel::fireCategoriesChanged, this, &LogFilterModel::onCategoriesChanged);
+	}
+
+	mSourceModel = logModel;
+	QSortFilterProxyModel::setSourceModel(mSourceModel);
+
+	connect(mSourceModel, &LogModel::fireLevelsChanged, this, &LogFilterModel::onLevelsChanged);
+	connect(mSourceModel, &LogModel::fireCategoriesChanged, this, &LogFilterModel::onCategoriesChanged);
+
+	onLevelsChanged();
+	onCategoriesChanged();
 }
 
 

@@ -16,17 +16,10 @@ ColumnLayout {
 
 	signal continueOnboarding
 
-	Keys.onEnterPressed: root.continueOnboarding()
-	Keys.onEscapePressed: root.continueOnboarding()
-	Keys.onReturnPressed: root.continueOnboarding()
-
-	GText {
+	Heading {
 		id: titleText
 
-		Layout.alignment: Qt.AlignHCenter
-		horizontalAlignment: Text.AlignHCenter
 		text: confirmationData.headerText
-		textStyle: Style.text.headline
 		wrapMode: Text.WordWrap
 	}
 	AnimationLoader {
@@ -36,12 +29,11 @@ ColumnLayout {
 		symbol: confirmationData.animationSymbol
 		type: confirmationData.animationType
 	}
-	GText {
+	Subheading {
 		Layout.topMargin: Style.dimens.pane_spacing
 		text: confirmationData.sublineText !== "" ? confirmationData.sublineText :
 		//: LABEL ALL_PLATFORMS
 		qsTr("Step %1 of %2 was successful").arg(root.progress.currentStage).arg(root.progress.stages)
-		textStyle: Style.text.subline
 	}
 	GText {
 		id: descriptionText

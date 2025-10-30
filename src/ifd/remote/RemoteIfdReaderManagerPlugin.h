@@ -42,7 +42,7 @@ class RemoteIfdReaderManagerPlugin
 		~RemoteIfdReaderManagerPlugin() override;
 
 		void startScan(bool pAutoConnect) override;
-		void stopScan(const QString& pError = QString()) override;
+		void stopScan(const QString& pError) override;
 
 	protected:
 		IfdClient* getIfdClient() const override;

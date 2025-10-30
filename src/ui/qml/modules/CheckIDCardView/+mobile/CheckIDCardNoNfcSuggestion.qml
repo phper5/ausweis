@@ -43,7 +43,7 @@ DecisionView {
 	iconSourceComponent: AnimationLoader {
 		animated: false
 		symbol: Symbol.Type.ERROR
-		type: AnimationLoader.NFC_RESULT
+		type: AnimationLoader.Type.NFC_RESULT
 	}
 
 	onAgreeClicked: root.connectSmartphone()

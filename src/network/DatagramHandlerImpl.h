@@ -49,7 +49,7 @@ class DatagramHandlerImpl
 #endif
 
 	public:
-		DatagramHandlerImpl(bool pEnableListening = true, quint16 pPort = HttpServer::cPort);
+		explicit DatagramHandlerImpl(bool pEnableListening = true, quint16 pPort = HttpServer::cPort);
 		~DatagramHandlerImpl() override;
 
 		[[nodiscard]] bool isBound() const override;

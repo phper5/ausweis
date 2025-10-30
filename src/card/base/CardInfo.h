@@ -40,7 +40,7 @@ class CardInfo
 		static const int UNDEFINED_RETRY_COUNTER;
 
 	public:
-		CardInfo(CardType pCardType, const FileRef& pApplication = FileRef(), const QSharedPointer<const EFCardAccess>& = QSharedPointer<const EFCardAccess>(),
+		explicit CardInfo(CardType pCardType, const FileRef& pApplication = FileRef(), const QSharedPointer<const EFCardAccess>& = QSharedPointer<const EFCardAccess>(),
 				int pRetryCounter = UNDEFINED_RETRY_COUNTER, bool pPinDeactivated = false, bool pPukInoperative = false, bool pPinInitial = false);
 
 		void setCardType(CardType pCardType);

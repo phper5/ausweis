@@ -4,8 +4,6 @@
 
 #include "PcscReaderManagerPlugin.h"
 
-#include "PcscReader.h"
-
 #include <QLoggingCategory>
 
 
@@ -42,9 +40,9 @@ PcscReaderManagerPlugin::~PcscReaderManagerPlugin()
 }
 
 
-QList<Reader*> PcscReaderManagerPlugin::getReaders() const
+QPointer<Reader> PcscReaderManagerPlugin::getReader(const QString& pReaderName) const
 {
-	return mReaders.values();
+	return mReaders.value(pReaderName).data();
 }
 
 
@@ -124,15 +122,9 @@ void PcscReaderManagerPlugin::updateReaders()
 	}
 
 	QStringList readersToRemove(mReaders.keys());
-	for (QMutableListIterator it(readersToAdd); it.hasNext();)
-	{
-		QString readerName = it.next();
-		if (readersToRemove.contains(readerName))
-		{
-			readersToRemove.removeOne(readerName);
-			it.remove();
-		}
-	}
+	erase_if(readersToAdd, [&readersToRemove](const auto& pReader){
+				return readersToRemove.removeOne(pReader);
+			});
 
 	removeReaders(readersToRemove);
 	addReaders(readersToAdd);
@@ -156,19 +148,18 @@ void PcscReaderManagerPlugin::addReaders(const QStringList& pReaderNames)
 {
 	for (const auto& readerName : pReaderNames)
 	{
-		auto pcscReader = std::make_unique<PcscReader>(readerName);
-		if (pcscReader->init() != pcsc::Scard_S_Success)
+		const auto& reader = QSharedPointer<PcscReader>::create(readerName);
+		if (reader->init() != pcsc::Scard_S_Success)
 		{
 			qCDebug(card_pcsc) << "Initialization of" << readerName << "failed";
 			continue;
 		}
 
-		Reader* reader = pcscReader.release();
 		mReaders.insert(readerName, reader);
 
-		connect(reader, &Reader::fireCardInserted, this, &PcscReaderManagerPlugin::fireCardInserted);
-		connect(reader, &Reader::fireCardRemoved, this, &PcscReaderManagerPlugin::fireCardRemoved);
-		connect(reader, &Reader::fireCardInfoChanged, this, &PcscReaderManagerPlugin::fireCardInfoChanged);
+		connect(reader.data(), &Reader::fireCardInserted, this, &PcscReaderManagerPlugin::fireCardInserted);
+		connect(reader.data(), &Reader::fireCardRemoved, this, &PcscReaderManagerPlugin::fireCardRemoved);
+		connect(reader.data(), &Reader::fireCardInfoChanged, this, &PcscReaderManagerPlugin::fireCardInfoChanged);
 
 		qCDebug(card_pcsc) << "fireReaderAdded:" << readerName << "(" << mReaders.size() << "reader in total )";
 		Q_EMIT fireReaderAdded(reader->getReaderInfo());
@@ -184,10 +175,7 @@ void PcscReaderManagerPlugin::removeReader(const QString& pReaderName)
 		Q_ASSERT(false);
 	}
 
-	auto* reader = mReaders.take(pReaderName);
-	auto info = reader->getReaderInfo();
-	delete reader;
-
+	const auto info = mReaders.take(pReaderName)->getReaderInfo();
 	Q_EMIT fireReaderRemoved(info);
 }
 
@@ -232,4 +220,13 @@ PCSC_RETURNCODE PcscReaderManagerPlugin::readReaderNames(QStringList& pReaderNam
 	}
 
 	return returnCode;
+}
+
+
+void PcscReaderManagerPlugin::shelveAll() const
+{
+	for (const auto& reader : mReaders)
+	{
+		shelve(reader.data());
+	}
 }

@@ -17,28 +17,32 @@ import Governikus.Type
 SectionPage {
 	id: root
 
-	signal keyPressed(int key)
+	signal keyPressed(var pEvent)
 
 	//: LABEL DESKTOP
 	title: qsTr("Logs")
 
 	titleBarSettings: TitleBarSettings {
-		navigationAction: NavigationAction.Back
+		navigationAction: NavigationAction.Action.Back
 
 		onNavigationActionClicked: root.leaveView()
 	}
 
 	Keys.onPressed: event => {
-		keyPressed(event.key);
+		keyPressed(event);
 	}
 
+	LogModel {
+		id: logModel
+
+	}
 	TabbedPane {
 		id: tabbedPane
 
 		anchors.fill: parent
 		contentDelegate: logContentDelegate
 		contentRightMargin: 0
-		sectionsModel: LogModel.logFileNames
+		sectionsModel: LogFilesModel
 
 		footerItem: ColumnLayout {
 			spacing: Style.dimens.groupbox_spacing
@@ -47,14 +51,14 @@ SectionPage {
 				id: saveLog
 
 				Layout.maximumWidth: Number.POSITIVE_INFINITY
-				enabled: tabbedPane.sectionsModel.length > 0
+				enabled: LogFilesModel.count > 0
 				icon.source: "qrc:///images/desktop/save_icon.svg"
 				//: LABEL DESKTOP
 				text: qsTr("Save log")
 				tintIcon: true
 
 				onClicked: {
-					let filenameSuggestion = LogModel.createLogFileName(LogModel.getCurrentLogFileDate());
+					let filenameSuggestion = logModel.createLogFileName();
 					fileDialog.selectFile(filenameSuggestion);
 				}
 
@@ -68,13 +72,13 @@ SectionPage {
 					//: LABEL DESKTOP
 					title: qsTr("Save log")
 
-					onAccepted: LogModel.saveCurrentLogFile(file)
+					onAccepted: logModel.saveLogFile(selectedFile, true)
 				}
 			}
 			GButton {
 				Layout.maximumWidth: Number.POSITIVE_INFINITY
 				disabledTooltipText: qsTr("The current log will be automatically deleted at exit.")
-				enableButton: tabbedPane.sectionsModel.length > 1
+				enableButton: LogFilesModel.count > 1
 				icon.source: "qrc:///images/trash_icon.svg"
 				//: LABEL DESKTOP
 				text: qsTr("Delete all logs")
@@ -94,7 +98,7 @@ SectionPage {
 			}
 		}
 
-		onCurrentIndexChanged: LogModel.setLogFile(currentIndex)
+		onCurrentIndexChanged: logModel.source = LogFilesModel.getLogFilePath(currentIndex)
 	}
 	Component {
 		id: logContentDelegate
@@ -102,11 +106,10 @@ SectionPage {
 		GListView {
 			id: logView
 
-			activeFocusOnTab: true
 			displayMarginBeginning: Style.dimens.pane_padding
 			displayMarginEnd: Style.dimens.pane_padding
 			implicitHeight: tabbedPane.availableHeight
-			model: LogModel
+			model: logModel
 
 			delegate: FocusScope {
 				id: logEntry
@@ -163,11 +166,11 @@ SectionPage {
 						logView.positionViewAtEnd();
 				}
 
-				target: LogModel
+				target: logModel
 			}
 			Connections {
-				function onKeyPressed(pKey) {
-					logView.handleKeyPress(pKey);
+				function onKeyPressed(pEvent) {
+					logView.handleKeyPress(pEvent);
 				}
 
 				target: root
@@ -185,6 +188,6 @@ SectionPage {
 		title: qsTr("Delete all logs")
 		width: UiPluginModel.scaleFactor * 360
 
-		onConfirmed: LogModel.removeOtherLogFiles()
+		onConfirmed: LogFilesModel.removeOtherLogFiles()
 	}
 }

@@ -42,6 +42,8 @@ class NetworkManager
 				const std::function<QSharedPointer<QNetworkReply>(QNetworkRequest&)>& pInvoke);
 		[[nodiscard]] QSharedPointer<QNetworkReply> processUpdaterRequest(QNetworkRequest& pRequest,
 				const std::function<QSharedPointer<QNetworkReply>(QNetworkRequest&)>& pInvoke);
+		void onSslErrors(QSharedPointer<QNetworkReply> response, const QList<QSslError>& pErrors) const;
+		void onEncryptedResponse(QSharedPointer<QNetworkReply> response);
 
 	public Q_SLOTS:
 		void onShutdown();

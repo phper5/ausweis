@@ -5,15 +5,12 @@
 import QtQuick.Layouts
 
 import Governikus.Global
-import Governikus.Style
 
 GPane {
 	id: root
 
 	signal showDiagnosis
 	signal showLogs
-
-	spacing: Style.dimens.pane_spacing
 
 	GMenuItem {
 		Layout.fillWidth: true

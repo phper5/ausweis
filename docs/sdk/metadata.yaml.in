@@ -1,0 +1,10 @@
+pdfauthor: @VENDOR@
+app_name: @PROJECT_NAME@
+pdfsubject: SDK
+pdfkeywords: sdk, api
+author: @VENDOR@
+documenttitle: @PROJECT_NAME@ SDK
+subtitle: @VERSION_DVCS@
+language_iso639: en
+language_babel: english
+tocdepth: 2

@@ -14,7 +14,13 @@ import Governikus.Type
 GListView {
 	id: root
 
-	activeFocusOnTab: true
+	function isListElementEmptyFunc(pItem) {
+		let delegate = pItem as ListEntryDelegate;
+		if (delegate)
+			return delegate.text === "";
+		return true;
+	}
+
 	anchors.fill: parent
 	displayMarginBeginning: Style.dimens.pane_padding
 	displayMarginEnd: Style.dimens.pane_padding
@@ -37,17 +43,6 @@ GListView {
 		}
 	}
 
-	Keys.onDownPressed: {
-		do {
-			root.incrementCurrentIndex();
-		} while ((currentItem as ListEntryDelegate).text === "" && root.currentIndex + 1 < root.count)
-	}
-	Keys.onUpPressed: {
-		do {
-			root.decrementCurrentIndex();
-		} while ((currentItem as ListEntryDelegate).text === "" && root.currentIndex > 1)
-	}
-
 	layer {
 		enabled: GraphicsInfo.api !== GraphicsInfo.Software
 
@@ -55,40 +50,34 @@ GListView {
 		}
 	}
 
-	component ListEntryDelegate: RoundedRectangle {
+	component ListEntryDelegate: GPaneBackgroundDelegate {
 		id: listEntryDelegate
 
 		required property int index
-		readonly property bool isFirstItem: index === 0
-		readonly property bool isLastItem: index === ListView.view.count - 1
 		required property string modelData
 		readonly property alias text: delegateText.text
 
 		Accessible.focusable: true
 		Accessible.ignored: delegateText.text === ""
 		Accessible.name: delegateText.text
-		Accessible.role: Accessible.StaticText
-		bottomLeftCorner: isLastItem
-		bottomRightCorner: isLastItem
-		color: Style.color.pane.background.basic
+		Accessible.role: Utils.useSpecialAppleTabRole(Accessible.StaticText)
+		count: root.count
+		idx: index
 		implicitHeight: Math.ceil(delegateText.implicitHeight) + delegateText.anchors.bottomMargin + delegateText.anchors.topMargin
-		topLeftCorner: isFirstItem
-		topRightCorner: isFirstItem
 		width: root.width - Style.dimens.pane_padding
 
 		GText {
 			id: delegateText
 
 			Accessible.ignored: true
-			activeFocusOnTab: false
 			text: listEntryDelegate.modelData
 
 			anchors {
-				bottomMargin: listEntryDelegate.isLastItem ? Style.dimens.pane_padding : 0
+				bottomMargin: listEntryDelegate.isLast ? Style.dimens.pane_padding : 0
 				fill: parent
 				leftMargin: Style.dimens.pane_padding
 				rightMargin: Style.dimens.pane_padding
-				topMargin: listEntryDelegate.isFirstItem ? Style.dimens.pane_padding : Style.dimens.text_spacing
+				topMargin: listEntryDelegate.isFirst ? Style.dimens.pane_padding : Style.dimens.text_spacing
 			}
 		}
 	}

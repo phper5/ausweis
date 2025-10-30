@@ -2,7 +2,7 @@ import common.Build
 import common.Constants
 
 // ----------------------------------------------------------------- APK
-for(ARCH in Constants.AndroidArchAPK)
+for(ARCH in Constants.AndroidArch)
 {
 
 def j = new Build
@@ -54,7 +54,7 @@ j.with
 
 
 // ----------------------------------------------------------------- AAR
-for(ARCH in Constants.AndroidArchAAR)
+for(ARCH in Constants.AndroidArch)
 {
 
 def j = new Build
@@ -112,7 +112,7 @@ j.with
 {
 	parameters
 	{
-		for(ARCH in Constants.AndroidArchAAR)
+		for(ARCH in Constants.AndroidArch)
 		{
 			stringParam(getNameParam(ARCH), '', 'Build of ' + ARCH)
 		}
@@ -120,7 +120,7 @@ j.with
 
 	steps
 	{
-		for(ARCH in Constants.AndroidArchAAR)
+		for(ARCH in Constants.AndroidArch)
 		{
 			copyArtifacts(build.getSourceJobName('Android_AAR_' + ARCH))
 			{

@@ -10,7 +10,6 @@
 #include <QFile>
 #include <QLocale>
 #include <QLoggingCategory>
-#include <QMutableListIterator>
 #include <QScopeGuard>
 #include <http_parser.h>
 
@@ -100,7 +99,7 @@ void Downloader::onNetworkReplyFinished()
 				lastModified = QDateTime::currentDateTime();
 			}
 
-			if (const auto& readData = mCurrentReply->readAll(); !hasError && readData.size() > 0)
+			if (const auto& readData = mCurrentReply->readAll(); !hasError && !readData.isEmpty())
 			{
 				Q_EMIT fireDownloadSuccess(url, lastModified, readData);
 				return;
@@ -169,21 +168,19 @@ bool Downloader::abort(const QUrl& pUpdateUrl)
 		aborted = true;
 	}
 
-	QMutableListIterator<QNetworkRequest> iterator(mPendingRequests);
-	while (iterator.hasNext())
-	{
-		const auto item = iterator.next();
-		if (item.url() == pUpdateUrl)
-		{
-			qCDebug(fileprovider) << "Remove pending request";
+	const auto removed = erase_if(mPendingRequests, [&pUpdateUrl, this](const auto& pRequest){
+				if (pRequest.url() == pUpdateUrl)
+				{
+					qCDebug(fileprovider) << "Remove pending request";
 
-			Q_EMIT fireDownloadFailed(pUpdateUrl, GlobalStatus::Code::Downloader_Aborted);
-			aborted = true;
-			iterator.remove();
-		}
-	}
+					Q_EMIT fireDownloadFailed(pUpdateUrl, GlobalStatus::Code::Downloader_Aborted);
+					return true;
+				}
 
-	return aborted;
+				return false;
+			});
+
+	return aborted || (removed > 0);
 }
 
 

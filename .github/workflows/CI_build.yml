@@ -1,6 +1,6 @@
 name: CI_build
 
-on: [push, pull_request]
+"on": [push, pull_request]
 
 jobs:
 
@@ -60,7 +60,8 @@ jobs:
 
       - name: Install packages via apt
         run: |
-          sudo apt update -qq && sudo apt install -y cmake pkg-config libssl-dev libudev-dev libhttp-parser-dev libpcsclite-dev libgl1-mesa-dev qt6-l10n-tools
+          sudo apt update -qq && sudo apt install -y cmake pkg-config libssl-dev libudev-dev libhttp-parser-dev libpcsclite-dev \
+                                                     libgl1-mesa-dev qt6-l10n-tools
 
       - name: Install Qt
         uses: jurplel/install-qt-action@v4

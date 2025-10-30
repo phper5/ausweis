@@ -42,7 +42,7 @@ class ReaderManagerPluginInfo
 		};
 
 	public:
-		ReaderManagerPluginInfo(ReaderManagerPluginType pType = ReaderManagerPluginType::UNKNOWN,
+		explicit ReaderManagerPluginInfo(ReaderManagerPluginType pType = ReaderManagerPluginType::UNKNOWN,
 				bool pEnabled = false,
 				bool pAvailable = false);
 

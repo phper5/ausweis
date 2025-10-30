@@ -13,6 +13,7 @@ SectionPage {
 
 	property alias headline: headline.text
 	property alias icon: statusIcon.source
+	property string progressBarA11yText: ""
 	property alias progressBarVisible: progressBar.visible
 	property alias progressText: progressText.text
 	property alias progressValue: progressBar.value
@@ -40,11 +41,9 @@ SectionPage {
 			topMargin: Style.dimens.pane_spacing
 		}
 	}
-	GText {
+	Heading {
 		id: headline
 
-		horizontalAlignment: Text.AlignHCenter
-		textStyle: Style.text.headline
 		visible: text !== ""
 		width: Math.min(parent.width - (2 * Style.dimens.pane_padding), Style.dimens.max_text_width)
 
@@ -83,7 +82,7 @@ SectionPage {
 	GProgressBar {
 		id: progressBar
 
-		activeFocusOnTab: true
+		Accessible.name: root.progressBarA11yText
 		visible: false
 
 		anchors {

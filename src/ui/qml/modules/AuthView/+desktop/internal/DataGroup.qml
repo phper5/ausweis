@@ -22,6 +22,7 @@ ColumnLayout {
 	property bool writeAccess: false
 
 	Accessible.focusable: true
+	Accessible.ignored: title === ""
 	Accessible.name: title
 	Accessible.role: Accessible.Grouping
 	spacing: Style.dimens.pane_spacing
@@ -33,7 +34,6 @@ ColumnLayout {
 	GText {
 		id: dataTitle
 
-		Accessible.ignored: true
 		color: root.writeAccess ? Style.color.textNormal.basic : textStyle.textColor
 		textStyle: Style.text.headline
 
@@ -92,10 +92,10 @@ ColumnLayout {
 
 					FocusFrame {
 						anchors {
-							bottomMargin: Style.dimens.separator_size * 2
+							bottomMargin: 2 * Style.dimens.border_width
 							leftMargin: 0
 							rightMargin: 0
-							topMargin: Style.dimens.separator_size
+							topMargin: Style.dimens.border_width
 						}
 					}
 				}
@@ -115,10 +115,10 @@ ColumnLayout {
 
 					FocusFrame {
 						anchors {
-							bottomMargin: Style.dimens.separator_size * 2
+							bottomMargin: Style.dimens.border_width * 2
 							leftMargin: 0
 							rightMargin: 0
-							topMargin: Style.dimens.separator_size
+							topMargin: Style.dimens.border_width
 						}
 					}
 				}

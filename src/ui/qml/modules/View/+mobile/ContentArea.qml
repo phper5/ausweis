@@ -52,6 +52,7 @@ Item {
 		visible: root.activeModule === UiModule.DEFAULT
 
 		initialItem: MainView {
+			skipFocusUpdate: true
 		}
 	}
 	TabBarView {
@@ -117,6 +118,7 @@ Item {
 		visible: root.activeModule === UiModule.REMOTE_SERVICE
 
 		initialItem: RemoteServiceView {
+			skipFocusUpdate: true
 		}
 	}
 	TabBarView {
@@ -126,6 +128,7 @@ Item {
 		visible: root.activeModule === UiModule.SETTINGS
 
 		initialItem: SettingsView {
+			skipFocusUpdate: true
 		}
 	}
 	TabBarView {
@@ -135,6 +138,8 @@ Item {
 		visible: root.activeModule === UiModule.HELP
 
 		initialItem: MoreView {
+			skipFocusUpdate: true
+
 			onStartOnboarding: show(UiModule.ONBOARDING, true)
 		}
 	}

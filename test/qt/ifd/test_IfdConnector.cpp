@@ -22,7 +22,7 @@ using namespace Qt::Literals::StringLiterals;
 using namespace governikus;
 
 
-Q_DECLARE_METATYPE(IfdDescriptor)
+Q_DECLARE_METATYPE(Discovery)
 Q_DECLARE_METATYPE(QSharedPointer<IfdDispatcher>)
 
 
@@ -75,38 +75,28 @@ class test_IfdConnector
 			const Discovery& pDiscovery,
 			const QByteArray& pPassword)
 		{
-			const IfdDescriptor descr(pDiscovery);
 			QMetaObject::invokeMethod(pConnector.data(), [ = ] {
-						pConnector->onConnectRequest(descr, pPassword);
+						pConnector->onConnectRequest(pDiscovery, pPassword);
 					}, Qt::QueuedConnection);
 		}
 
 
 		void verifySuccessSignal(const QSignalSpy& pSignalSpy,
-			const quint16 pPort)
+			const QByteArray& pIfdId)
 		{
-			const static QHostAddress HOST_ADDRESS(QHostAddress::LocalHost);
-			const static QString IFD_NAME("Smartphone1"_L1);
-
 			bool signalFound = false;
 			for (const QList<QVariant>& arguments : pSignalSpy)
 			{
 				const QVariant remoteDeviceDescriptorVariant = arguments.at(0);
-				QVERIFY(remoteDeviceDescriptorVariant.canConvert<IfdDescriptor>());
-				const IfdDescriptor descr = remoteDeviceDescriptorVariant.value<IfdDescriptor>();
-				QVERIFY(!descr.isNull());
+				QVERIFY(remoteDeviceDescriptorVariant.canConvert<QByteArray>());
+				const auto& ifdId = remoteDeviceDescriptorVariant.value<QByteArray>();
 
 				const QVariant dispatcherVariant = arguments.at(1);
 				QVERIFY(dispatcherVariant.canConvert<QSharedPointer<IfdDispatcherClient>>());
 				const QSharedPointer<IfdDispatcherClient> dispatcher = dispatcherVariant.value<QSharedPointer<IfdDispatcherClient>>();
 				QVERIFY(dispatcher);
 
-				const QUrl remoteUrl = descr.getAddresses().at(0);
-				const QString remoteAddress = remoteUrl.host();
-				const int remotePort = remoteUrl.port();
-				const bool signalMatches = remoteAddress == HOST_ADDRESS.toString() && remotePort == pPort &&
-						descr.getIfdName() == IFD_NAME;
-				if (signalMatches)
+				if (ifdId == pIfdId)
 				{
 					qDebug() << "Success verified";
 					signalFound = true;
@@ -119,39 +109,27 @@ class test_IfdConnector
 
 		void verifyErrorSignal(const QSignalSpy& pSignalSpy,
 			const QList<IfdErrorCode>& pRemoteErrorCodeList,
-			const quint16 pPort,
-			const QString& pIfdName,
+			const QByteArray& pIfdId,
 			const bool pExpectingNullDeviceDescriptor = false)
 		{
-			const static QHostAddress HOST_ADDRESS(QHostAddress::LocalHost);
-
 			bool signalFound = false;
 			for (const QList<QVariant>& arguments : pSignalSpy)
 			{
 				const QVariant remoteDeviceDescriptorVariant = arguments.at(0);
-				QVERIFY(remoteDeviceDescriptorVariant.canConvert<IfdDescriptor>());
-				const IfdDescriptor descr = remoteDeviceDescriptorVariant.value<IfdDescriptor>();
+				QVERIFY(remoteDeviceDescriptorVariant.canConvert<QByteArray>());
+				const auto& ifdId = remoteDeviceDescriptorVariant.value<QByteArray>();
 
-				if (pExpectingNullDeviceDescriptor && descr.isNull())
+				if (pExpectingNullDeviceDescriptor)
 				{
 					qDebug() << "Error verified";
 					signalFound = true;
 					break;
 				}
-				QVERIFY(!descr.isNull());
 
 				const QVariant errorCodeVariant = arguments.at(1);
 				QVERIFY(errorCodeVariant.canConvert<IfdErrorCode>());
 				const auto errorCode = errorCodeVariant.value<IfdErrorCode>();
-
-				const QUrl remoteUrl = descr.getAddresses().at(0);
-				const QString remoteAddress = remoteUrl.host();
-				const int remotePort = remoteUrl.port();
-				const bool signalMatches = remoteAddress == HOST_ADDRESS.toString() &&
-						remotePort == pPort &&
-						descr.getIfdName() == pIfdName &&
-						pRemoteErrorCodeList.contains(errorCode);
-				if (signalMatches)
+				if (ifdId == pIfdId && pRemoteErrorCodeList.contains(errorCode))
 				{
 					qDebug() << "Error verified";
 					signalFound = true;
@@ -190,7 +168,7 @@ class test_IfdConnector
 			clientThread.exit();
 			QVERIFY(clientThread.wait());
 
-			verifyErrorSignal(spyError, {IfdErrorCode::INVALID_REQUEST}, 2020, QString());
+			verifyErrorSignal(spyError, {IfdErrorCode::INVALID_REQUEST}, discoveryMsg.getIfdId());
 			QCOMPARE(spySuccess.count(), 0);
 		}
 
@@ -216,7 +194,7 @@ class test_IfdConnector
 			clientThread.exit();
 			QVERIFY(clientThread.wait());
 
-			verifyErrorSignal(spyError, {IfdErrorCode::INVALID_REQUEST}, 0, QString(), true);
+			verifyErrorSignal(spyError, {IfdErrorCode::INVALID_REQUEST}, discoveryMsg.getIfdId(), true);
 			QCOMPARE(spySuccess.count(), 0);
 		}
 
@@ -244,7 +222,7 @@ class test_IfdConnector
 			clientThread.exit();
 			QVERIFY(clientThread.wait());
 
-			verifyErrorSignal(spyError, {IfdErrorCode::REMOTE_HOST_REFUSED_CONNECTION}, server->getServerPort(), QStringLiteral("Smartphone1"));
+			verifyErrorSignal(spyError, {IfdErrorCode::REMOTE_HOST_REFUSED_CONNECTION}, discoveryMsg.getIfdId());
 			QCOMPARE(spySuccess.count(), 0);
 		}
 
@@ -270,7 +248,7 @@ class test_IfdConnector
 			clientThread.exit();
 			QVERIFY(clientThread.wait());
 
-			verifyErrorSignal(spyError, {IfdErrorCode::NO_SUPPORTED_API_LEVEL}, 2020, QStringLiteral("Smartphone1"));
+			verifyErrorSignal(spyError, {IfdErrorCode::NO_SUPPORTED_API_LEVEL}, discoveryMsg.getIfdId());
 			QCOMPARE(spySuccess.count(), 0);
 		}
 
@@ -296,7 +274,7 @@ class test_IfdConnector
 			clientThread.exit();
 			QVERIFY(clientThread.wait());
 
-			verifyErrorSignal(spyError, {IfdErrorCode::CONNECTION_ERROR}, 2020, QStringLiteral("Smartphone1"));
+			verifyErrorSignal(spyError, {IfdErrorCode::CONNECTION_ERROR}, discoveryMsg.getIfdId());
 			QCOMPARE(spySuccess.count(), 0);
 		}
 
@@ -367,7 +345,7 @@ class test_IfdConnector
 				QTRY_COMPARE(spyConnectorSuccess.count(), 1); // clazy:exclude=qstring-allocations
 				QCOMPARE(spyConnectorError.count(), 0);
 				QCOMPARE(connector->mPendingRequests.size(), 0);
-				verifySuccessSignal(spyConnectorSuccess, serverPort);
+				verifySuccessSignal(spyConnectorSuccess, discoveryMsg.getIfdId());
 
 				const QVariant dispatcherVariant = spyConnectorSuccess.first().at(1);
 				QVERIFY(dispatcherVariant.canConvert<QSharedPointer<IfdDispatcherClient>>());
@@ -428,7 +406,7 @@ class test_IfdConnector
 			QCOMPARE(spyConnectorSuccess.count(), 0);
 			QCOMPARE(connector->mPendingRequests.size(), 0);
 
-			verifyErrorSignal(spyConnectorError, {IfdErrorCode::REMOTE_HOST_REFUSED_CONNECTION}, serverPort, QStringLiteral("Smartphone1"));
+			verifyErrorSignal(spyConnectorError, {IfdErrorCode::REMOTE_HOST_REFUSED_CONNECTION}, discoveryMsg.getIfdId());
 
 			QCOMPARE(spySocketError.count(), 0);
 			QCOMPARE(spySocketSuccess.count(), 0);

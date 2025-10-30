@@ -6,15 +6,15 @@
 
 #include "CardReturnCode.h"
 #include "IfdMessageResponse.h"
+#include "IfdSlotHandle.h"
 
 
 namespace governikus
 {
 class IfdModifyPinResponse
-	: public IfdMessageResponse
+	: public IfdSlotHandle<IfdMessageResponse>
 {
 	private:
-		QString mSlotHandle;
 		QByteArray mOutputData;
 
 	public:
@@ -22,7 +22,6 @@ class IfdModifyPinResponse
 		explicit IfdModifyPinResponse(const QJsonObject& pMessageObject);
 		~IfdModifyPinResponse() override = default;
 
-		[[nodiscard]] const QString& getSlotHandle() const;
 		[[nodiscard]] const QByteArray& getOutputData() const;
 		[[nodiscard]] CardReturnCode getReturnCode() const;
 

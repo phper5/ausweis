@@ -148,8 +148,8 @@ void RemoteTlsServer::setPairing(bool pEnable)
 {
 	if (pEnable)
 	{
-		std::uniform_int_distribution<int> uni(0, 9999);
-		QByteArray pin = QByteArray::number(uni(Randomizer::getInstance().getGenerator()));
+		std::uniform_int_distribution uni(0, 9999);
+		QByteArray pin = QByteArray::number(uni(*Randomizer::getInstance().getGenerator()));
 		pin.prepend(4 - pin.size(), '0');
 		setPsk(pin);
 	}

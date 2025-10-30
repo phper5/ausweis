@@ -81,8 +81,6 @@
         <file>images/phone_to_pc.svg</file>
         <file>images/signature.jp2</file>
         <file>images/trash_icon.svg</file>
-        <file>shader/ColorOverlayShader.frag</file>
-        <file>shader/DesaturateShader.frag</file>
         <file>updatable-files/supported-providers.json</file>
     </qresource>
 </RCC>

@@ -25,13 +25,13 @@ SectionPage {
 	title: qsTr("Help")
 
 	titleBarSettings: TitleBarSettings {
-		navigationAction: NavigationAction.Back
+		navigationAction: NavigationAction.Action.Back
 
 		onNavigationActionClicked: root.pop()
 	}
 
 	Keys.onPressed: event => {
-		tabbedPane.handleKeyPress(event.key);
+		tabbedPane.handleKeyPress(event);
 	}
 
 	TabbedPane {

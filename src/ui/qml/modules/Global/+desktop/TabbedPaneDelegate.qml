@@ -73,7 +73,6 @@ Item {
 		id: sectionName
 
 		Accessible.ignored: true
-		activeFocusOnTab: false
 		color: colors.textNormal
 		elide: Text.ElideRight
 		maximumLineCount: 2

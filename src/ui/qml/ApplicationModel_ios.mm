@@ -5,6 +5,7 @@
 #include "ApplicationModel.h"
 #include "PlatformTools.h"
 
+#include <QAccessible>
 #include <QLoggingCategory>
 
 #import <StoreKit/StoreKit.h>
@@ -14,6 +15,13 @@ Q_DECLARE_LOGGING_CATEGORY(qml)
 Q_DECLARE_LOGGING_CATEGORY(feedback)
 
 using namespace governikus;
+
+
+@interface QMacAccessibilityElement
+	: NSObject
+@property (readonly) QAccessible::Id axid;
+@end
+
 
 @interface VoiceOverObserver
 	: NSObject
@@ -38,6 +46,12 @@ using namespace governikus;
 	name:UIAccessibilityVoiceOverStatusDidChangeNotification
 	object:nil];
 
+	[[NSNotificationCenter defaultCenter]
+	addObserver:self
+	selector:@selector(receiveNotification:)
+	name:UIAccessibilityElementFocusedNotification
+	object:nil];
+
 	self.mRunning = UIAccessibilityIsVoiceOverRunning();
 
 	return self;
@@ -54,6 +68,36 @@ using namespace governikus;
 		{
 			self.mRunning = isRunning;
 			ApplicationModel::notifyScreenReaderChangedThreadSafe();
+		}
+	}
+	else if ([notification.name
+			isEqualToString:
+			UIAccessibilityElementFocusedNotification])
+	{
+		id element = notification.userInfo[UIAccessibilityFocusedElementKey];
+		QMacAccessibilityElement* a11yElement = static_cast<QMacAccessibilityElement*>(element);
+		if (!a11yElement)
+		{
+			return;
+		}
+		if (![a11yElement respondsToSelector:@selector(axid)])
+		{
+			return;
+		}
+		QAccessibleInterface* iface = QAccessible::accessibleInterface(a11yElement.axid);
+		if (!iface || !iface->object())
+		{
+			return;
+		}
+		if (auto* quickItem = static_cast<QQuickItem*>(iface->object()))
+		{
+			QMetaObject::invokeMethod(QCoreApplication::instance(), [quickItem] {
+						auto* applicationModel = Env::getSingleton<ApplicationModel>();
+						if (applicationModel)
+						{
+							Q_EMIT applicationModel->fireA11yFocusChanged(quickItem);
+						}
+					}, Qt::QueuedConnection);
 		}
 	}
 }

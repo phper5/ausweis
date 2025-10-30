@@ -77,7 +77,7 @@ GFlickableColumnLayout {
 			style: Style.color.controlOptional
 			//: LABEL ANDROID IOS
 			text: qsTr("SMART")
-			visible: ApplicationModel.isSmartSupported
+			visible: ApplicationModel.smartSupported
 
 			onClicked: root.workflowModel.readerPluginType = ReaderManagerPluginType.SMART
 		}

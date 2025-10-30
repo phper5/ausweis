@@ -140,6 +140,9 @@ msgstr ""
 msgid "Codes"
 msgstr ""
 
+msgid "List of possible failure codes:"
+msgstr "Liste der möglichen Fehlercodes:"
+
 msgid "**User_Cancelled**"
 msgstr ""
 
