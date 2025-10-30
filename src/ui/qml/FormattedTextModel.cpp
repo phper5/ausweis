@@ -36,7 +36,7 @@ int FormattedTextModel::rowCount(const QModelIndex& pIndex) const
 QVariant FormattedTextModel::data(const QModelIndex& pIndex, int pRole) const
 {
 	const auto row = pIndex.row();
-	if (!pIndex.isValid() || row >= rowCount())
+	if (!pIndex.isValid() || row >= rowCount(pIndex))
 	{
 		return QVariant();
 	}
@@ -93,7 +93,7 @@ bool FormattedTextModel::loadSeveral(const QStringList& pFilepaths)
 
 bool FormattedTextModel::isFormattingLine(FormattedTextModel::LineType pType)
 {
-	static const QList<LineType> formattingLineTypes({LineType::HEADER, LineType::SECTION, LineType::SUBSECTION});
+	static const QList formattingLineTypes({LineType::HEADER, LineType::SECTION, LineType::SUBSECTION});
 	return formattingLineTypes.contains(pType);
 }
 
@@ -196,7 +196,7 @@ void FormattedTextModel::processLine(const QString& pLine)
 
 	if ((lastLineIsEmpty() && !isFormattingLine(type)) || type == LineType::EMPTY)
 	{
-		mLines << qMakePair(htmlLine, type);
+		mLines << std::make_pair(htmlLine, type);
 		return;
 	}
 

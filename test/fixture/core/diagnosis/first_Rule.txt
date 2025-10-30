@@ -1,5 +1,5 @@
 
-Name                  : AusweisApp-Firewall-Rule
+Name                  : {DEA54BD7-0422-4C23-8499-C442CA99CD29}
 DisplayName           : AusweisApp
 Description           : AusweisApp firewall rule
 DisplayGroup          :

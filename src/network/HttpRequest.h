@@ -60,7 +60,7 @@ class HttpRequest
 		void insertHeader();
 
 	public:
-		HttpRequest(QTcpSocket* pSocket, QObject* pParent = nullptr);
+		explicit HttpRequest(QTcpSocket* pSocket, QObject* pParent = nullptr);
 		~HttpRequest() override;
 
 		[[nodiscard]] bool isConnected() const;
@@ -76,6 +76,7 @@ class HttpRequest
 		[[nodiscard]] quint16 getLocalPort() const;
 		void triggerSocketBuffer();
 
+		bool send(http_status pStatus);
 		bool send(const HttpResponse& pResponse);
 		bool send(const QByteArray& pResponse);
 

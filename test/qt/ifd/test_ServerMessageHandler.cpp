@@ -298,7 +298,7 @@ class test_ServerMessageHandler
 
 			QSignalSpy sendSpy(mDataChannel.data(), &MockDataChannel::fireSend);
 
-			MockReader* reader = MockReaderManagerPlugin::getInstance().addReader("test-reader"_L1);
+			const auto& reader = MockReaderManagerPlugin::getInstance().addReader("test-reader"_L1);
 			QTRY_COMPARE(sendSpy.count(), 1); // clazy:exclude=qstring-allocations
 			reader->setCard(MockCardConfig());
 			QTRY_COMPARE(sendSpy.count(), 2); // clazy:exclude=qstring-allocations
@@ -361,7 +361,7 @@ class test_ServerMessageHandler
 
 			QSignalSpy sendSpy(mDataChannel.data(), &MockDataChannel::fireSend);
 
-			MockReader* reader = MockReaderManagerPlugin::getInstance().addReader("test-reader"_L1);
+			const auto& reader = MockReaderManagerPlugin::getInstance().addReader("test-reader"_L1);
 			QTRY_COMPARE(sendSpy.count(), 1); // clazy:exclude=qstring-allocations
 			reader->setCard(MockCardConfig());
 			QTRY_COMPARE(sendSpy.count(), 2); // clazy:exclude=qstring-allocations
@@ -426,7 +426,7 @@ class test_ServerMessageHandler
 
 			QSignalSpy sendSpy(mDataChannel.data(), &MockDataChannel::fireSend);
 
-			MockReader* reader = MockReaderManagerPlugin::getInstance().addReader("test-reader"_L1);
+			const auto& reader = MockReaderManagerPlugin::getInstance().addReader("test-reader"_L1);
 			QTRY_COMPARE(sendSpy.count(), 1); // clazy:exclude=qstring-allocations
 			reader->setCard(MockCardConfig());
 			QTRY_COMPARE(sendSpy.count(), 2); // clazy:exclude=qstring-allocations
@@ -489,7 +489,7 @@ class test_ServerMessageHandler
 
 			QSignalSpy sendSpy(mDataChannel.data(), &MockDataChannel::fireSend);
 
-			MockReader* reader = MockReaderManagerPlugin::getInstance().addReader("test-reader"_L1);
+			const auto& reader = MockReaderManagerPlugin::getInstance().addReader("test-reader"_L1);
 			QTRY_COMPARE(sendSpy.count(), 1); // clazy:exclude=qstring-allocations
 			reader->setCard(MockCardConfig());
 			QTRY_COMPARE(sendSpy.count(), 2); // clazy:exclude=qstring-allocations
@@ -552,7 +552,7 @@ class test_ServerMessageHandler
 
 			QSignalSpy sendSpy(mDataChannel.data(), &MockDataChannel::fireSend);
 
-			MockReader* reader = MockReaderManagerPlugin::getInstance().addReader("test-reader"_L1);
+			const auto& reader = MockReaderManagerPlugin::getInstance().addReader("test-reader"_L1);
 			QTRY_COMPARE(sendSpy.count(), 1); // clazy:exclude=qstring-allocations
 			reader->setCard(MockCardConfig());
 			QTRY_COMPARE(sendSpy.count(), 2); // clazy:exclude=qstring-allocations
@@ -627,7 +627,7 @@ class test_ServerMessageHandler
 
 			QSignalSpy sendSpy(mDataChannel.data(), &MockDataChannel::fireSend);
 
-			MockReader* reader = MockReaderManagerPlugin::getInstance().addReader("test-reader"_L1);
+			const auto& reader = MockReaderManagerPlugin::getInstance().addReader("test-reader"_L1);
 			QTRY_COMPARE(sendSpy.count(), 1); // clazy:exclude=qstring-allocations
 			reader->setCard(MockCardConfig({
 						{CardReturnCode::OK, QByteArray("9000")}
@@ -695,7 +695,7 @@ class test_ServerMessageHandler
 
 			QSignalSpy sendSpy(mDataChannel.data(), &MockDataChannel::fireSend);
 
-			MockReader* reader = MockReaderManagerPlugin::getInstance().addReader("test-reader"_L1);
+			const auto& reader = MockReaderManagerPlugin::getInstance().addReader("test-reader"_L1);
 			QTRY_COMPARE(sendSpy.count(), 1); // clazy:exclude=qstring-allocations
 			reader->setCard(MockCardConfig());
 			QTRY_COMPARE(sendSpy.count(), 2); // clazy:exclude=qstring-allocations
@@ -762,7 +762,7 @@ class test_ServerMessageHandler
 
 			QSignalSpy sendSpy(mDataChannel.data(), &MockDataChannel::fireSend);
 
-			MockReader* reader = MockReaderManagerPlugin::getInstance().addReader("test-reader"_L1);
+			const auto& reader = MockReaderManagerPlugin::getInstance().addReader("test-reader"_L1);
 			QTRY_COMPARE(sendSpy.count(), 1); // clazy:exclude=qstring-allocations
 			reader->setCard(MockCardConfig({
 						{CardReturnCode::OK, QByteArray("6700")}
@@ -838,7 +838,7 @@ class test_ServerMessageHandler
 
 			QSignalSpy sendSpy(mDataChannel.data(), &MockDataChannel::fireSend);
 
-			MockReader* reader = MockReaderManagerPlugin::getInstance().addReader("test-reader"_L1);
+			const auto& reader = MockReaderManagerPlugin::getInstance().addReader("test-reader"_L1);
 			QTRY_COMPARE(sendSpy.count(), 1); // clazy:exclude=qstring-allocations
 			reader->setCard(MockCardConfig());
 			QTRY_COMPARE(sendSpy.count(), 2); // clazy:exclude=qstring-allocations

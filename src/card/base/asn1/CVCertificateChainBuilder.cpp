@@ -6,6 +6,7 @@
 
 #include <QLoggingCategory>
 
+
 using namespace governikus;
 
 
@@ -32,11 +33,6 @@ CVCertificateChainBuilder::CVCertificateChainBuilder(const QList<QSharedPointer<
 {
 	removeInvalidChains();
 
-	for (const auto& cvc : pCvcPool)
-	{
-		qCDebug(card) << "CVC in pool" << cvc;
-	}
-
 	if (getChains().isEmpty())
 	{
 		qCWarning(card) << "No valid chains could be built";
@@ -53,14 +49,9 @@ CVCertificateChainBuilder::CVCertificateChainBuilder(const QList<QSharedPointer<
 
 void CVCertificateChainBuilder::removeInvalidChains()
 {
-	auto chainIter = getChainIterator();
-	while (chainIter.hasNext())
-	{
-		if (!CVCertificateChain(chainIter.next(), mProductive).isValid())
-		{
-			chainIter.remove();
-		}
-	}
+	removeFromChains([this](const QList<QSharedPointer<const CVCertificate>>& pChain){
+				return !CVCertificateChain(pChain, mProductive).isValid();
+			});
 }
 
 

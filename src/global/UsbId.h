@@ -17,7 +17,7 @@ class UsbId
 		unsigned int mProductId;
 
 	public:
-		UsbId(unsigned int pVendorId = 0x0, unsigned int pProductId = 0x0);
+		explicit UsbId(unsigned int pVendorId = 0x0, unsigned int pProductId = 0x0);
 
 		[[nodiscard]] unsigned int getVendorId() const;
 		[[nodiscard]] unsigned int getProductId() const;

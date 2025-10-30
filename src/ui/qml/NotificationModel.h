@@ -31,19 +31,15 @@ class NotificationModel
 	friend class Env;
 	friend class ::test_NotificationModel;
 
-	Q_PROPERTY(QString lastType READ getLastType NOTIFY fireLastTypeChanged)
-
 	private:
 		enum UserRoles
 		{
-			TYPE = Qt::UserRole + 1,
-			TIME,
+			TIME = Qt::UserRole + 1,
 			TEXT
 		};
 
 		struct NotificationEntry
 		{
-			QString mType;
 			QString mTime;
 			QString mText;
 		};
@@ -52,7 +48,6 @@ class NotificationModel
 
 		NotificationModel();
 		~NotificationModel() override = default;
-		QString getLastType() const;
 
 	private Q_SLOTS:
 		void onNewLogMsg(const QString& pMsg, const QString& pCategoryName);
@@ -61,9 +56,6 @@ class NotificationModel
 		[[nodiscard]] int rowCount(const QModelIndex& pIndex) const override;
 		[[nodiscard]] QVariant data(const QModelIndex& pIndex, int pRole) const override;
 		[[nodiscard]] QHash<int, QByteArray> roleNames() const override;
-
-	Q_SIGNALS:
-		void fireLastTypeChanged();
 };
 
 } // namespace governikus

@@ -9,9 +9,11 @@ step(${T_TARGET} sdk.latex.pdf)
 step(${CMAKE_COMMAND} -E tar cfJ ../AusweisApp_SDK.tar.xz . CHDIR ${T_BUILD_DIR}/docs/sdk/html)
 
 step(${T_TARGET} failurecodes)
-step(${T_TARGET} failurecodes.latex.pdf)
+step(${T_TARGET} failurecodes_en.latex.pdf)
+step(${T_TARGET} failurecodes_de.latex.pdf)
 
-step(${T_TARGET} installation_integration.latex.pdf)
+step(${T_TARGET} installation_integration_de.latex.pdf)
+step(${T_TARGET} installation_integration_en.latex.pdf)
 
 step(${T_TARGET} license)
 

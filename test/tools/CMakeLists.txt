@@ -22,7 +22,7 @@ if(JSONSCHEMA_BIN)
 endif()
 
 
-if(TARGET ${Qt}::Qml AND QT_VERSION VERSION_GREATER_EQUAL 6.5)
+if(TARGET ${Qt}::Qml)
 	add_test(NAME qmldir
 			COMMAND ${CMAKE_COMMAND} -DCMD=CHECK_QMLDIR -P ${CMAKE_DIR}/cmd.cmake
 			WORKING_DIRECTORY $<TARGET_PROPERTY:AusweisAppUiQmlModules,BINARY_DIR>)
@@ -31,6 +31,11 @@ if(TARGET ${Qt}::Qml AND QT_VERSION VERSION_GREATER_EQUAL 6.5)
 	add_test(NAME qmltypes
 			COMMAND ${CMAKE_COMMAND} -DCMD=CHECK_QMLTYPES -P ${CMAKE_DIR}/cmd.cmake
 			WORKING_DIRECTORY $<TARGET_PROPERTY:AusweisAppUiQmlModules,BINARY_DIR>)
+	set_tests_properties(qmltypes PROPERTIES LABELS "qml")
+
+	add_test(NAME qmlenums
+			COMMAND ${CMAKE_COMMAND} -DCMD=CHECK_QMLENUMS -P ${CMAKE_DIR}/cmd.cmake
+			WORKING_DIRECTORY $<TARGET_PROPERTY:AusweisAppUiQmlModules,SOURCE_DIR>)
 	set_tests_properties(qmltypes PROPERTIES LABELS "qml")
 
 	if(Python_FOUND)
@@ -43,10 +48,7 @@ if(TARGET ${Qt}::Qml AND QT_VERSION VERSION_GREATER_EQUAL 6.5)
 		set_tests_properties(qmlresources PROPERTIES LABELS "qml")
 	endif()
 
-	add_test(NAME qmllint
-			COMMAND ${CMAKE_COMMAND} --build . --target all_qmllint
-			WORKING_DIRECTORY ${PROJECT_BINARY_DIR})
-	set_tests_properties(qmllint PROPERTIES LABELS "qml")
+	add_subdirectory(qmllint)
 endif()
 
 
@@ -58,11 +60,36 @@ if(TYPOS_BIN)
 	set_tests_properties(typos PROPERTIES LABELS "sanity")
 endif()
 
-
 find_program(CODESPELL_BIN codespell)
 if(CODESPELL_BIN)
 	add_test(NAME codespell
 			COMMAND ${CODESPELL_BIN}
 			WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
 	set_tests_properties(codespell PROPERTIES LABELS "sanity")
+endif()
+
+find_program(SPHINX_LINT_BIN sphinx-lint)
+if(SPHINX_LINT_BIN)
+	add_test(NAME sphinx-lint
+			COMMAND ${SPHINX_LINT_BIN} -e all --max-line-length 120 -i LC_MESSAGES
+			WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+	set_tests_properties(codespell PROPERTIES LABELS "sanity")
+endif()
+
+find_program(YAMLLINT_BIN yamllint)
+if(YAMLLINT_BIN)
+	add_test(NAME yamllint
+			COMMAND ${YAMLLINT_BIN} --strict ${CMAKE_SOURCE_DIR}
+			WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+	set_tests_properties(yamllint PROPERTIES LABELS "sanity")
+endif()
+
+if(NOT RUFF) # See Tools.cmake
+	find_program(RUFF ruff)
+endif()
+if(RUFF)
+	add_test(NAME ruff
+			COMMAND ${RUFF} check ${CMAKE_SOURCE_DIR}
+			WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+	set_tests_properties(ruff PROPERTIES LABELS "sanity")
 endif()

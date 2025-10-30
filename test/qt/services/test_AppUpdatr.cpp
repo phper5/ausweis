@@ -152,9 +152,10 @@ class test_AppUpdatr
 		{
 			Env::set(Downloader::staticMetaObject, &mDownloader);
 
-			mAppCastLocation = mAppUpdater.mAppUpdateJsonUrl;
+			mAppCastLocation = QUrl(QStringLiteral("http://valid.url.example.com"));
+			mAppUpdater.setAppUpdateJsonUrl(mAppCastLocation);
 			mJsonDocument = QJsonDocument::fromJson(test_jsonData);
-			mReleaseNoteLocation = getJsonItemField(mJsonDocument, "notes"_L1).toString();
+			mReleaseNoteLocation = QUrl(getJsonItemField(mJsonDocument, "notes"_L1).toString());
 		}
 
 
@@ -164,10 +165,10 @@ class test_AppUpdatr
 			mDownloader.setTestData(mAppCastLocation, test_jsonData);
 			mDownloader.setTestData(mReleaseNoteLocation, test_releaseNotes);
 
-			mAppPackage = getJsonItemField(mJsonDocument, "url"_L1).toString();
+			mAppPackage = QUrl(getJsonItemField(mJsonDocument, "url"_L1).toString());
 			mDownloader.setTestData(mAppPackage, test_package);
 
-			mChecksum = getJsonItemField(mJsonDocument, "checksum"_L1).toString();
+			mChecksum = QUrl(getJsonItemField(mJsonDocument, "checksum"_L1).toString());
 			QByteArray checksum(test_checksum);
 			checksum += mAppPackage.fileName().toUtf8();
 			mDownloader.setTestData(mChecksum, checksum);
@@ -301,11 +302,9 @@ class test_AppUpdatr
 
 			QCOMPARE(updateData.getDate(), QDateTime::fromString(getJsonItemField(document, "date"_L1).toString(), Qt::ISODate));
 			QCOMPARE(updateData.getVersion(), getJsonItemField(document, "version"_L1).toString());
-			QCOMPARE(updateData.getNotesUrl(), QUrl(getJsonItemField(document, "notes"_L1).toString()));
 			QCOMPARE(updateData.getUrl(), QUrl(getJsonItemField(document, "url"_L1).toString()));
 			QCOMPARE(updateData.getChecksumUrl(), QUrl(getJsonItemField(document, "checksum"_L1).toString()));
 			QCOMPARE(updateData.getSize(), getJsonItemField(document, "size"_L1).toInt());
-			QVERIFY(mAppUpdater.getUpdateData().getNotes() != QString());
 		}
 
 
@@ -358,21 +357,6 @@ class test_AppUpdatr
 			QVERIFY(mAppUpdater.checkAppUpdate());
 
 			checkResult(spy, false, GlobalStatus::Code::Downloader_File_Not_Found);
-		}
-
-
-		void testReleaseNoteDownloadFailed()
-		{
-			QJsonDocument document = QJsonDocument::fromJson(test_jsonData);
-			setJsonItemField(document, "notes"_L1, "httb://notarealurl.org"_L1);
-			mDownloader.setTestData(mAppCastLocation, document.toJson());
-
-			QSignalSpy spy(&mAppUpdater, &AppUpdater::fireAppcastCheckFinished);
-
-			QVERIFY(mAppUpdater.checkAppUpdate());
-
-			checkResult(spy, true, GlobalStatus::Code::Downloader_File_Not_Found);
-			QCOMPARE(mAppUpdater.getUpdateData().getNotes(), QString());
 		}
 
 

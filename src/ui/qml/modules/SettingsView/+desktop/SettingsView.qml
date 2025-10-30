@@ -20,24 +20,15 @@ SectionPage {
 	title: qsTr("Settings")
 
 	titleBarSettings: TitleBarSettings {
-		navigationAction: NavigationAction.Back
+		navigationAction: NavigationAction.Action.Back
 
 		onNavigationActionClicked: root.pop()
 	}
 
 	Keys.onPressed: event => {
-		tabbedPane.handleKeyPress(event.key);
+		tabbedPane.handleKeyPress(event);
 	}
 
-	Connections {
-		function onFireAppUpdateDataChanged(pAfterManualRequest) {
-			if (pAfterManualRequest) {
-				root.push(updateView);
-			}
-		}
-
-		target: SettingsModel
-	}
 	TabbedPane {
 		id: tabbedPane
 
@@ -66,6 +57,7 @@ SectionPage {
 		contentObjectModel: ObjectModel {
 			Component {
 				GeneralSettings {
+					onShowUpdateRequested: root.push(updateView)
 				}
 			}
 			Component {
@@ -84,10 +76,10 @@ SectionPage {
 							progress: root.progress
 
 							infoContent: MultiInfoData {
-								contentType: MultiInfoData.NO_SAC_FOUND
+								contentType: MultiInfoData.Type.NO_SAC_FOUND
 							}
 							titleBarSettings: TitleBarSettings {
-								navigationAction: NavigationAction.Back
+								navigationAction: NavigationAction.Action.Back
 
 								onNavigationActionClicked: root.pop()
 							}

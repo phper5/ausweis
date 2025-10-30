@@ -27,10 +27,15 @@ TextField {
 
 	background: Rectangle {
 		border.color: Style.color.border
-		border.width: Style.dimens.separator_size
+		border.width: Style.dimens.border_width
 		color: Style.color.pane.background.basic
 		radius: Style.dimens.control_radius
 	}
+
+	Accessible.onScrollDownAction: Utils.scrollPageDownOnGFlickable(this)
+	Accessible.onScrollUpAction: Utils.scrollPageUpOnGFlickable(this)
+	onActiveFocusChanged: if (activeFocus)
+		Utils.positionViewAtItem(this, this.parent, Qt.platform.os === "android")
 
 	FocusFrame {
 		scope: root

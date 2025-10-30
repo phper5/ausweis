@@ -23,17 +23,17 @@ QtObject {
 		switch (stage) {
 		case OnboardingConfirmationViewData.Stage.CHANGE_PIN:
 		case OnboardingConfirmationViewData.Stage.PIN_CORRECT:
-			return AnimationLoader.CHANGEPIN_SUCCESS;
+			return AnimationLoader.Type.CHANGEPIN_SUCCESS;
 		case OnboardingConfirmationViewData.Stage.CHECK_ID_CARD_CARD_READER:
-			return AnimationLoader.WAIT_FOR_CARD_USB;
+			return AnimationLoader.Type.WAIT_FOR_CARD_USB;
 		case OnboardingConfirmationViewData.Stage.CHECK_ID_CARD_SAC:
-			return AnimationLoader.CARD_RESULT;
+			return AnimationLoader.Type.CARD_RESULT;
 		case OnboardingConfirmationViewData.Stage.PAIR_DEVICE:
-			return AnimationLoader.SAC_CONNECTION;
+			return AnimationLoader.Type.SAC_CONNECTION;
 		case OnboardingConfirmationViewData.Stage.READER_DETECTED:
-			return AnimationLoader.WAIT_FOR_READER;
+			return AnimationLoader.Type.WAIT_FOR_READER;
 		default:
-			return AnimationLoader.NONE;
+			return AnimationLoader.Type.NONE;
 		}
 	}
 	//: LABEL ALL_PLATFORMS Common part of the description of the confirmation view after the set up AusweisApp (with SaC) stage.

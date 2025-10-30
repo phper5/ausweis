@@ -10,6 +10,9 @@
 #include <QScopedPointer>
 
 
+class test_SmartReaderManagerPlugin;
+
+
 namespace governikus
 {
 
@@ -20,9 +23,11 @@ class SmartReaderManagerPlugin
 	Q_PLUGIN_METADATA(IID "governikus.ReaderManagerPlugin" FILE "metadata.json")
 	Q_INTERFACES(governikus::ReaderManagerPlugin)
 
+	friend class ::test_SmartReaderManagerPlugin;
+
 	private:
 		bool mReaderAdded;
-		QScopedPointer<SmartReader> mSmartReader;
+		QScopedPointer<SmartReader> mReader;
 
 		void publishReader(const ReaderInfo& pInfo);
 
@@ -32,7 +37,7 @@ class SmartReaderManagerPlugin
 	public:
 		SmartReaderManagerPlugin();
 
-		[[nodiscard]] QList<Reader*> getReaders() const override;
+		[[nodiscard]] QPointer<Reader> getReader(const QString& pReaderName) const override;
 
 		void init() override;
 		void shutdown() override;
@@ -40,7 +45,9 @@ class SmartReaderManagerPlugin
 		void insert(const QString& pReaderName, const QVariant& pData) override;
 
 		void startScan(bool pAutoConnect) override;
-		void stopScan(const QString& pError = QString()) override;
+		void stopScan(const QString& pError) override;
+
+		void shelveAll() const override;
 };
 
 } // namespace governikus

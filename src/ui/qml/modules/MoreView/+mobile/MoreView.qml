@@ -33,99 +33,69 @@ FlickableSectionPage {
 			width: parent.width
 
 			GMenuItem {
+				Layout.fillWidth: true
 				drawTopCorners: true
 				icon.source: "qrc:///images/npa.svg"
 				tintIcon: false
 				//: LABEL ANDROID IOS
-				title: qsTr("Start onboarding")
-				width: parent.width
+				title: qsTr("Start setup")
 
 				onClicked: root.startOnboarding()
 			}
-			GSeparator {
-				anchors.left: parent.left
-				anchors.leftMargin: Style.dimens.pane_spacing
-				anchors.right: parent.right
-				anchors.rightMargin: Style.dimens.pane_spacing
+			MoreViewSeparator {
 			}
 			GMenuItem {
+				Layout.fillWidth: true
 				icon.source: "qrc:///images/open_website.svg"
+				linkToOpen: "https://www.ausweisapp.bund.de/%1/aa2/faq".arg(SettingsModel.language)
 				//: LABEL ANDROID IOS
 				title: qsTr("FAQ - Frequently asked questions")
-				width: parent.width
-
-				onClicked: Qt.openUrlExternally("https://www.ausweisapp.bund.de/%1/aa2/faq".arg(SettingsModel.language))
 			}
-			GSeparator {
-				anchors.left: parent.left
-				anchors.leftMargin: Style.dimens.pane_spacing
-				anchors.right: parent.right
-				anchors.rightMargin: Style.dimens.pane_spacing
+			MoreViewSeparator {
 			}
 			GMenuItem {
+				Layout.fillWidth: true
 				icon.source: "qrc:///images/open_website.svg"
+				linkToOpen: "https://www.ausweisapp.bund.de/%1/aa2/support".arg(SettingsModel.language)
 				//: LABEL ANDROID IOS
 				title: qsTr("Contact")
-				width: parent.width
-
-				onClicked: Qt.openUrlExternally("https://www.ausweisapp.bund.de/%1/aa2/support".arg(SettingsModel.language))
 			}
-			GSeparator {
-				anchors.left: parent.left
-				anchors.leftMargin: Style.dimens.pane_spacing
-				anchors.right: parent.right
-				anchors.rightMargin: Style.dimens.pane_spacing
+			MoreViewSeparator {
 			}
 			GMenuItem {
+				Layout.fillWidth: true
 				icon.source: "qrc:///images/open_website.svg"
+				linkToOpen: "https://www.ausweisapp.bund.de/%1/aa2/privacy".arg(SettingsModel.language)
 				//: LABEL ANDROID IOS
 				title: qsTr("Privacy statement")
-				width: parent.width
-
-				onClicked: Qt.openUrlExternally("https://www.ausweisapp.bund.de/%1/aa2/privacy".arg(SettingsModel.language))
 			}
-			GSeparator {
-				anchors.left: parent.left
-				anchors.leftMargin: Style.dimens.pane_spacing
-				anchors.right: parent.right
-				anchors.rightMargin: Style.dimens.pane_spacing
+			MoreViewSeparator {
 			}
 			GMenuItem {
+				Layout.fillWidth: true
 				icon.source: "qrc:///images/open_website.svg"
+				linkToOpen: "https://www.ausweisapp.bund.de/%1/aa2/a11y".arg(SettingsModel.language)
 				//: LABEL ANDROID IOS
 				title: qsTr("Accessibility statement")
-				width: parent.width
-
-				onClicked: Qt.openUrlExternally("https://www.ausweisapp.bund.de/%1/aa2/a11y".arg(SettingsModel.language))
 			}
-			GSeparator {
-				anchors.left: parent.left
-				anchors.leftMargin: Style.dimens.pane_spacing
-				anchors.right: parent.right
-				anchors.rightMargin: Style.dimens.pane_spacing
+			MoreViewSeparator {
 			}
 			GMenuItem {
+				Layout.fillWidth: true
 				icon.source: "qrc:///images/open_website.svg"
+				linkToOpen: "https://www.ausweisapp.bund.de/%1/aa2/providerlist".arg(SettingsModel.language)
 				//: LABEL ANDROID IOS
 				title: qsTr("List of Providers")
-				width: parent.width
-
-				onClicked: Qt.openUrlExternally("https://www.ausweisapp.bund.de/%1/aa2/providerlist".arg(SettingsModel.language))
 			}
-			GSeparator {
-				anchors.left: parent.left
-				anchors.leftMargin: Style.dimens.pane_spacing
-				anchors.right: parent.right
-				anchors.rightMargin: Style.dimens.pane_spacing
+			MoreViewSeparator {
 			}
 			GMenuItem {
+				Layout.fillWidth: true
 				drawBottomCorners: true
 				icon.source: "qrc:///images/open_website.svg"
+				linkToOpen: ApplicationModel.storeUrl
 				//: LABEL ANDROID IOS
 				title: qsTr("Rate %1").arg(Qt.application.name)
-				width: parent.width
-
-				onClicked: Qt.openUrlExternally(ApplicationModel.storeUrl)
 			}
 		}
 		GOptionsContainer {
@@ -134,35 +104,55 @@ FlickableSectionPage {
 			width: parent.width
 
 			GMenuItem {
+				id: menuItemShowLogs
+
+				Layout.fillWidth: true
 				drawTopCorners: true
 				//: LABEL ANDROID IOS
 				title: qsTr("Show Logs")
-				width: parent.width
 
-				onClicked: root.push(logPage)
+				onClicked: LogFilesModel.count > 1 ? root.push(logFilesView) : root.push(logView, {
+					logFileName: LogFilesModel.getLogFileName(0),
+					logFilePath: LogFilesModel.getLogFilePath(0)
+				})
 
 				Component {
-					id: logPage
+					id: logFilesView
+
+					LogFilesView {
+						enableTileStyle: root.enableTileStyle
+
+						onLogFilesListItemClicked: index => {
+							root.push(logView, {
+								logFileName: LogFilesModel.getLogFileName(index),
+								logFilePath: LogFilesModel.getLogFilePath(index)
+							});
+						}
+					}
+				}
+				Component {
+					id: logView
 
 					LogView {
 						enableTileStyle: root.enableTileStyle
 					}
 				}
 			}
-			GSeparator {
-				anchors.left: parent.left
-				anchors.leftMargin: Style.dimens.pane_spacing
-				anchors.right: parent.right
-				anchors.rightMargin: Style.dimens.pane_spacing
+			MoreViewSeparator {
 			}
 			GMenuItem {
+				Layout.fillWidth: true
 				drawBottomCorners: true
 				icon.source: "qrc:///images/email_icon.svg"
 				//: LABEL ANDROID IOS
 				title: qsTr("Send log to the support")
-				width: parent.width
 
-				onClicked: LogModel.mailLog()
+				onClicked: logModel.mailLogFile()
+
+				LogModel {
+					id: logModel
+
+				}
 			}
 		}
 		GOptionsContainer {
@@ -171,10 +161,10 @@ FlickableSectionPage {
 			width: parent.width
 
 			GMenuItem {
+				Layout.fillWidth: true
 				drawTopCorners: true
-				//: LABEL ANDROID IOS
-				title: qsTr("Version information")
-				width: parent.width
+				//: LABEL ANDROID IOS %1 is replaced with the application name
+				title: qsTr("%1 version").arg(Qt.application.name)
 
 				onClicked: root.push(versionInformation)
 
@@ -186,16 +176,12 @@ FlickableSectionPage {
 					}
 				}
 			}
-			GSeparator {
-				anchors.left: parent.left
-				anchors.leftMargin: Style.dimens.pane_spacing
-				anchors.right: parent.right
-				anchors.rightMargin: Style.dimens.pane_spacing
+			MoreViewSeparator {
 			}
 			GMenuItem {
+				Layout.fillWidth: true
 				//: LABEL ANDROID IOS
 				title: qsTr("Terms of use and software license")
-				width: parent.width
 
 				onClicked: root.push(licenseInformation)
 
@@ -207,17 +193,13 @@ FlickableSectionPage {
 					}
 				}
 			}
-			GSeparator {
-				anchors.left: parent.left
-				anchors.leftMargin: Style.dimens.pane_spacing
-				anchors.right: parent.right
-				anchors.rightMargin: Style.dimens.pane_spacing
+			MoreViewSeparator {
 			}
 			GMenuItem {
+				Layout.fillWidth: true
 				drawBottomCorners: true
 				//: LABEL ANDROID IOS
 				title: qsTr("Release notes")
-				width: parent.width
 
 				onClicked: root.push(releaseNotes)
 
@@ -230,5 +212,11 @@ FlickableSectionPage {
 				}
 			}
 		}
+	}
+
+	component MoreViewSeparator: GSeparator {
+		Layout.fillWidth: true
+		Layout.leftMargin: Style.dimens.pane_spacing
+		Layout.rightMargin: Layout.leftMargin
 	}
 }

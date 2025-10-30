@@ -14,23 +14,51 @@ ListView {
 	property alias scrollBarColor: scrollBar.color
 	property real scrollBarTopPadding: 0
 
+	function firstIndexInView() {
+		const firstIndex = indexAt(0, contentY);
+		return firstIndex === -1 ? 0 : firstIndex;
+	}
 	function handleItemFocused(pIndex) {
 		positionViewAtIndex(pIndex, ListView.Center);
 		currentIndex = pIndex;
 	}
-	function handleKeyPress(key) {
-		if (key === Qt.Key_PageDown)
+	function handleKeyPress(event) {
+		if (root.contentHeight <= root.height)
+			return;
+
+		let key = event.key;
+		if (key === Qt.Key_PageDown) {
+			if (root.atYEnd)
+				return;
 			root.scrollPageDown();
-		else if (key === Qt.Key_PageUp)
+			root.setIndexToCurrentlyCenteredItem();
+			event.accepted = true;
+		} else if (key === Qt.Key_PageUp) {
+			if (root.atYBeginning)
+				return;
 			root.scrollPageUp();
-		else if (key === Qt.Key_End)
+			root.setIndexToCurrentlyCenteredItem();
+			event.accepted = true;
+		} else if (key === Qt.Key_End) {
 			root.positionViewAtEnd();
-		else if (key === Qt.Key_Home)
+			root.currentIndex = count - 1;
+			event.accepted = true;
+		} else if (key === Qt.Key_Home) {
 			root.positionViewAtBeginning();
+			root.currentIndex = 0;
+			event.accepted = true;
+		}
 	}
 	function highlightScrollbar() {
 		if (ScrollBar.vertical)
 			(ScrollBar.vertical as GScrollBar).highlight();
+	}
+	function isListElementEmptyFunc(pItem) {
+		return false;
+	}
+	function lastIndexInView() {
+		const lastIndex = indexAt(0, height + contentY);
+		return lastIndex === -1 ? count - 1 : lastIndex;
 	}
 	function scrollPageDown() {
 		scrollBar.increase();
@@ -38,8 +66,23 @@ ListView {
 	function scrollPageUp() {
 		scrollBar.decrease();
 	}
+	function setIndexToCurrentlyCenteredItem() {
+		let index = indexAt(1, contentY + height / 2);
+		if (index === -1)
+			return;
 
-	Accessible.ignored: true
+		var item = itemAtIndex(index);
+		while (isListElementEmptyFunc(item)) {
+			index++;
+			if (index === count - 1)
+				return;
+			item = itemAtIndex(index);
+		}
+		currentIndex = index;
+	}
+
+	Accessible.role: Accessible.List
+	activeFocusOnTab: true
 	boundsBehavior: Style.is_layout_desktop ? Flickable.StopAtBounds : (contentHeight <= height ? Flickable.StopAtBounds : Flickable.DragAndOvershootBounds)
 	boundsMovement: Flickable.FollowBoundsBehavior
 	flickDeceleration: Style.flickDeceleration
@@ -60,8 +103,18 @@ ListView {
 	Accessible.onIncreaseAction: scrollPageDown()
 	Accessible.onScrollDownAction: scrollPageDown()
 	Accessible.onScrollUpAction: scrollPageUp()
+	Keys.onDownPressed: {
+		do {
+			root.incrementCurrentIndex();
+		} while (isListElementEmptyFunc(currentItem) && root.currentIndex + 1 < root.count)
+	}
 	Keys.onPressed: event => {
-		handleKeyPress(event.key);
+		handleKeyPress(event);
+	}
+	Keys.onUpPressed: {
+		do {
+			root.decrementCurrentIndex();
+		} while (isListElementEmptyFunc(currentItem) && root.currentIndex > 1)
 	}
 	onVisibleChanged: if (visible)
 		highlightScrollbar()

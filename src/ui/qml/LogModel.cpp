@@ -5,9 +5,7 @@
 #include "LogModel.h"
 
 #include "ApplicationModel.h"
-#include "LanguageLoader.h"
 #include "LogHandler.h"
-#include "Randomizer.h"
 
 #include <QDir>
 #include <QFile>
@@ -17,32 +15,21 @@
 #include <QtMath>
 
 
+Q_DECLARE_LOGGING_CATEGORY(qml)
+
+
 using namespace governikus;
 
 
 LogModel::LogModel()
 	: QAbstractListModel()
-	, mLogFiles()
-	, mSelectedLogFile(-1)
 	, mLogEntries()
 	, mLevels()
 	, mCategories()
+	, mLogFilePath(QStringLiteral("uninitialized"))
 {
-	reset();
-}
-
-
-void LogModel::reset()
-{
-	mLogFiles.clear();
-	mLogFiles += QString(); // dummy entry for "current logfile"
-	const auto logFiles = Env::getSingleton<LogHandler>()->getOtherLogFiles();
-	for (const auto& entry : logFiles)
-	{
-		mLogFiles += entry.absoluteFilePath();
-	}
-
-	setLogFile(0);
+	// initial current log is used
+	setSource(QString());
 }
 
 
@@ -59,14 +46,14 @@ void LogModel::addLogEntry(const QString& pEntry)
 
 	QModelIndex idx = QAbstractListModel::index(static_cast<int>(mLogEntries.size()) - 1, 0);
 
-	const auto& level = data(idx, LogModel::LogModelRoles::LevelRole).toString();
+	const auto& level = LogModel::data(idx, LogModel::LogModelRoles::LevelRole).toString();
 	if (!mLevels.contains(level))
 	{
 		mLevels.insert(level);
 		Q_EMIT fireLevelsChanged();
 	}
 
-	const auto& category = data(idx, LogModel::LogModelRoles::CategoryRole).toString();
+	const auto& category = LogModel::data(idx, LogModel::LogModelRoles::CategoryRole).toString();
 	if (!mCategories.contains(category))
 	{
 		mCategories.insert(category);
@@ -98,9 +85,15 @@ void LogModel::setLogEntries(QTextStream& pTextStream)
 }
 
 
+bool LogModel::isCurrentLog() const
+{
+	return mLogFilePath.isEmpty();
+}
+
+
 void LogModel::onNewLogMsg(const QString& pMsg)
 {
-	if (mSelectedLogFile == 0)
+	if (isCurrentLog())
 	{
 		const auto size = static_cast<int>(mLogEntries.size());
 		beginInsertRows(QModelIndex(), size, size);
@@ -108,30 +101,6 @@ void LogModel::onNewLogMsg(const QString& pMsg)
 		endInsertRows();
 		Q_EMIT fireNewLogMsg();
 	}
-}
-
-
-void LogModel::onTranslationChanged()
-{
-	Q_EMIT fireLogFileNamesChanged();
-}
-
-
-QStringList LogModel::getLogFileNames() const
-{
-	QStringList logFileNames;
-	//: LABEL ALL_PLATFORMS
-	logFileNames += tr("Current log");
-	for (const auto& entry : std::as_const(mLogFiles))
-	{
-		if (!entry.isEmpty())
-		{
-			//: LABEL ALL_PLATFORMS Datetime format according to https://doc.qt.io/qt/qdate.html#toString and https://doc.qt.io/qt/qtime.html#toString
-			logFileNames += LanguageLoader::getInstance().getUsedLocale().toString(LogHandler::getFileDate(QFileInfo(entry)), tr("dd.MM.yyyy hh:mm:ss"));
-		}
-	}
-
-	return logFileNames;
 }
 
 
@@ -147,44 +116,18 @@ const QSet<QString>& LogModel::getCategories() const
 }
 
 
-QDateTime LogModel::getCurrentLogFileDate() const
+void LogModel::setSource(const QString& pLogFilePath)
 {
-	if (mSelectedLogFile == 0)
-	{
-		return Env::getSingleton<LogHandler>()->getCurrentLogFileDate();
-	}
-
-	return LogHandler::getFileDate(QFileInfo(mLogFiles.at(mSelectedLogFile)));
-}
-
-
-void LogModel::removeOtherLogFiles()
-{
-	if (Env::getSingleton<LogHandler>()->removeOtherLogFiles())
-	{
-		reset();
-		Q_EMIT fireLogFileNamesChanged();
-	}
-}
-
-
-void LogModel::setLogFile(int pIndex)
-{
-	if (pIndex < 0 || pIndex >= mLogFiles.size())
-	{
-		qDebug() << "Called with invalid index:" << pIndex;
-		return;
-	}
-
-	if (pIndex == mSelectedLogFile)
+	if (mLogFilePath == pLogFilePath)
 	{
 		return;
 	}
 
-	mSelectedLogFile = pIndex;
+	mLogFilePath = pLogFilePath;
+
 	auto* logHandler = Env::getSingleton<LogHandler>();
 
-	if (pIndex == 0)
+	if (isCurrentLog())
 	{
 		QTextStream in(logHandler->useLogFile() ? logHandler->getBacklog() : tr("The logfile is disabled.").toUtf8());
 		setLogEntries(in);
@@ -193,53 +136,64 @@ void LogModel::setLogFile(int pIndex)
 	else
 	{
 		disconnect(logHandler->getEventHandler(), &LogEventHandler::fireLog, this, &LogModel::onNewLogMsg);
-		QFile inputFile(mLogFiles.value(pIndex));
+		QFile inputFile(mLogFilePath);
 		if (inputFile.open(QIODevice::ReadOnly))
 		{
+			qCDebug(qml) << "Loaded log:" << pLogFilePath;
 			QTextStream in(&inputFile);
 			setLogEntries(in);
 			inputFile.close();
 		}
+		else
+		{
+			qCWarning(qml) << "Load file failed:" << pLogFilePath;
+			QString emptyString;
+			QTextStream stream(&emptyString);
+			setLogEntries(stream);
+		}
 	}
+
+	Q_EMIT fireSourceChanged();
 }
 
 
-void LogModel::saveCurrentLogFile(const QUrl& pFilename) const
+[[nodiscard]] QString LogModel::getSource() const
+{
+	return mLogFilePath;
+}
+
+
+bool LogModel::saveLogFile(const QUrl& pFilename, bool pShowFeedback) const
 {
 	bool success = false;
-	if (const auto& logfilePath = mLogFiles.at(mSelectedLogFile); logfilePath.isEmpty())
+	if (isCurrentLog())
 	{
 		success = Env::getSingleton<LogHandler>()->copy(pFilename.toLocalFile());
 	}
 	else
 	{
-		success = Env::getSingleton<LogHandler>()->copyOther(logfilePath, pFilename.toLocalFile());
+		success = Env::getSingleton<LogHandler>()->copyOther(mLogFilePath, pFilename.toLocalFile());
 	}
 
-	auto* applicationModel = Env::getSingleton<ApplicationModel>();
-	applicationModel->showFeedback((success ? tr("Successfully saved logfile to \"%1\"") : tr("Error while saving logfile to \"%1\"")).arg(pFilename.toLocalFile()));
+	if (pShowFeedback)
+	{
+		auto* applicationModel = Env::getSingleton<ApplicationModel>();
+		applicationModel->showFeedback((success ? tr("Successfully saved logfile to \"%1\"") : tr("Error while saving logfile to \"%1\"")).arg(pFilename.toLocalFile()));
+	}
+
+	return success;
 }
 
 
-void LogModel::saveDummyLogFile(const QDateTime& pTimestamp)
+QString LogModel::createLogFileName() const
 {
-#ifdef QT_NO_DEBUG
-	Q_UNUSED(pTimestamp)
-#else
-	auto& generator = Randomizer::getInstance().getGenerator();
-	std::uniform_int_distribution<uint32_t> dist;
-	const auto* logHandler = Env::getSingleton<LogHandler>();
-	const auto& copyFilename = QDir::temp().filePath(QStringLiteral("%1.%2.log").arg(QCoreApplication::applicationName()).arg(dist(generator)));
-	if (logHandler->copy(copyFilename) && pTimestamp.isValid())
-	{
-		if (QFile file(copyFilename); file.open(QFile::Append))
-		{
-			file.setFileTime(pTimestamp, QFile::FileModificationTime);
-		}
-	}
-	reset();
-	Q_EMIT fireLogFileNamesChanged();
-#endif
+	const QDateTime dateTime = isCurrentLog()
+		? Env::getSingleton<LogHandler>()->getCurrentLogFileDate()
+		: LogHandler::getFileDate(QFileInfo(mLogFilePath));
+
+	auto dateFormat = QStringLiteral("yyyy-MM-dd_HH-mm");
+	const QString logFileDate = dateTime.toString(dateFormat);
+	return QStringLiteral("%1-%2.log").arg(QCoreApplication::applicationName(), logFileDate);
 }
 
 
@@ -306,12 +260,4 @@ QVariant LogModel::data(const QModelIndex& pIndex, int pRole) const
 	}
 
 	Q_UNREACHABLE();
-}
-
-
-QString LogModel::createLogFileName(const QDateTime& pDateTime)
-{
-	auto dateFormat = QStringLiteral("yyyy-MM-dd_HH-mm");
-	QString logFileDate = pDateTime.toString(dateFormat);
-	return QStringLiteral("%1-%2.log").arg(QCoreApplication::applicationName(), logFileDate);
 }

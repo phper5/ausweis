@@ -24,7 +24,7 @@ AppUpdater::AppUpdater()
 	: mAppUpdateJsonUrl()
 	, mAppUpdateData()
 	, mDownloadPath(QStandardPaths::writableLocation(QStandardPaths::CacheLocation) + QLatin1Char('/'))
-	, mDownloadInProgress(false)
+	, mDownloadType(DownloadType::NONE)
 {
 	const auto* secureStorage = Env::getSingleton<SecureStorage>();
 
@@ -35,13 +35,13 @@ AppUpdater::AppUpdater()
 bool AppUpdater::checkAppUpdate()
 {
 	mAppUpdateData = AppUpdateData();
-	return download(mAppUpdateJsonUrl);
+	return download(DownloadType::UPDATEINFO);
 }
 
 
-bool AppUpdater::download(const QUrl& pUrl)
+bool AppUpdater::download(DownloadType pDownloadType)
 {
-	if (mDownloadInProgress)
+	if (mDownloadType != DownloadType::NONE)
 	{
 		return false;
 	}
@@ -52,9 +52,53 @@ bool AppUpdater::download(const QUrl& pUrl)
 	connect(downloader, &Downloader::fireDownloadFailed, this, &AppUpdater::onDownloadFailed);
 	connect(downloader, &Downloader::fireDownloadUnnecessary, this, &AppUpdater::onDownloadUnnecessary);
 
-	mDownloadInProgress = true;
-	downloader->download(pUrl);
+	const auto url = urlFromDownloadType(pDownloadType);
+	if (!url.isValid())
+	{
+		clearDownloaderConnection();
+		return false;
+	}
+
+	setDownloadType(pDownloadType);
+	downloader->download(url);
 	return true;
+}
+
+
+void AppUpdater::setDownloadType(DownloadType pDownloadType)
+{
+	if (mDownloadType == pDownloadType)
+	{
+		return;
+	}
+
+	mDownloadType = pDownloadType;
+	Q_EMIT fireDownloadTypeChanged();
+}
+
+
+QUrl AppUpdater::urlFromDownloadType(DownloadType pDownloadType) const
+{
+	switch (pDownloadType)
+	{
+		case DownloadType::UPDATEINFO:
+			return mAppUpdateJsonUrl;
+
+		case DownloadType::CHECKSUM:
+			return mAppUpdateData.getChecksumUrl();
+
+		case DownloadType::APPLICATION:
+			return mAppUpdateData.getUrl();
+
+		default:
+			return QUrl();
+	}
+}
+
+
+AppUpdater::DownloadType AppUpdater::getDownloadType() const
+{
+	return mDownloadType;
 }
 
 
@@ -90,12 +134,13 @@ QString AppUpdater::save(const QByteArray& pData, const QString& pFilename) cons
 
 bool AppUpdater::abortDownload() const
 {
-	if (mDownloadInProgress)
+	const auto url = urlFromDownloadType(mDownloadType);
+	if (!url.isValid())
 	{
-		return Env::getSingleton<Downloader>()->abort(mAppUpdateData.getUrl());
+		return false;
 	}
 
-	return false;
+	return Env::getSingleton<Downloader>()->abort(url);
 }
 
 
@@ -105,7 +150,7 @@ bool AppUpdater::downloadUpdate()
 
 	if (mAppUpdateData.isValid())
 	{
-		return download(mAppUpdateData.getChecksumUrl());
+		return download(DownloadType::CHECKSUM);
 	}
 
 	return false;
@@ -136,6 +181,12 @@ void AppUpdater::setDownloadPath(const QString& pPath)
 }
 
 
+void AppUpdater::setAppUpdateJsonUrl(const QUrl& pUrl)
+{
+	mAppUpdateJsonUrl = pUrl;
+}
+
+
 #endif
 
 
@@ -156,10 +207,6 @@ void AppUpdater::onDownloadFinished(const QUrl& pUpdateUrl, const QDateTime& pNe
 	if (pUpdateUrl == mAppUpdateJsonUrl)
 	{
 		handleVersionInfoDownloadFinished(pData);
-	}
-	else if (pUpdateUrl == mAppUpdateData.getNotesUrl())
-	{
-		handleReleaseNotesDownloadFinished(pData);
 	}
 	else if (pUpdateUrl == mAppUpdateData.getChecksumUrl())
 	{
@@ -187,8 +234,7 @@ void AppUpdater::handleVersionInfoDownloadFinished(const QByteArray& pData)
 		if (VersionNumber(version) > VersionNumber::getApplicationVersion())
 		{
 			qCInfo(appupdate) << "Found new version:" << version << ", greater than old version" << QCoreApplication::applicationVersion();
-			Env::getSingleton<Downloader>()->download(mAppUpdateData.getNotesUrl());
-			return;
+			Q_EMIT fireAppcastCheckFinished(true, GlobalStatus::Code::No_Error);
 		}
 		else
 		{
@@ -204,19 +250,11 @@ void AppUpdater::handleVersionInfoDownloadFinished(const QByteArray& pData)
 }
 
 
-void AppUpdater::handleReleaseNotesDownloadFinished(const QByteArray& pData)
-{
-	qCDebug(appupdate) << "Release notes downloaded successfully";
-	mAppUpdateData.setNotes(QString::fromUtf8(pData));
-	Q_EMIT fireAppcastCheckFinished(true, GlobalStatus::Code::No_Error);
-	clearDownloaderConnection();
-}
-
-
 void AppUpdater::handleChecksumDownloadFinished(const QUrl& pUpdateUrl, const QByteArray& pData)
 {
 	qCDebug(appupdate) << "Checksum file downloaded successfully:" << pUpdateUrl.fileName();
 	save(pData, pUpdateUrl.fileName());
+	clearDownloaderConnection();
 
 	const auto extensionSplit = pUpdateUrl.fileName().split(QLatin1Char('.'), Qt::SkipEmptyParts);
 	const auto extension = extensionSplit.isEmpty() ? QByteArray() : extensionSplit.last().toLatin1();
@@ -229,7 +267,6 @@ void AppUpdater::handleChecksumDownloadFinished(const QUrl& pUpdateUrl, const QB
 		mAppUpdateData.setUpdatePackagePath(package);
 		if (mAppUpdateData.isChecksumValid())
 		{
-			clearDownloaderConnection();
 			qCDebug(appupdate) << "Reuse valid package...";
 			Q_EMIT fireAppDownloadFinished(GlobalStatus::Code::No_Error);
 			return;
@@ -238,7 +275,7 @@ void AppUpdater::handleChecksumDownloadFinished(const QUrl& pUpdateUrl, const QB
 	}
 
 	qCDebug(appupdate) << "Download package...";
-	Env::getSingleton<Downloader>()->download(mAppUpdateData.getUrl());
+	download(DownloadType::APPLICATION);
 }
 
 
@@ -274,11 +311,6 @@ void AppUpdater::onDownloadFailed(const QUrl& pUpdateUrl, GlobalStatus::Code pEr
 		qCDebug(appupdate) << "App Update JSON failed:" << GlobalStatus(pErrorCode).toErrorDescription();
 		Q_EMIT fireAppcastCheckFinished(false, pErrorCode);
 	}
-	else if (pUpdateUrl == mAppUpdateData.getNotesUrl())
-	{
-		qCDebug(appupdate) << "Release notes download failed:" << GlobalStatus(pErrorCode).toErrorDescription();
-		Q_EMIT fireAppcastCheckFinished(true, pErrorCode);
-	}
 	else if (pUpdateUrl == mAppUpdateData.getChecksumUrl() || pUpdateUrl == mAppUpdateData.getUrl())
 	{
 		qCDebug(appupdate) << "Download failed:" << GlobalStatus(pErrorCode).toErrorDescription() << ',' << pUpdateUrl;
@@ -296,7 +328,7 @@ void AppUpdater::onDownloadFailed(const QUrl& pUpdateUrl, GlobalStatus::Code pEr
 
 void AppUpdater::onDownloadUnnecessary(const QUrl& pUpdateUrl)
 {
-	if (pUpdateUrl == mAppUpdateJsonUrl || pUpdateUrl == mAppUpdateData.getNotesUrl() || pUpdateUrl == mAppUpdateData.getUrl() || pUpdateUrl == mAppUpdateData.getChecksumUrl())
+	if (pUpdateUrl == mAppUpdateJsonUrl || pUpdateUrl == mAppUpdateData.getUrl() || pUpdateUrl == mAppUpdateData.getChecksumUrl())
 	{
 		Q_ASSERT(false);
 		qCCritical(appupdate) << "Got a DownloadUnnecessary from Downloader, but App Updates always have to be fresh, this should not be happening";
@@ -308,9 +340,14 @@ void AppUpdater::onDownloadUnnecessary(const QUrl& pUpdateUrl)
 
 void AppUpdater::onDownloadProgress(const QUrl& pUpdateUrl, qint64 pBytesReceived, qint64 pBytesTotal)
 {
-	if (pUpdateUrl == mAppUpdateData.getUrl())
+	const qint64 total = pBytesTotal == -1 ? mAppUpdateData.getSize() : pBytesTotal;
+	if (pUpdateUrl == mAppUpdateJsonUrl)
 	{
-		const qint64 total = pBytesTotal == -1 ? mAppUpdateData.getSize() : pBytesTotal;
+		Q_EMIT fireAppcastProgress(pBytesReceived, total);
+
+	}
+	else if (pUpdateUrl == mAppUpdateData.getUrl())
+	{
 		Q_EMIT fireAppDownloadProgress(pBytesReceived, total);
 	}
 }
@@ -319,5 +356,5 @@ void AppUpdater::onDownloadProgress(const QUrl& pUpdateUrl, qint64 pBytesReceive
 void AppUpdater::clearDownloaderConnection()
 {
 	Env::getSingleton<Downloader>()->disconnect(this);
-	mDownloadInProgress = false;
+	setDownloadType(DownloadType::NONE);
 }

@@ -77,7 +77,7 @@ class test_StateEnterPacePasswordIfd
 
 			const auto& context = mState->getContext();
 			MockReaderManagerPlugin::getInstance().addReader("MockReader"_L1);
-			auto* reader = MockReaderManagerPlugin::getInstance().getReaders().at(0);
+			const auto& reader = MockReaderManagerPlugin::getInstance().getReader("MockReader"_L1);
 			mState->onEntry(nullptr);
 
 			context->setReaderName("MockWrongReader"_L1);

@@ -51,9 +51,9 @@ void DiagnosisFirewallDetection::parseFirewallFirstRuleInfos(const QString& pFir
 		{
 			continue;
 		}
-		if (lineparts[0].startsWith(QLatin1String("Name")))
+		if (lineparts[0].startsWith(QLatin1String("DisplayName")))
 		{
-			if (lineparts[1].startsWith(QLatin1String("AusweisApp-Firewall-Rule")))
+			if (lineparts[1].startsWith(QLatin1String("AusweisApp")))
 			{
 				mFirstFirewallRuleExists = true;
 			}
@@ -104,7 +104,7 @@ void DiagnosisFirewallDetection::parseFirewallSecondRuleInfos(const QString& pFi
 		{
 			continue;
 		}
-		if (lineparts[0].startsWith(QLatin1String("Name")) || lineparts[0].startsWith(QLatin1String("DisplayName")))
+		if (lineparts[0].startsWith(QLatin1String("DisplayName")))
 		{
 			if (lineparts[1].startsWith(QLatin1String("AusweisApp-SaC")))
 			{
@@ -321,7 +321,7 @@ void DiagnosisFirewallDetection::startDetection()
 	QStringList firstRuleParameters;
 	firstRuleParameters << QStringLiteral("-NoProfile");
 	firstRuleParameters << QStringLiteral("-Command");
-	firstRuleParameters << QStringLiteral("Get-NetFirewallRule -Name \"AusweisApp-Firewall-Rule\"");
+	firstRuleParameters << QStringLiteral("Get-NetFirewallRule -DisplayName \"AusweisApp\"");
 
 	connect(&mFirewallFirstRuleProcess, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, &DiagnosisFirewallDetection::onFirstRuleDone);
 	connect(&mFirewallFirstRuleProcess, &QProcess::errorOccurred, this, &DiagnosisFirewallDetection::onFirstRuleError);

@@ -206,8 +206,6 @@ void DidAuthenticateEac1Parser::parseCertificate(Eac1InputType& pEac1)
 {
 	if (auto cvc = CVCertificate::fromRaw(QByteArray::fromHex(readElementText().toLatin1())))
 	{
-		qCDebug(paos) << "Linked Certificate (Authority):" << cvc->getBody().getCertificationAuthorityReference();
-		qCDebug(paos) << "Certificate Name (Holder):" << cvc->getBody().getCertificateHolderReference();
 		pEac1.appendCvcerts(cvc);
 	}
 	else

@@ -11,12 +11,16 @@
 
 #include <QtTest>
 
+
 Q_IMPORT_PLUGIN(MockReaderManagerPlugin)
+
 
 using namespace Qt::Literals::StringLiterals;
 using namespace governikus;
 
+
 Q_DECLARE_METATYPE(ReaderInfo)
+
 
 class test_MsgHandlerReader
 	: public QObject
@@ -90,7 +94,7 @@ class test_MsgHandlerReader
 
 		void oneReaderWithCard()
 		{
-			MockReader* reader = MockReaderManagerPlugin::getInstance().addReader("MockReader 0815"_L1);
+			const auto& reader = MockReaderManagerPlugin::getInstance().addReader("MockReader 0815"_L1);
 			reader->setCard(MockCardConfig());
 
 			MessageDispatcher dispatcher;
@@ -112,7 +116,7 @@ class test_MsgHandlerReader
 		{
 			QFETCH(MsgLevel, msgLevel);
 
-			MockReader* reader = MockReaderManagerPlugin::getInstance().addReader("MockReader 0815"_L1);
+			auto reader = MockReaderManagerPlugin::getInstance().addReader("MockReader 0815"_L1);
 			reader->setCard(MockCardConfig());
 			reader = MockReaderManagerPlugin::getInstance().addReader("ReaderMock"_L1);
 			reader->setCard(MockCardConfig());
@@ -171,7 +175,7 @@ class test_MsgHandlerReader
 			QFETCH(QByteArray, efCardAccess);
 			QFETCH(QByteArray, eidType);
 
-			MockReader* reader = MockReaderManagerPlugin::getInstance().addReader("MockReader 0815"_L1);
+			const auto& reader = MockReaderManagerPlugin::getInstance().addReader("MockReader 0815"_L1);
 			reader->setCard(MockCardConfig(), EFCardAccess::decode(QByteArray::fromHex(efCardAccess)), CardType::SMART_EID);
 			MessageDispatcher dispatcher;
 

@@ -18,17 +18,6 @@ NotificationModel::NotificationModel()
 }
 
 
-QString NotificationModel::getLastType() const
-{
-	if (mNotificationEntries.isEmpty())
-	{
-		return QString();
-	}
-
-	return std::as_const(mNotificationEntries).last().mType;
-}
-
-
 void NotificationModel::onNewLogMsg(const QString& pMsg, const QString& pCategoryName)
 {
 	if (pCategoryName == QLatin1String("developermode") || pCategoryName == QLatin1String("feedback"))
@@ -44,10 +33,8 @@ void NotificationModel::onNewLogMsg(const QString& pMsg, const QString& pCategor
 		beginInsertRows(QModelIndex(), size, size);
 		//: LABEL ALL_PLATFORMS Time format according to https://doc.qt.io/qt/qtime.html#toString
 		const auto& time = QTime::currentTime().toString(tr("hh:mm:ss"));
-		mNotificationEntries.append({pCategoryName, time, pMsg});
+		mNotificationEntries.append({time, pMsg});
 		endInsertRows();
-
-		Q_EMIT fireLastTypeChanged();
 	}
 }
 
@@ -66,24 +53,13 @@ QVariant NotificationModel::data(const QModelIndex& pIndex, int pRole) const
 		return QVariant();
 	}
 	const auto& notification = std::as_const(mNotificationEntries).at(mNotificationEntries.firstIndex() + pIndex.row());
-	switch (pRole)
-	{
-		case TYPE:
-			return notification.mType;
-
-		case TIME:
-			return notification.mTime;
-
-		default:
-			return notification.mText;
-	}
+	return pRole == TIME ? notification.mTime : notification.mText;
 }
 
 
 QHash<int, QByteArray> NotificationModel::roleNames() const
 {
 	QHash<int, QByteArray> roles = QAbstractListModel::roleNames();
-	roles.insert(TYPE, "type");
 	roles.insert(TIME, "time");
 	roles.insert(TEXT, "text");
 	return roles;

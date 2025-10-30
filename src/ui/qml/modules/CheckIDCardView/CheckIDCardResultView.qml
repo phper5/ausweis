@@ -10,6 +10,7 @@ import QtQml.Models
 import Governikus.Animations
 import Governikus.CheckResultView
 import Governikus.Global
+import Governikus.Style
 import Governikus.Type
 
 CheckResultView {
@@ -20,15 +21,15 @@ CheckResultView {
 	animationSymbol: d.success ? Symbol.Type.CHECK : Symbol.Type.ERROR
 	animationType: {
 		if (d.isPcsc) {
-			return AnimationLoader.CARD_RESULT;
+			return AnimationLoader.Type.CARD_RESULT;
 		}
 		if (d.isNfc) {
-			return AnimationLoader.NFC_RESULT;
+			return AnimationLoader.Type.NFC_RESULT;
 		}
 		if (d.isRemote) {
-			return AnimationLoader.SAC_RESULT;
+			return AnimationLoader.Type.SAC_RESULT;
 		}
-		return AnimationLoader.NONE;
+		return AnimationLoader.Type.NONE;
 	}
 	buttonIcon: {
 		if (d.successNfc) {
@@ -62,10 +63,13 @@ CheckResultView {
 	title: qsTr("Check device and ID card")
 
 	GText {
-		font.weight: Font.Bold
+		font.weight: Style.font.bold
 		horizontalAlignment: Text.AlignHCenter
-		//: LABEL ALL_PLATFORMS
-		text: (d.successNfc && !root.usedInOnboarding) ? qsTr("You may now try the function: \"See my personal data\". Press the \"%1\" button to do so now.").arg(root.buttonText) : ""
+		text: (d.successNfc && !root.usedInOnboarding) ? (Style.is_layout_desktop ?
+			//: LABEL DESKTOP
+			qsTr("You may now try the function: \"See my personal data\". Click the \"%1\" button to do so now.") :
+			//: LABEL ANDROID IOS
+			qsTr("You may now try the function: \"See my personal data\". Tap the \"%1\" button to do so now.")).arg(root.buttonText) : ""
 		visible: text !== ""
 	}
 	ObjectModel {

@@ -31,17 +31,5 @@ Android / iOS
 
 - Unter Umständen kommt es zu Stabilitätsproblemen der NFC-Schnittstelle.
 
-- Unter iOS ist derzeit keine Unterstützung für die Funktion "Full Keyboard
-  Access" gegeben.
-
 - Unter iOS 16 kommt es bei der Verwendung von VoiceOver zu einem
   Absturz, wenn versucht wird ein Anwendungsprotokoll zu teilen.
-
-
-Barrierearmut
-"""""""""""""
-
-- Eine vollständige Barrierearmut ist zum aktuellen Zeitpunkt nicht
-  gegeben. Wir arbeiten kontinuierlich an einer Verbesserung.
-
-- Der Screenreader kann teilweise Informationen an einigen Stellen doppelt ausgeben.

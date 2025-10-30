@@ -71,7 +71,7 @@ int main()
 		return -2;
 	}
 
-#if defined(GOVERNIKUS_QT)
+#if defined(LIBS_GOVERNIKUS)
 	start_ausweisapp(nullptr);
 #else
 	start_ausweisapp("--no-proxy");
@@ -84,7 +84,7 @@ int main()
 		governikus::QtHooks::printAlive();
 		std::cout << "There are zombies behind you: " << livingDeadCount << std::endl;
 
-#ifdef GOVERNIKUS_QT
+#ifdef LIBS_GOVERNIKUS
 		return livingDeadCount;
 
 #endif

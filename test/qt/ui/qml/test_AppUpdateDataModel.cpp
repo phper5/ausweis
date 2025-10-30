@@ -61,6 +61,35 @@ class test_AppUpdateDataModel
 		}
 
 
+		void test_onAppcastFinished()
+		{
+			auto* model = Env::getSingleton<AppUpdateDataModel>();
+			QVERIFY(model->getAppcastStatus().isEmpty());
+			QStringList statusStrings;
+
+			model->onAppcastFinished(false, GlobalStatus::Code::Downloader_Aborted);
+			QVERIFY(model->getAppcastStatus().isEmpty());
+
+			model->onAppcastFinished(true, GlobalStatus::Code::Downloader_Missing_Platform);
+			const auto& statusMissingPlatform = model->getAppcastStatus();
+			QVERIFY(!statusMissingPlatform.isEmpty());
+			QVERIFY(!statusStrings.contains(statusMissingPlatform));
+			statusStrings.append(statusMissingPlatform);
+
+			model->onAppcastFinished(false, GlobalStatus::Code::No_Error);
+			const auto& statusNoUpdateAvailable = model->getAppcastStatus();
+			QVERIFY(!statusNoUpdateAvailable.isEmpty());
+			QVERIFY(!statusStrings.contains(statusNoUpdateAvailable));
+			statusStrings.append(statusNoUpdateAvailable);
+
+			model->onAppcastFinished(true, GlobalStatus::Code::No_Error);
+			const auto& statusUpdateAvailable = model->getAppcastStatus();
+			QVERIFY(!statusUpdateAvailable.isEmpty());
+			QVERIFY(!statusStrings.contains(statusUpdateAvailable));
+			statusStrings.append(statusUpdateAvailable);
+		}
+
+
 };
 
 QTEST_GUILESS_MAIN(test_AppUpdateDataModel)

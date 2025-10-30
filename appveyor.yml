@@ -17,7 +17,7 @@ environment:
 
 configuration:
   - Release
-  #- Debug
+  # - Debug
 
 install:
   - if "%PlatformToolset%"=="mingw-w64" set PATH=C:\mingw-w64\x86_64-8.1.0-posix-seh-rt_v6-rev0\mingw64\bin;%PATH:C:\Program Files\Git\usr\bin;=%
@@ -83,4 +83,3 @@ on_finish:
   - ps: |
       $version = Select-String -Path .\CMakeLists.txt -Pattern "AusweisApp VERSION ([0-9.]+)" | % { $_.Matches[0].Groups[1].Value }
       Update-AppveyorBuild -Version "$version-$env:APPVEYOR_BUILD_NUMBER"
-

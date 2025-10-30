@@ -8,6 +8,41 @@
 using namespace governikus;
 
 
+Q_DECLARE_LOGGING_CATEGORY(card)
+
+
+void ReaderManagerPlugin::setPluginEnabled(bool pEnabled)
+{
+	if (mInfo.isEnabled() != pEnabled)
+	{
+		mInfo.setEnabled(pEnabled);
+		Q_EMIT fireStatusChanged(mInfo);
+	}
+}
+
+
+void ReaderManagerPlugin::setPluginAvailable(bool pAvailable)
+{
+	mInfo.setAvailable(pAvailable);
+	Q_EMIT fireStatusChanged(mInfo);
+}
+
+
+void ReaderManagerPlugin::setPluginValue(ReaderManagerPluginInfo::Key pKey, const QVariant& pValue)
+{
+	mInfo.setValue(pKey, pValue);
+}
+
+
+void ReaderManagerPlugin::shelve(const QPointer<Reader>& pReader)
+{
+	if (pReader && pReader->getReaderInfo().wasShelved())
+	{
+		pReader->shelveCard();
+	}
+}
+
+
 ReaderManagerPlugin::ReaderManagerPlugin(ReaderManagerPluginType pPluginType,
 		bool pAvailable,
 		bool pPluginEnabled)
@@ -16,16 +51,28 @@ ReaderManagerPlugin::ReaderManagerPlugin(ReaderManagerPluginType pPluginType,
 }
 
 
-void ReaderManagerPlugin::shelve() const
+[[nodiscard]] const ReaderManagerPluginInfo& ReaderManagerPlugin::getInfo() const
 {
-	const auto& readers = getReaders();
-	for (const auto& reader : readers)
-	{
-		if (reader->getReaderInfo().wasShelved())
-		{
-			reader->shelveCard();
-		}
-	}
+	return mInfo;
+}
+
+
+void ReaderManagerPlugin::init()
+{
+	Q_ASSERT(QObject::thread() == QThread::currentThread());
+}
+
+
+void ReaderManagerPlugin::shutdown()
+{
+	qCDebug(card).nospace() << "Shutdown ReaderManagerPluginType::" << getInfo().getPluginType();
+}
+
+
+void ReaderManagerPlugin::reset()
+{
+	shutdown();
+	init();
 }
 
 
@@ -59,3 +106,23 @@ void ReaderManagerPlugin::setInitialScanState(ReaderManagerPluginInfo::InitialSc
 		Q_EMIT fireStatusChanged(mInfo);
 	}
 }
+
+
+void ReaderManagerPlugin::insert(const QString& pReaderName, const QVariant& pData)
+{
+	Q_UNUSED(pReaderName)
+	Q_UNUSED(pData)
+
+	qCDebug(card).nospace() << "insert is not supported by ReaderManagerPluginType::" << getInfo().getPluginType();
+}
+
+
+#ifndef QT_NO_DEBUG
+void ReaderManagerPlugin::setPluginInfo(const ReaderManagerPluginInfo& pInfo)
+{
+	mInfo = pInfo;
+	Q_EMIT fireStatusChanged(mInfo);
+}
+
+
+#endif

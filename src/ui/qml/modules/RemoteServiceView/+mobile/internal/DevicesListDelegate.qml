@@ -23,7 +23,6 @@ MouseArea {
 	property alias linkQualityVisible: linkQualityItem.visible
 	required property string remoteDeviceName
 	required property string remoteDeviceStatus
-	property bool showSeparator: index < ListView.view.count - 1
 	property alias titleColor: titleText.color
 
 	signal activate(var pIsSupported, var pDeviceId)
@@ -34,6 +33,8 @@ MouseArea {
 	implicitHeight: content.implicitHeight
 	implicitWidth: content.implicitWidth
 
+	Keys.onEnterPressed: clicked(null)
+	Keys.onReturnPressed: clicked(null)
 	Keys.onSpacePressed: clicked(null)
 	onClicked: activate(isSupported, deviceId)
 
@@ -46,6 +47,10 @@ MouseArea {
 		anchors.fill: parent
 		spacing: Style.dimens.text_spacing
 
+		GSeparator {
+			Layout.fillWidth: true
+			visible: root.index > 0
+		}
 		RowLayout {
 			spacing: Style.dimens.groupbox_spacing
 
@@ -58,7 +63,7 @@ MouseArea {
 
 					Accessible.ignored: true
 					elide: Text.ElideRight
-					font.bold: root.isLastAddedDevice
+					font.weight: root.isLastAddedDevice ? Style.font.bold : Style.font.normal
 					maximumLineCount: 1
 					text: root.remoteDeviceName + (root.isSupported ? "" : (" (" + root.remoteDeviceStatus + ")"))
 					textFormat: Text.PlainText
@@ -82,10 +87,6 @@ MouseArea {
 				inactive: !root.isNetworkVisible && root.isPaired
 				percent: root.linkQualityInPercent
 			}
-		}
-		GSeparator {
-			Layout.fillWidth: true
-			visible: root.showSeparator
 		}
 	}
 }

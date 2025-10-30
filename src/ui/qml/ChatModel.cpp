@@ -113,7 +113,7 @@ int ChatModel::rowCount(const QModelIndex&) const
 
 QVariant ChatModel::data(const QModelIndex& pIndex, int pRole) const
 {
-	if (!pIndex.isValid() || pIndex.row() >= rowCount())
+	if (!pIndex.isValid() || pIndex.row() >= rowCount(pIndex))
 	{
 		return QVariant();
 	}

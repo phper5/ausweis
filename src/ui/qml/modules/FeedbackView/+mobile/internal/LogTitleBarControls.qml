@@ -10,25 +10,48 @@ import Governikus.Style
 Row {
 	id: root
 
-	property alias allowRemoveAll: removeAllButton.visible
+	property alias filter: filterButton.filter
+	property alias showFilter: filterButton.visible
+	property alias showRemove: removeAllButton.visible
+	property alias showShare: shareButton.visible
 
-	signal removeAll
-	signal share(point popupPosition)
+	signal removeAllClicked
+	signal shareClicked(point popupPosition)
 
 	spacing: Style.dimens.pane_spacing
 
 	TitleBarAction {
+		id: filterButton
+
+		property bool filter: false
+
+		Accessible.checked: filter
+		//: LABEL ANDROID IOS
+		Accessible.name: qsTr("Filter")
+		Accessible.role: Accessible.CheckBox
+		icon.source: filter ? "qrc:///images/filter_off.svg" : "qrc:///images/filter.svg"
+		visible: false
+
+		onClicked: filter = !filter
+	}
+	TitleBarAction {
+		id: shareButton
+
+		//: LABEL ANDROID IOS
 		Accessible.name: qsTr("Share log")
 		icon.source: "qrc:///images/mobile/share.svg"
+		visible: false
 
-		onClicked: root.share(mapToGlobal(width / 2, height))
+		onClicked: root.shareClicked(mapToGlobal(width / 2, height))
 	}
 	TitleBarAction {
 		id: removeAllButton
 
+		//: LABEL ANDROID IOS
 		Accessible.name: qsTr("Delete all logs")
 		icon.source: "qrc:///images/trash_icon.svg"
+		visible: false
 
-		onClicked: root.removeAll()
+		onClicked: root.removeAllClicked()
 	}
 }

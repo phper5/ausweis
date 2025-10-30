@@ -24,7 +24,7 @@ FailureCode::FailureCode(Reason pReason, const FailureInfoMap& pInfoMap)
 }
 
 
-FailureCode::FailureCode(Reason pReason, const QPair<Info, QString>& pInfo)
+FailureCode::FailureCode(Reason pReason, const std::pair<Info, QString>& pInfo)
 	: mReason(pReason)
 	, mFailureInfoMap({
 				{pInfo.first, pInfo.second}

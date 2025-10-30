@@ -233,7 +233,9 @@ class test_AuthContext
 			const QByteArray session("session");
 
 			context.setSslSession(session);
+			context.setSslSessionPsk(session);
 			QCOMPARE(context.getSslSession(), session);
+			QCOMPARE(context.getSslSessionPsk(), session);
 		}
 
 

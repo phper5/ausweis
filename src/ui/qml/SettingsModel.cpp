@@ -563,7 +563,7 @@ QUrl SettingsModel::getCustomProxyUrl() const
 	}
 	url.setHost(settings.getCustomProxyHost());
 	url.setPort(settings.getCustomProxyPort());
-	return url.toString();
+	return url;
 }
 
 

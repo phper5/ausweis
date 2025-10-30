@@ -42,9 +42,9 @@
         <translation>Доступно обновление (версия %1).</translation>
     </message>
     <message>
-        <source>To close the app, press the back button 2 times.</source>
+        <source>To close the app, tap the back button 2 times.</source>
         <extracomment>INFO ANDROID IOS Hint that is shown if the users pressed the &quot;back&quot; button on the top-most navigation level for the first time (a second press closes the app).</extracomment>
-        <translation>Чтобы закрыть приложение, два раза нажмите кнопку «Назад».</translation>
+        <translation type="unfinished">Чтобы закрыть приложение, два раза нажмите кнопку «Назад».</translation>
     </message>
 </context>
 <context>
@@ -90,8 +90,18 @@
         <translation>Назад к настройкам</translation>
     </message>
     <message>
-        <source>You may start a new authentication after pressing the button.</source>
-        <extracomment>LABEL ALL_PLATFORMS</extracomment>
+        <source>You may start a new authentication after clicking the button.</source>
+        <extracomment>LABEL DESKTOP</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>You may start a new authentication after tapping the button.</source>
+        <extracomment>LABEL ANDROID IOS</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cancellation progress</source>
+        <extracomment>LABEL ALL_PLATFORMS Name of an progress indicator during the cancellation of an authentication read by screen readers</extracomment>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -213,6 +223,13 @@ INFO ANDROID IOS The card reader requests the user&apos;s attention.</extracomme
         <extracomment>INFO DESKTOP Information message about cancellation process without working network connectivity</extracomment>
         <translation>Обнаружены проблемы в сети, в течение 30 секунд выполняется подключение к серверу.</translation>
     </message>
+    <message>
+        <source>Authentication progress</source>
+        <extracomment>LABEL DESKTOP Name of an progress indicator during an authentication read by screen readers
+----------
+LABEL ANDROID IOS Name of an progress indicator during an authentication read by screen readers</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>AuthView</name>
@@ -227,7 +244,7 @@ LABEL ANDROID IOS</extracomment>
 <context>
     <name>AutoRedirectDecision</name>
     <message>
-        <source>You are currently using automatic redirection. This may cause the screen reader to miss some information during the authentication process. To ensure all information are received, please enable manual redirection.</source>
+        <source>Currently, the app automatically redirects you back to the service provider after authentication. This may not allow your screen reader to provide all information. To ensure you receive all information, enable manual redirection to the service provider.</source>
         <extracomment>INFO ALL_PLATFORMS</extracomment>
         <translation type="unfinished"></translation>
     </message>
@@ -299,16 +316,11 @@ LABEL ANDROID IOS</extracomment>
     </message>
 </context>
 <context>
-    <name>BaseController</name>
+    <name>BaseHeading</name>
     <message>
-        <source>Process finished successfully. You may now remove your ID card from the device.</source>
-        <extracomment>INFO ALL_PLATFORMS The workflow finished successfully, the ID card may (and should) be removed from the card reader.</extracomment>
-        <translation>Процесс успешно завершен. Можно извлечь идентификационную карту из устройства.</translation>
-    </message>
-    <message>
-        <source>You may now remove your ID card from the device.</source>
-        <extracomment>INFO ALL_PLATFORMS The workflow is completed, the ID card may (and should) be removed from the card reader.</extracomment>
-        <translation>Можно извлечь идентификационную карту из устройства.</translation>
+        <source>Heading</source>
+        <extracomment>LABEL WINDOWS Screenreader announcement, that the current item is a heading.</extracomment>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -872,9 +884,14 @@ LABEL ANDROID IOS</extracomment>
         <translation>Что это значит?</translation>
     </message>
     <message>
-        <source>You may now try the function: &quot;See my personal data&quot;. Press the &quot;%1&quot; button to do so now.</source>
-        <extracomment>LABEL ALL_PLATFORMS</extracomment>
-        <translation>Проверьте функцию: «Просмотреть персональные данные». Нажмите для этого кнопку «%1».</translation>
+        <source>You may now try the function: &quot;See my personal data&quot;. Click the &quot;%1&quot; button to do so now.</source>
+        <extracomment>LABEL DESKTOP</extracomment>
+        <translation type="unfinished">Проверьте функцию: «Просмотреть персональные данные». Нажмите для этого кнопку «%1».</translation>
+    </message>
+    <message>
+        <source>You may now try the function: &quot;See my personal data&quot;. Tap the &quot;%1&quot; button to do so now.</source>
+        <extracomment>LABEL ANDROID IOS</extracomment>
+        <translation type="unfinished">Проверьте функцию: «Просмотреть персональные данные». Нажмите для этого кнопку «%1».</translation>
     </message>
     <message>
         <source>NFC supported</source>
@@ -1047,11 +1064,11 @@ LABEL ALL_PLATFORMS Sentence 2 of 3 of PUK explanation</extracomment>
         <translation>Поддерживаемые идентификационные карты не обнаружены. %1 поддерживает:&lt;p&gt;&lt;ul&gt;&lt;li&gt;идентификационные карты Германии;&lt;/li&gt;&lt;li&gt;электронные разрешения на временное пребывание (eAT);&lt;/li&gt;&lt;li&gt;карты онлайн-идентификации граждан ЕС/ЕЭП.&lt;/li&gt;&lt;/ul&gt;&lt;/p&gt;Если вы используете один из перечисленных документов, но данное сообщение об ошибке все равно появляется, перезапустите проверку.</translation>
     </message>
     <message>
-        <source>You may continue the onboarding and change your PIN.</source>
+        <source>You may continue the setup and change your PIN.</source>
         <extracomment>LABEL ALL_PLATFORMS Sentence 2 of 3 of CAN explanation
 ----------
 LABEL ALL_PLATFORMS Sentence 2 of 3 of PUK explanation</extracomment>
-        <translation>Вы можете продолжить настройку и изменить свой PIN-код.</translation>
+        <translation type="unfinished">Вы можете продолжить настройку и изменить свой PIN-код.</translation>
     </message>
 </context>
 <context>
@@ -1291,7 +1308,7 @@ LABEL ALL_PLATFORMS Sentence 2 of 3 of PUK explanation</extracomment>
     </message>
 </context>
 <context>
-    <name>DarkModeButtons</name>
+    <name>DarkModeButtonData</name>
     <message>
         <source>System</source>
         <extracomment>LABEL ALL_PLATFORMS</extracomment>
@@ -1381,11 +1398,6 @@ LABEL ANDROID IOS</extracomment>
 <context>
     <name>DetachedLogView</name>
     <message>
-        <source>Select log:</source>
-        <extracomment>LABEL DESKTOP</extracomment>
-        <translation>Выбрать файл журнала:</translation>
-    </message>
-    <message>
         <source>Zoom:</source>
         <extracomment>LABEL DESKTOP</extracomment>
         <translation>Изменение масштаба изображения:</translation>
@@ -1429,6 +1441,11 @@ LABEL ANDROID IOS</extracomment>
         <source>Filter. Deactivated.</source>
         <extracomment>LABEL DESKTOP</extracomment>
         <translation>Фильтр. Деактивирован.</translation>
+    </message>
+    <message>
+        <source>Current Log</source>
+        <extracomment>LABEL DESKTOP</extracomment>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1512,6 +1529,16 @@ LABEL ANDROID IOS</extracomment>
         <source>The developer mode deactivates some security checks and the authentication process will continue even if some errors occur. Skipped errors will be shown as notifications. The developer mode is only usable with the test PKI.</source>
         <extracomment>LABEL DESKTOP</extracomment>
         <translation>Режим разработчика деактивирует некоторые проверки безопасности, и процесс аутентификации продолжается даже при возникновении ошибок. Пропущенные ошибки будут отображены как уведомления. Режим разработчика можно использовать только с тестовой ИОК.</translation>
+    </message>
+    <message>
+        <source>Using the developer mode forces the notifications to be enabled.</source>
+        <extracomment>LABEL DESKTOP Only visible when the user activates the developer mode in the settings.</extracomment>
+        <translation>В режиме разработчика оповещения включаются принудительно.</translation>
+    </message>
+    <message>
+        <source>Show notifications inside of %1</source>
+        <extracomment>LABEL DESKTOP</extracomment>
+        <translation>Показывать уведомления внутри %1</translation>
     </message>
 </context>
 <context>
@@ -1839,18 +1866,8 @@ LABEL IOS_PHONE ANDROID_PHONE</extracomment>
 <context>
     <name>GCollapsible</name>
     <message>
-        <source>collapse</source>
-        <extracomment>LABEL ANDROID IOS</extracomment>
-        <translation>Свернуть</translation>
-    </message>
-    <message>
-        <source>expand</source>
-        <extracomment>LABEL ANDROID IOS</extracomment>
-        <translation>Развернуть</translation>
-    </message>
-    <message>
         <source>Currently selected is %1</source>
-        <extracomment>LABEL ANDROID IOS</extracomment>
+        <extracomment>LABEL ALL_PLATFORMS</extracomment>
         <translation>В настоящее время выбрано %1</translation>
     </message>
 </context>
@@ -1865,8 +1882,17 @@ LABEL IOS_PHONE ANDROID_PHONE</extracomment>
 <context>
     <name>GProgressBar</name>
     <message>
-        <source>%1 percent done</source>
-        <translation>%1 % выполнено</translation>
+        <source>Progress</source>
+        <extracomment>LABEL ALL_PLATFORMS</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>GRadioButton</name>
+    <message>
+        <source>checked</source>
+        <extracomment>LABEL DESKTOP</extracomment>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1875,14 +1901,6 @@ LABEL IOS_PHONE ANDROID_PHONE</extracomment>
         <source>Step %1 of %2. This step is %3 percent complete.</source>
         <extracomment>LABEL ALL_PLATFORMS</extracomment>
         <translation>Шаг %1 из %2 выполнен на %3 процента/процентов.</translation>
-    </message>
-</context>
-<context>
-    <name>GText</name>
-    <message>
-        <source>Press space to open link</source>
-        <extracomment>INFO DESKTOP Text read by screen reader if the text contains a weblink which may be opened.</extracomment>
-        <translation>Нажмите пробел, чтобы открыть ссылку</translation>
     </message>
 </context>
 <context>
@@ -1900,11 +1918,6 @@ LABEL IOS_PHONE ANDROID_PHONE</extracomment>
         <translation>Поведение</translation>
     </message>
     <message>
-        <source>Using the developer mode forces the notifications to be enabled.</source>
-        <extracomment>LABEL DESKTOP Only visible when the user activates the developer mode in the settings.</extracomment>
-        <translation>В режиме разработчика оповещения включаются принудительно.</translation>
-    </message>
-    <message>
         <source>Network</source>
         <extracomment>LABEL DESKTOP</extracomment>
         <translation>Сеть</translation>
@@ -1920,7 +1933,7 @@ LABEL IOS_PHONE ANDROID_PHONE</extracomment>
         <translation>Внешний вид</translation>
     </message>
     <message>
-        <source>Use the system font</source>
+        <source>Use system font</source>
         <extracomment>LABEL DESKTOP</extracomment>
         <translation>Использовать системный шрифт</translation>
     </message>
@@ -1933,11 +1946,6 @@ LABEL IOS_PHONE ANDROID_PHONE</extracomment>
         <source>Close %1 window after authentication</source>
         <extracomment>LABEL DESKTOP</extracomment>
         <translation>Закрыть окно %1 после аутентификации</translation>
-    </message>
-    <message>
-        <source>Show notifications inside of %1</source>
-        <extracomment>LABEL DESKTOP</extracomment>
-        <translation>Показывать уведомления внутри %1</translation>
     </message>
     <message>
         <source>Change language</source>
@@ -1993,6 +2001,31 @@ LABEL IOS_PHONE ANDROID_PHONE</extracomment>
         <source>Attach %1 to system tray (recommended)</source>
         <extracomment>LABEL WINDOWS Text for attaching the AA to the system tray</extracomment>
         <translation>Прикрепить %1 к панели задач (рекомендуется)</translation>
+    </message>
+    <message>
+        <source>Automatically check for software updates at program start (recommended)</source>
+        <extracomment>LABEL DESKTOP</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show update</source>
+        <extracomment>LABEL DESKTOP</extracomment>
+        <translation>Показать обновление</translation>
+    </message>
+    <message>
+        <source>Start manual search for software update</source>
+        <extracomment>LABEL DESKTOP</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Abort search</source>
+        <extracomment>LABEL DESKTOP</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>When you start %1, it automatically checks for updates. Updates are not performed automatically. If this option is disabled, you have to manually check for updates in the settings.</source>
+        <extracomment>LABEL DESKTOP %1 is replaced with the application name</extracomment>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2089,12 +2122,12 @@ INFO ANDROID IOS The paired smartphone was removed since it did not respond to c
     <message>
         <source>Wrong new ID card PIN confirmation</source>
         <extracomment>LABEL ALL_PLATFORMS</extracomment>
-        <translation>Неправильное  подтверждение нового  PIN-кода идентификационной карты</translation>
+        <translation>Неправильное подтверждение нового PIN-кода идентификационной карты</translation>
     </message>
     <message>
         <source>Wrong new Smart-eID PIN confirmation</source>
         <extracomment>LABEL ALL_PLATFORMS</extracomment>
-        <translation>Неправильное  подтверждение нового  PIN-кода для  Smart-eID</translation>
+        <translation>Неправильное подтверждение нового PIN-кода для Smart-eID</translation>
     </message>
 </context>
 <context>
@@ -2210,6 +2243,19 @@ INFO ANDROID IOS The paired smartphone was removed since it did not respond to c
     </message>
 </context>
 <context>
+    <name>LinkQualityAnimation</name>
+    <message>
+        <source>Link quality unavailable.</source>
+        <extracomment>INFO ALL_PLATFORMS</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1% link quality.</source>
+        <extracomment>INFO ALL_PLATFORMS %1 is replaced with a number between 0 and 100</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>LocalNetworkInfo</name>
     <message>
         <source>Go to application settings</source>
@@ -2223,14 +2269,44 @@ INFO ANDROID IOS The paired smartphone was removed since it did not respond to c
     </message>
 </context>
 <context>
+    <name>LogFilesView</name>
+    <message>
+        <source>Select Log</source>
+        <extracomment>LABEL ANDROID IOS</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <extracomment>LABEL ANDROID IOS</extracomment>
+        <translation type="unfinished">Удалить</translation>
+    </message>
+    <message>
+        <source>All old logs will be deleted.</source>
+        <extracomment>INFO ANDROID IOS All logfiles are about to be removed, user confirmation required.</extracomment>
+        <translation type="unfinished">Все старые файлы журнала будут удалены.</translation>
+    </message>
+    <message>
+        <source>Delete all logs</source>
+        <extracomment>LABEL ANDROID IOS</extracomment>
+        <translation type="unfinished">Удалить все файлы журнала</translation>
+    </message>
+</context>
+<context>
     <name>LogTitleBarControls</name>
     <message>
         <source>Share log</source>
+        <extracomment>LABEL ANDROID IOS</extracomment>
         <translation>Поделиться файлом журнала</translation>
     </message>
     <message>
         <source>Delete all logs</source>
+        <extracomment>LABEL ANDROID IOS</extracomment>
         <translation>Удалить все файлы журнала</translation>
+    </message>
+    <message>
+        <source>Filter</source>
+        <extracomment>LABEL ANDROID IOS</extracomment>
+        <translation type="unfinished">Фильтр</translation>
     </message>
 </context>
 <context>
@@ -2260,38 +2336,18 @@ INFO ANDROID IOS The paired smartphone was removed since it did not respond to c
     </message>
     <message>
         <source>All old logs will be deleted.</source>
-        <extracomment>INFO DESKTOP All logfiles are about to be removed, user confirmation required.
-----------
-INFO ANDROID IOS All logfiles are about to be removed, user confirmation required.</extracomment>
+        <extracomment>INFO DESKTOP All logfiles are about to be removed, user confirmation required.</extracomment>
         <translation>Все старые файлы журнала будут удалены.</translation>
     </message>
     <message>
-        <source>Log</source>
-        <extracomment>LABEL ANDROID IOS</extracomment>
-        <translation>Файл журнала</translation>
-    </message>
-    <message>
-        <source>Select log from list.</source>
-        <translation>Выберите файл журнала из списка.</translation>
-    </message>
-    <message>
         <source>Delete all logs</source>
-        <extracomment>LABEL DESKTOP
-----------
-LABEL ANDROID IOS</extracomment>
+        <extracomment>LABEL DESKTOP</extracomment>
         <translation>Удалить все файлы журнала</translation>
     </message>
     <message>
         <source>Delete</source>
-        <extracomment>LABEL DESKTOP
-----------
-LABEL ANDROID IOS</extracomment>
+        <extracomment>LABEL DESKTOP</extracomment>
         <translation>Удалить</translation>
-    </message>
-    <message>
-        <source>The log entry was copied to the clipboard.</source>
-        <extracomment>INFO ANDROID IOS Toast message used to confirm the copy of a log entry.</extracomment>
-        <translation>Запись журнала скопирована в буфер обмена.</translation>
     </message>
     <message>
         <source>Filter</source>
@@ -2318,7 +2374,9 @@ LABEL ANDROID IOS</extracomment>
     <name>LogViewDelegate</name>
     <message>
         <source>The log entry was copied to the clipboard.</source>
-        <extracomment>INFO DESKTOP Toast message used to confirm the copy of a log entry.</extracomment>
+        <extracomment>INFO DESKTOP Toast message used to confirm the copy of a log entry.
+----------
+INFO ANDROID IOS Toast message used to confirm the copy of a log entry.</extracomment>
         <translation>Запись журнала скопирована в буфер обмена.</translation>
     </message>
 </context>
@@ -2399,9 +2457,9 @@ LABEL ANDROID IOS</extracomment>
         <translation>Общая информация</translation>
     </message>
     <message>
-        <source>Version information</source>
-        <extracomment>LABEL ANDROID IOS</extracomment>
-        <translation>Информация о версии</translation>
+        <source>%1 version</source>
+        <extracomment>LABEL ANDROID IOS %1 is replaced with the application name</extracomment>
+        <translation type="unfinished">Информация о версии</translation>
     </message>
     <message>
         <source>Software license</source>
@@ -2478,9 +2536,9 @@ LABEL ANDROID IOS</extracomment>
         <translation>Условия использования и лицензия на программное обеспечение</translation>
     </message>
     <message>
-        <source>Start onboarding</source>
+        <source>Start setup</source>
         <extracomment>LABEL ANDROID IOS</extracomment>
-        <translation>Начать настройку</translation>
+        <translation type="unfinished">Начать настройку</translation>
     </message>
 </context>
 <context>
@@ -2529,14 +2587,14 @@ LABEL ANDROID IOS</extracomment>
         <translation>Контакты</translation>
     </message>
     <message>
-        <source>Start onboarding</source>
+        <source>Start setup</source>
         <extracomment>LABEL DESKTOP</extracomment>
-        <translation>Начать настройку</translation>
+        <translation type="unfinished">Начать настройку</translation>
     </message>
     <message>
-        <source>Onboarding</source>
+        <source>Setup</source>
         <extracomment>LABEL DESKTOP</extracomment>
-        <translation>Настройка</translation>
+        <translation type="unfinished">Настройка</translation>
     </message>
 </context>
 <context>
@@ -3293,27 +3351,37 @@ LABEL ANDROID IOS</extracomment>
     <name>NumberField</name>
     <message>
         <source>The number is hidden.</source>
-        <extracomment>LABEL DESKTOP Screenreader text for the password field</extracomment>
+        <extracomment>LABEL ALL_PLATFORMS Screenreader text for the password field</extracomment>
         <translation>Номер скрыт.</translation>
     </message>
     <message>
         <source>You entered %1 of %2 digits.</source>
-        <extracomment>LABEL DESKTOP Screenreader text for the password field</extracomment>
+        <extracomment>LABEL ALL_PLATFORMS Screenreader text for the password field</extracomment>
         <translation>Вы ввели %1 из %2 знаков.</translation>
     </message>
     <message>
-        <source>Press to hide the number</source>
+        <source>Click to hide the number</source>
         <extracomment>LABEL DESKTOP Screenreader text for the eye icon to change the password visibility</extracomment>
-        <translation>Нажмите, чтобы скрыть номер</translation>
+        <translation type="unfinished">Нажмите, чтобы скрыть номер</translation>
     </message>
     <message>
-        <source>Press to show the number</source>
+        <source>Tap to hide the number</source>
+        <extracomment>LABEL ANDROID IOS Screenreader text for the eye icon to change the password visibility</extracomment>
+        <translation type="unfinished">Нажмите, чтобы скрыть номер</translation>
+    </message>
+    <message>
+        <source>Click to show the number</source>
         <extracomment>LABEL DESKTOP Screenreader text for the eye icon to change the password visibility</extracomment>
-        <translation>Нажмите, чтобы показать номер</translation>
+        <translation type="unfinished">Нажмите, чтобы показать номер</translation>
+    </message>
+    <message>
+        <source>Tap to show the number</source>
+        <extracomment>LABEL ANDROID IOS Screenreader text for the eye icon to change the password visibility</extracomment>
+        <translation type="unfinished">Нажмите, чтобы показать номер</translation>
     </message>
     <message>
         <source>The number is visible. Digits entered so far: %1</source>
-        <extracomment>LABEL DESKTOP Screenreader text for the password field</extracomment>
+        <extracomment>LABEL ALL_PLATFORMS Screenreader text for the password field</extracomment>
         <translation>Номер отображается. Цифры, введенные на данный момент: %1</translation>
     </message>
 </context>
@@ -3561,9 +3629,9 @@ LABEL IOS ANDROID</extracomment>
         <translation>К сожалению, у вас не выполнены все обязательные требования для использования %1.</translation>
     </message>
     <message>
-        <source>You may restart the setup anytime under %1Help &gt; Onboarding%2.</source>
+        <source>You may restart the setup anytime under %1Help &gt; Setup%2.</source>
         <extracomment>LABEL ALL_PLATFORMS %1 and %2 are replaced with bold emphasis.</extracomment>
-        <translation>Вы можете в любое время вернуться к настройкам через %1 меню: Справка &gt; Настройка%2.</translation>
+        <translation type="unfinished">Вы можете в любое время вернуться к настройкам через %1 меню: Справка &gt; Настройка%2.</translation>
     </message>
     <message>
         <source>The setup will now be aborted - afterwards %1one prompt regarding personalized settings in the %3%2 will follow.</source>
@@ -3681,14 +3749,9 @@ LABEL IOS ANDROID</extracomment>
         <translation>или</translation>
     </message>
     <message>
-        <source>Afterwards, a pairing code is displayed on your smartphone. You may then select the device in the list below to enter the pairing code.</source>
-        <extracomment>LABEL DESKTOP</extracomment>
-        <translation>Затем на экране смартфона появится код для сопряжения. После этого в списке ниже вы сможете выбрать устройство для ввода кода сопряжения.</translation>
-    </message>
-    <message>
-        <source>Press space to continue onboarding using the smartphone &quot;%1&quot;</source>
-        <extracomment>LABEL DESKTOP</extracomment>
-        <translation>Нажмите пробел, чтобы продолжить настройку смартфона «%1».</translation>
+        <source>Afterwards, a pairing code is displayed on your smartphone. You may then select the device in the %1 list to enter the pairing code.</source>
+        <extracomment>LABEL DESKTOP %1 will be replaced with the Available Devices list name</extracomment>
+        <translation type="unfinished">Затем на экране смартфона появится код для сопряжения. После этого в списке ниже вы сможете выбрать устройство для ввода кода сопряжения.</translation>
     </message>
     <message>
         <source>Use device</source>
@@ -3744,12 +3807,12 @@ LABEL IOS ANDROID</extracomment>
     <message>
         <source>I use the eID function for the 1st time</source>
         <extracomment>LABEL ALL_PLATFORMS</extracomment>
-        <translation>Я использую функцию онлайн-идентификации впервые.</translation>
+        <translation>Я использую функцию онлайн-идентификации впервые</translation>
     </message>
     <message>
         <source>I already used the eID function before</source>
         <extracomment>LABEL ALL_PLATFORMS</extracomment>
-        <translation>Я пользовалься раньше функцией онлайн-идентификации.</translation>
+        <translation>Я пользовалься раньше функцией онлайн-идентификации</translation>
     </message>
     <message>
         <source>Skip setup</source>
@@ -3840,7 +3903,7 @@ LABEL ANDROID IOS</extracomment>
     <message>
         <source>Then select %1Pair (new) device%2. You may need to activate NFC first.</source>
         <extracomment>LABEL ALL_PLATFORM Assistance text for pairing new devices. Step 4 of 5. %1 and %2 are for bold formatting.</extracomment>
-        <translation>Затем выберите %1Сопряжение (нового) устройства%2. Возможно, вам сначала нужно будет включить NFC</translation>
+        <translation>Затем выберите %1Сопряжение (нового) устройства%2. Возможно, вам сначала нужно будет включить NFC.</translation>
     </message>
     <message>
         <source>As soon as a pairing code is displayed on the smartphone, you can use it for pairing here.</source>
@@ -4104,18 +4167,23 @@ LABEL ANDROID IOS</extracomment>
 <context>
     <name>PkiSwitch</name>
     <message>
-        <source>%1 more presses to toggle the environment (prod/test) for integrated functions.</source>
+        <source>%1 more clicks to toggle the environment (prod/test) for integrated functions.</source>
+        <extracomment>INFO DESKTOP Used in notifications when the user taps the icon</extracomment>
+        <translation type="unfinished">%1 Нажатие (-я/-й) для переключения среды (произв./тест.) для встроенных функций.</translation>
+    </message>
+    <message>
+        <source>%1 more taps to toggle the environment (prod/test) for integrated functions.</source>
         <extracomment>INFO ANDROID IOS Used in notifications when the user taps the icon</extracomment>
-        <translation>%1 Нажатие (-я/-й) для переключения среды (произв./тест.) для встроенных функций.</translation>
+        <translation type="unfinished">%1 Нажатие (-я/-й) для переключения среды (произв./тест.) для встроенных функций.</translation>
     </message>
     <message>
         <source>Testmode for the integrated functions activated.</source>
-        <extracomment>INFO ANDROID IOS Used in notifications when the user taps the icon</extracomment>
+        <extracomment>INFO ALL_PLATFORMS Used in notifications when the user taps the icon</extracomment>
         <translation>Тестовый режим для встроенных функций активирован.</translation>
     </message>
     <message>
         <source>Testmode for the integrated functions deactivated.</source>
-        <extracomment>INFO ANDROID IOS Used in notifications when the user taps the icon</extracomment>
+        <extracomment>INFO ALL_PLATFORMS Used in notifications when the user taps the icon</extracomment>
         <translation>Тестовый режим для встроенных функций деактивирован.</translation>
     </message>
 </context>
@@ -4186,10 +4254,13 @@ LABEL ANDROID IOS</extracomment>
     </message>
     <message>
         <source>You have received a one-time PIN, the %1Transport PIN%2, as a letter from your competent authority. You can replace this with a%1 6-digit card PIN%2 in the %3 or at the Citizens&apos; Registration Office. If you do not have a PIN or do not remember your card PIN, click here:</source>
-        <extracomment>LABEL DESKTOP %1 + %2 = Bold Tags, %3 = AusweisApp
-----------
-LABEL ANDROID IOS %1 + %2 = Bold Tags, %3 = AusweisApp</extracomment>
+        <extracomment>LABEL DESKTOP %1 + %2 = Bold Tags, %3 = AusweisApp</extracomment>
         <translation>Вы получили одноразовый PIN-код %1временный PIN-код%2 в письме от компетентнго органа. Вы можете заменить его на%1 6-значный PIN-код карты%2 в %3 или в бюро обслуживания населения. Если у вас нет PIN-кода или вы не помните PIN-код своей карты, нажмите сюда:</translation>
+    </message>
+    <message>
+        <source>You have received a one-time PIN, the %1Transport PIN%2, as a letter from your competent authority. You can replace this with a%1 6-digit card PIN%2 in the %3 or at the Citizens&apos; Registration Office. If you do not have a PIN or do not remember your card PIN, tap here:</source>
+        <extracomment>LABEL ANDROID IOS %1 + %2 = Bold Tags, %3 = AusweisApp</extracomment>
+        <translation type="unfinished">Вы получили одноразовый PIN-код %1временный PIN-код%2 в письме от компетентнго органа. Вы можете заменить его на%1 6-значный PIN-код карты%2 в %3 или в бюро обслуживания населения. Если у вас нет PIN-кода или вы не помните PIN-код своей карты, нажмите сюда:</translation>
     </message>
     <message>
         <source>The chip in your ID card is read using %1NFC%2. To do this, simply place the ID card on the %1back of the smartphone%2.</source>
@@ -4278,9 +4349,9 @@ LABEL ANDROID IOS</extracomment>
         <translation>Провайдер</translation>
     </message>
     <message>
-        <source>Touch for more details</source>
+        <source>Tap for more details</source>
         <extracomment>LABEL ANDROID IOS</extracomment>
-        <translation>Нажмите для получения подробной информации</translation>
+        <translation type="unfinished">Нажмите для получения подробной информации</translation>
     </message>
     <message>
         <source>Details about the provider</source>
@@ -4399,14 +4470,24 @@ LABEL DESKTOP Title of the proxy credentials popup.</extracomment>
         <translation>Если у вас возникли вопросы или вы обнаружили ошибки в процессе, обратитесь, пожалуйста, к соответствующему провайдеру.</translation>
     </message>
     <message>
-        <source>You will be automatically redirected to the provider in a few seconds. If you are not automatically redirected, click on the &quot;%1&quot; button.</source>
-        <extracomment>INFO ALL_PLATFORMS Redirect information when automatic redirect is enabled</extracomment>
-        <translation>Через несколько секунд вас автоматически перенаправят к провайдеру. Если перенаправление не произойдет автоматически, нажмите на кнопку «%1».</translation>
+        <source>You will be automatically redirected to the provider in a few seconds. If you are not automatically redirected, click the &quot;%1&quot; button.</source>
+        <extracomment>INFO DESKTOP Redirect information when automatic redirect is enabled</extracomment>
+        <translation type="unfinished">Через несколько секунд вас автоматически перенаправят к провайдеру. Если перенаправление не произойдет автоматически, нажмите на кнопку «%1».</translation>
     </message>
     <message>
-        <source>Press the button to complete the authentication and return to the provider.</source>
-        <extracomment>INFO ALL_PLATFORMS Redirect information when automatic redirect is disabled</extracomment>
-        <translation>Нажмите кнопку, чтобы завершить аутентификацию и вернуться к провайдеру.</translation>
+        <source>Click the button to complete the authentication and return to the provider.</source>
+        <extracomment>INFO DESKTOP Redirect information when automatic redirect is disabled</extracomment>
+        <translation type="unfinished">Нажмите кнопку, чтобы завершить аутентификацию и вернуться к провайдеру.</translation>
+    </message>
+    <message>
+        <source>You will be automatically redirected to the provider in a few seconds. If you are not automatically redirected, tap the &quot;%1&quot; button.</source>
+        <extracomment>INFO ANDROID IOS Redirect information when automatic redirect is enabled</extracomment>
+        <translation type="unfinished">Через несколько секунд вас автоматически перенаправят к провайдеру. Если перенаправление не произойдет автоматически, нажмите на кнопку «%1».</translation>
+    </message>
+    <message>
+        <source>Tap the button to complete the authentication and return to the provider.</source>
+        <extracomment>INFO ANDROID IOS Redirect information when automatic redirect is disabled</extracomment>
+        <translation type="unfinished">Нажмите кнопку, чтобы завершить аутентификацию и вернуться к провайдеру.</translation>
     </message>
     <message>
         <source>Return to provider</source>
@@ -4437,28 +4518,29 @@ LABEL ANDROID IOS</extracomment>
 <context>
     <name>RemoteReaderDelegate</name>
     <message>
-        <source>Smartphone named &quot;%1&quot;. %2. </source>
-        <extracomment>INFO DESKTOP Name and status of remote device. %1 is replaced with the name, %2 with the status</extracomment>
-        <translation>Имя смартфона «%1». %2. </translation>
+        <source>Smartphone named &quot;%1&quot;.</source>
+        <extracomment>INFO DESKTOP Name of remote device. %1 is replaced with the name.</extracomment>
+        <translation>Имя смартфона «%1».</translation>
     </message>
     <message>
-        <source>Press space to unpair the smartphone &quot;%1&quot;.</source>
-        <extracomment>INFO DESKTOP Text for activation action if the device is paired.</extracomment>
-        <translation>Нажмите пробел, чтобы отменить сопряжение смартфона «%1».</translation>
-    </message>
-    <message>
-        <source>Press space to pair the smartphone &quot;%1&quot;.</source>
-        <extracomment>INFO DESKTOP Text for activation action if the device is unpaired.</extracomment>
-        <translation>Нажмите пробел для сопряжения смартфона «%1».</translation>
-    </message>
-    <message>
-        <source>Remove remote device</source>
-        <translation>Удалить дистанционное устройство</translation>
+        <source>Status: &quot;%1&quot;.</source>
+        <extracomment>INFO DESKTOP Status of remote device. %1 is replaced with the status.</extracomment>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Pair</source>
         <extracomment>LABEL DESKTOP</extracomment>
-        <translation>Сопряжение</translation>
+        <translation type="unfinished">Сопряжение</translation>
+    </message>
+    <message>
+        <source>Unpair</source>
+        <extracomment>LABEL DESKTOP</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1 device &quot;%2&quot;</source>
+        <extracomment>LABEL DESKTOP Text of pairing button, %1 will be Pair/Unpair and %2 is replaced with device name</extracomment>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -4515,9 +4597,9 @@ LABEL ANDROID IOS</extracomment>
         <translation>Последние подключенные</translation>
     </message>
     <message>
-        <source>Click to remove device</source>
+        <source>Tap to remove device</source>
         <extracomment>LABEL ANDROID IOS</extracomment>
-        <translation>Нажмите для удаления устройства</translation>
+        <translation type="unfinished">Нажмите для удаления устройства</translation>
     </message>
     <message>
         <source>Remove</source>
@@ -4540,9 +4622,9 @@ LABEL ANDROID IOS</extracomment>
         <translation>Добавить сопряжение</translation>
     </message>
     <message>
-        <source>Click to pair</source>
+        <source>Tap to pair</source>
         <extracomment>LABEL ANDROID IOS</extracomment>
-        <translation>Нажмите для сопряжения</translation>
+        <translation type="unfinished">Нажмите для сопряжения</translation>
     </message>
     <message>
         <source>Please connect your WiFi to use another smartphone as card reader (SaC).</source>
@@ -4565,9 +4647,9 @@ LABEL ANDROID IOS</extracomment>
         <translation>Сопряжение устройства…</translation>
     </message>
     <message>
-        <source>Click to use device</source>
+        <source>Tap to use device</source>
         <extracomment>LABEL ANDROID IOS</extracomment>
-        <translation>Нажмите, чтобы использовать устройство</translation>
+        <translation type="unfinished">Нажмите, чтобы использовать устройство</translation>
     </message>
 </context>
 <context>
@@ -4595,7 +4677,7 @@ LABEL ANDROID IOS</extracomment>
     <message>
         <source>To do this, start a process on a paired device.</source>
         <extracomment>INFO ANDROID IOS</extracomment>
-        <translation>Запустите для этого процесс на сопряженном устройстве</translation>
+        <translation>Запустите для этого процесс на сопряженном устройстве.</translation>
     </message>
     <message>
         <source>Enable WiFi</source>
@@ -4721,6 +4803,11 @@ To do this you first have to pair that device with this smartphone.</source>
         <extracomment>INFO ANDROID IOS %1 is replaced with the pairing code, %2 with the name &quot;AusweisApp&quot;</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Pairing progress</source>
+        <extracomment>LABEL ANDROID IOS Name of an progress indicator during the pairing process read by screen readers</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>RemoteWorkflow</name>
@@ -4821,46 +4908,6 @@ LABEL ANDROID IOS</extracomment>
         <translation>Цифровая клавиатура</translation>
     </message>
     <message>
-        <source>Software updates</source>
-        <extracomment>LABEL DESKTOP</extracomment>
-        <translation>Обновления программного обеспечения</translation>
-    </message>
-    <message>
-        <source>Check for updates at program start</source>
-        <extracomment>LABEL DESKTOP</extracomment>
-        <translation>Проверка обновлений при запуске программы</translation>
-    </message>
-    <message>
-        <source>Show update</source>
-        <extracomment>LABEL DESKTOP</extracomment>
-        <translation>Показать обновление</translation>
-    </message>
-    <message>
-        <source>Check now</source>
-        <extracomment>LABEL DESKTOP</extracomment>
-        <translation>Проверить сейчас</translation>
-    </message>
-    <message>
-        <source>An update is available (version %1)!</source>
-        <extracomment>LABEL DESKTOP An update is available, the new version is supplied to the user.</extracomment>
-        <translation>Доступно обновление (версия %1)!</translation>
-    </message>
-    <message>
-        <source>An update is available but retrieving the information failed.</source>
-        <extracomment>LABEL DESKTOP The updater found an update but not all required update information are valid, this should be a very rare case.</extracomment>
-        <translation>Обновление доступно, но произошел сбой при загрузке информации.</translation>
-    </message>
-    <message>
-        <source>Your version %1 of %2 is up to date.</source>
-        <extracomment>LABEL DESKTOP The current version is up to date, no user action is required.</extracomment>
-        <translation>Ваша версия %2 %1 является актуальной.</translation>
-    </message>
-    <message>
-        <source>No update information available, please check for update manually.</source>
-        <extracomment>LABEL DESKTOP The automatic update check is disabled (or no network connection was present during app start), a manual check for update is required.</extracomment>
-        <translation>Нет информации об обновлениях, проверьте наличие доступных обновлений вручную.</translation>
-    </message>
-    <message>
         <source>Shuffle keys</source>
         <extracomment>LABEL DESKTOP</extracomment>
         <translation>Случайное расположение кнопок экранной клавиатуры</translation>
@@ -4912,16 +4959,6 @@ LABEL ANDROID IOS</extracomment>
 <context>
     <name>SelfAuthenticationData</name>
     <message>
-        <source>Read self-authentication data</source>
-        <extracomment>LABEL DESKTOP Title of the self authentication result data view</extracomment>
-        <translation>Считать данные самоаутентификации</translation>
-    </message>
-    <message>
-        <source>Successfully read data.</source>
-        <extracomment>INFO DESKTOP Status message that the self authentication successfully completed.</extracomment>
-        <translation>Данные считаны успешно.</translation>
-    </message>
-    <message>
         <source>Read data</source>
         <extracomment>LABEL DESKTOP Title of the self authentication result data view</extracomment>
         <translation>Считать данные</translation>
@@ -4936,8 +4973,17 @@ LABEL ANDROID IOS</extracomment>
         <extracomment>LABEL ANDROID IOS</extracomment>
         <translation>Назад к начальной странице</translation>
     </message>
+</context>
+<context>
+    <name>SelfAuthenticationHeader</name>
+    <message>
+        <source>Successfully read data.</source>
+        <extracomment>INFO ALL_PLATFORMS Status message that the self authentication successfully completed (1/2).</extracomment>
+        <translation>Данные считаны успешно.</translation>
+    </message>
     <message>
         <source>You may now remove your ID card from the device.</source>
+        <extracomment>INFO ALL_PLATFORMS Status message that the self authentication successfully completed (2/2).</extracomment>
         <translation>Можно извлечь идентификационную карту из устройства.</translation>
     </message>
 </context>
@@ -5207,9 +5253,9 @@ LABEL ANDROID IOS</extracomment>
         <translation>Следуйте инструкциям на втором устройстве</translation>
     </message>
     <message>
-        <source>Now follow the instruction for the setup on your PC/Mac. If the onboarding does not start automatically, you may find it under Help &gt; Onboarding.</source>
+        <source>Now follow the instruction for the setup on your PC/Mac. If the setup does not start automatically, you may find it under Help &gt; Setup.</source>
         <extracomment>LABEL ANDROID IOS</extracomment>
-        <translation>Теперь следуйте инструкциям по настройке на вашем компьютере/Mac. Если процесс настройки не запустится автоматически, вы сможете найти информацию здесь: Справка &gt; Настройка</translation>
+        <translation type="unfinished">Теперь следуйте инструкциям по настройке на вашем компьютере/Mac. Если процесс настройки не запустится автоматически, вы сможете найти информацию здесь: Справка &gt; Настройка.</translation>
     </message>
     <message>
         <source>Continue with pairing</source>
@@ -5488,7 +5534,7 @@ LABEL ANDROID IOS</extracomment>
     <message>
         <source>Sample card required.</source>
         <extracomment>LABEL ANDROID IOS</extracomment>
-        <translation>Необходима образцовая тестовая карта</translation>
+        <translation>Необходима образцовая тестовая карта.</translation>
     </message>
 </context>
 <context>
@@ -5516,7 +5562,7 @@ LABEL ANDROID IOS</extracomment>
     <message>
         <source>Sample card required.</source>
         <extracomment>LABEL ANDROID IOS</extracomment>
-        <translation>Необходима образцовая тестовая карта</translation>
+        <translation>Необходима образцовая тестовая карта.</translation>
     </message>
 </context>
 <context>
@@ -5560,9 +5606,9 @@ LABEL ANDROID IOS</extracomment>
         <translation>Электронная идентификационная карта Smart-eID не готова</translation>
     </message>
     <message>
-        <source>Your Smart-eID is ready for use, press &quot;Continue&quot; to proceed.</source>
+        <source>Your Smart-eID is ready for use, tap &quot;Continue&quot; to proceed.</source>
         <extracomment>LABEL ANDROID IOS</extracomment>
-        <translation>Ваша электронная идентификационная карта Smart-eID готова к использованию, нажмите «Продолжить» для продолжения.</translation>
+        <translation type="unfinished">Ваша электронная идентификационная карта Smart-eID готова к использованию, нажмите «Продолжить» для продолжения.</translation>
     </message>
     <message>
         <source>Please wait a moment.</source>
@@ -5685,7 +5731,7 @@ To proceed use your ID card by selecting the NFC interface. If you want to set u
 <context>
     <name>TabbedReaderView</name>
     <message>
-        <source>Card Readers</source>
+        <source>Card readers</source>
         <extracomment>LABEL DESKTOP</extracomment>
         <translation>Устройства чтения карт</translation>
     </message>
@@ -5754,6 +5800,10 @@ To proceed use your ID card by selecting the NFC interface. If you want to set u
         <source>Hide in-app notifications of %1</source>
         <extracomment>LABEL DESKTOP</extracomment>
         <translation>Скрыть внутренние оповещения в приложении %1</translation>
+    </message>
+    <message>
+        <source>Update available</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -5835,23 +5885,9 @@ To proceed use your ID card by selecting the NFC interface. If you want to set u
         <translation>Обновление приложения</translation>
     </message>
     <message>
-        <source>An update information for your platform is not available.</source>
-        <extracomment>LABEL DESKTOP Resulttext if no update information is available for the current platform.</extracomment>
-        <translation>Информация об обновлении для вашей платформы недоступна.</translation>
-    </message>
-    <message>
-        <source>The update information could not be retrieved. Please check your network connection.</source>
-        <extracomment>LABEL DESKTOP Resulttext if the update information are invalid, might be caused by network issues.</extracomment>
-        <translation>Не удалось загрузить информацию об обновлении. Проверьте сетевое подключение.</translation>
-    </message>
-    <message>
-        <source>Your version %1 of %2 is up to date!</source>
-        <extracomment>LABEL DESKTOP The currently installed version is the most recent one, no action is required.</extracomment>
-        <translation>Ваша версия %2 %1 является актуальной!</translation>
-    </message>
-    <message>
-        <source>An update is available (installed version %1)</source>
-        <translation>Доступно обновление (установленная версия %1)</translation>
+        <source>An update for the outdated installed version (%1) is available for download.</source>
+        <extracomment>LABEL DESKTOP %1 is replaced with the current version number</extracomment>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Warning - Your operating system is no longer supported</source>
@@ -5873,6 +5909,11 @@ To proceed use your ID card by selecting the NFC interface. If you want to set u
         <extracomment>INFO DESKTOP Header of the popup that is shown when the app download failed.</extracomment>
         <translation>Предупреждение: сбой обновления</translation>
     </message>
+    <message>
+        <source>Update available</source>
+        <extracomment>LABEL DESKTOP</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>UpdateViewButtonRow</name>
@@ -5887,37 +5928,55 @@ To proceed use your ID card by selecting the NFC interface. If you want to set u
         <translation>Запустить обновление</translation>
     </message>
     <message>
-        <source>%1 of %2 Kilobyte downloaded</source>
-        <extracomment>LABEL DESKTOP %1 and %2 will be replaced with the already downloaded and the total file size.</extracomment>
+        <source>Download progress</source>
+        <extracomment>LABEL DESKTOP Name of an progress indicator during a download read by screen readers</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The update (version %1) is being performed...</source>
+        <extracomment>LABEL DESKTOP %1 is replaced with the version number of the software update.</extracomment>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>UpdateViewInformation</name>
     <message>
-        <source>New version:</source>
+        <source>New version</source>
         <extracomment>LABEL DESKTOP Information about the available, new version number.</extracomment>
-        <translation>Новая версия:</translation>
+        <translation>Новая версия</translation>
     </message>
     <message>
-        <source>Release date:</source>
+        <source>Release date</source>
         <extracomment>LABEL DESKTOP Date when the available update was released.</extracomment>
-        <translation>Дата выхода:</translation>
+        <translation>Дата выхода</translation>
     </message>
     <message>
-        <source>Download size:</source>
+        <source>Download size</source>
         <extracomment>LABEL DESKTOP Download size of the available update in megabyte.</extracomment>
-        <translation>Размер обновления:</translation>
+        <translation>Размер обновления</translation>
     </message>
     <message>
-        <source>Download link:</source>
+        <source>Download link</source>
         <extracomment>LABEL DESKTOP Plaintext link to the update download.</extracomment>
-        <translation>Ссылка для загрузки:</translation>
+        <translation>Ссылка для загрузки</translation>
     </message>
     <message>
-        <source>Checksum link:</source>
+        <source>Checksum link</source>
         <extracomment>LABEL DESKTOP Link to download checksum to verify the downloaded update file.</extracomment>
-        <translation>Ссылка для контрольной суммы:</translation>
+        <translation>Ссылка для контрольной суммы</translation>
+    </message>
+</context>
+<context>
+    <name>Utils</name>
+    <message>
+        <source>Tap to open the following website in your browser: %1</source>
+        <extracomment>INFO ANDROID IOS Hint that a link is present, which will open in the browser</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Press space to open the following website in your browser: %1</source>
+        <extracomment>INFO DESKTOP Hint that a link is present, which will open in the browser</extracomment>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -5933,14 +5992,9 @@ To proceed use your ID card by selecting the NFC interface. If you want to set u
         <translation>Опции разработчика деактивированы.</translation>
     </message>
     <message>
-        <source>Version Information</source>
-        <extracomment>LABEL ANDROID IOS</extracomment>
-        <translation>Информация о версии</translation>
-    </message>
-    <message>
-        <source>%1 more presses to toggle the advanced settings.</source>
-        <extracomment>INFO ANDROID IOS Used in notifications when the user taps the version information</extracomment>
-        <translation>%1 нажатие (-я/-й) для переключения на расширенные настройки.</translation>
+        <source>%1 version</source>
+        <extracomment>LABEL ANDROID IOS %1 is replaced with the application name</extracomment>
+        <translation type="unfinished">Информация о версии</translation>
     </message>
     <message>
         <source>Advanced settings activated.</source>
@@ -5966,6 +6020,11 @@ To proceed use your ID card by selecting the NFC interface. If you want to set u
         <source>Accessibility statement</source>
         <extracomment>LABEL DESKTOP</extracomment>
         <translation>Заявление о доступности</translation>
+    </message>
+    <message>
+        <source>%1 more taps to toggle the advanced settings.</source>
+        <extracomment>INFO ANDROID IOS Used in notifications when the user taps the version information</extracomment>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -6179,6 +6238,36 @@ To proceed use your ID card by selecting the NFC interface. If you want to set u
         <source>If this does not help, contact our %1support%2.</source>
         <extracomment>INFO DESKTOP Text of the popup that is shown when the execution of the update failed (2/2).</extracomment>
         <translation>Если это не помогает, свяжитесь со %1службой поддержки%2.</translation>
+    </message>
+    <message>
+        <source>Searching for software updates...</source>
+        <extracomment>LABEL DESKTOP</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>An update is available (version %1).</source>
+        <extracomment>LABEL DESKTOP An update is available, the new version is supplied to the user.</extracomment>
+        <translation>Доступно обновление (версия %1).</translation>
+    </message>
+    <message>
+        <source>Your version %1 of %2 is up to date.</source>
+        <extracomment>LABEL DESKTOP %1 is replaced with the version number of the software and %2 is replaced with the application name.</extracomment>
+        <translation>Ваша версия %2 %1 является актуальной.</translation>
+    </message>
+    <message>
+        <source>An update information for your platform is not available.</source>
+        <extracomment>LABEL DESKTOP</extracomment>
+        <translation>Информация об обновлении для вашей платформы недоступна.</translation>
+    </message>
+    <message>
+        <source>An update is available but retrieving the information failed.</source>
+        <extracomment>LABEL DESKTOP The updater found an update but not all required update information are valid, this should be a very rare case.</extracomment>
+        <translation>Обновление доступно, но произошел сбой при загрузке информации.</translation>
+    </message>
+    <message>
+        <source>The update information could not be retrieved. Please check your network connection.</source>
+        <extracomment>LABEL DESKTOP</extracomment>
+        <translation>Не удалось загрузить информацию об обновлении. Проверьте сетевое подключение.</translation>
     </message>
 </context>
 <context>
@@ -7210,7 +7299,7 @@ To proceed use your ID card by selecting the NFC interface. If you want to set u
     </message>
 </context>
 <context>
-    <name>governikus::LogModel</name>
+    <name>governikus::LogFilesModel</name>
     <message>
         <source>Current log</source>
         <extracomment>LABEL ALL_PLATFORMS</extracomment>
@@ -7221,6 +7310,9 @@ To proceed use your ID card by selecting the NFC interface. If you want to set u
         <extracomment>LABEL ALL_PLATFORMS Datetime format according to https://doc.qt.io/qt/qdate.html#toString and https://doc.qt.io/qt/qtime.html#toString</extracomment>
         <translation>dd.MM.yyyy, hh:mm:ss</translation>
     </message>
+</context>
+<context>
+    <name>governikus::LogModel</name>
     <message>
         <source>The logfile is disabled.</source>
         <translation>Файл журнала деактивирован.</translation>
@@ -7330,7 +7422,7 @@ To proceed use your ID card by selecting the NFC interface. If you want to set u
     <message>
         <source>You have entered an incorrect, 6-digit ID card PIN.</source>
         <extracomment>INFO ALL_PLATFORMS The wrong ID card PIN was entered on the first attempt. Part 1/2</extracomment>
-        <translation>Вы ввели  неправильный 6-значный PIN-код идентификационной карты.</translation>
+        <translation>Вы ввели неправильный 6-значный PIN-код идентификационной карты.</translation>
     </message>
     <message>
         <source>You have%1 2 further attempts%2 to enter the correct ID card PIN.</source>
@@ -7367,7 +7459,7 @@ INFO ALL_PLATFORMS The wrong ID card PIN was entered twice, the next attempt req
     <message>
         <source>You have entered an incorrect, 5-digit Transport PIN.</source>
         <extracomment>INFO ALL_PLATFORMS The wrong Transport PIN was entered on the first attempt. Part 1/2</extracomment>
-        <translation>Вы ввели  неправильный 5-значный временный PIN-код.</translation>
+        <translation>Вы ввели неправильный 5-значный временный PIN-код.</translation>
     </message>
     <message>
         <source>You have%1 2 further attempts%2 to enter the correct Transport PIN. The 5-digit Transport PIN may be found on the %1bottom left of your PIN letter%2.</source>
@@ -7392,12 +7484,12 @@ INFO ALL_PLATFORMS The wrong ID card PIN was entered twice, the next attempt req
     <message>
         <source>%1An incorrect PIN has been entered 3 times%2 at the last use of your ID card.</source>
         <extracomment>INFO ALL_PLATFORMS Once per workflow info text shown when a blocked ID card has been detected. %1 + %2 are used to emphasize. Part 1/2</extracomment>
-        <translation>%1PIN-код трижды  введен неправильно%2 при последнем использовании вашей идентификационной карты.</translation>
+        <translation>%1PIN-код трижды введен неправильно%2 при последнем использовании вашей идентификационной карты.</translation>
     </message>
     <message>
         <source>Therefore you have to enter the %1PUK%2 first to %1unlock the ID card PIN%2.</source>
         <extracomment>INFO ALL_PLATFORMS Once per workflow info text shown when a blocked ID card has been detected. %1 + %2 are used to emphasize. Part 2/2</extracomment>
-        <translation>Для этого введите сначала %1PUK-код%2, чтобы %1разблокировать  PIN-код идентификационной карты%2.</translation>
+        <translation>Для этого введите сначала %1PUK-код%2, чтобы %1разблокировать PIN-код идентификационной карты%2.</translation>
     </message>
 </context>
 <context>
@@ -7586,9 +7678,9 @@ LABEL ALL_PLATFORMS Hint text for requested Transport PIN but both, Transport PI
         <translation>Недоступно</translation>
     </message>
     <message>
-        <source>Click to pair</source>
-        <extracomment>LABEL ALL_PLATFORMS</extracomment>
-        <translation>Нажмите для сопряжения</translation>
+        <source>Tap to pair</source>
+        <extracomment>LABEL LABEL ANDROID IOS</extracomment>
+        <translation type="unfinished">Нажмите для сопряжения</translation>
     </message>
     <message>
         <source>was</source>
@@ -7711,9 +7803,9 @@ LABEL ALL_PLATFORMS Additional date format with unknown day</extracomment>
         <translation>Разрешение на временное проживание I</translation>
     </message>
     <message>
-        <source>Date of expiry</source>
+        <source>Valid until</source>
         <extracomment>LABEL ALL_PLATFORMS</extracomment>
-        <translation>Действительно до</translation>
+        <translation type="unfinished">Действительно до</translation>
     </message>
 </context>
 <context>

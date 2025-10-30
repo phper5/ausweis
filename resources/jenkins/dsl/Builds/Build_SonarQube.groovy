@@ -5,7 +5,7 @@ def j = new Build
 	(
 		name: 'SonarQube',
 		label: 'Vanilla',
-		excludePattern: 'source/**,cache/**',
+		excludePattern: 'source/**,sonar/**',
 		artifacts: 'tmp/sonar-metadata.txt',
 		trigger: '',
 		xunit: true
@@ -19,7 +19,7 @@ j.with
 		environmentVariables
 		{
 			env("XDG_RUNTIME_DIR", '$WORKSPACE/tmp')
-			env("SONAR_USER_HOME", '$WORKSPACE/cache/sonar')
+			env("SONAR_USER_HOME", '$WORKSPACE/sonar/home')
 		}
 	}
 

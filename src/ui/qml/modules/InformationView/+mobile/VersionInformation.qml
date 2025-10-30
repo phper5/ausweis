@@ -1,8 +1,12 @@
 /**
  * Copyright (c) 2016-2025 Governikus GmbH & Co. KG, Germany
  */
+
+pragma ComponentBehavior: Bound
+
 import QtQuick
 import QtQuick.Layouts
+
 import Governikus.Global
 import Governikus.TitleBar
 import Governikus.View
@@ -11,8 +15,8 @@ import Governikus.Type
 FlickableSectionPage {
 	id: root
 
-	//: LABEL ANDROID IOS
-	title: qsTr("Version Information")
+	//: LABEL ANDROID IOS %1 is replaced with the application name
+	title: qsTr("%1 version").arg(Qt.application.name)
 
 	navigationAction: NavigationAction {
 		action: NavigationAction.Action.Back
@@ -32,9 +36,9 @@ FlickableSectionPage {
 			case 7:
 			case 8:
 			case 9:
-				if (!ApplicationModel.isScreenReaderRunning) {
+				if (!ApplicationModel.screenReaderRunning) {
 					//: INFO ANDROID IOS Used in notifications when the user taps the version information
-					ApplicationModel.showFeedback(qsTr("%1 more presses to toggle the advanced settings.").arg(10 - advancedSettingsCounter), true);
+					ApplicationModel.showFeedback(qsTr("%1 more taps to toggle the advanced settings.").arg(10 - advancedSettingsCounter), true);
 				}
 				break;
 			case 10:
@@ -63,10 +67,12 @@ FlickableSectionPage {
 					required property string key
 					required property string value
 
-					anchors.left: parent.left
-					anchors.right: parent.right
+					Layout.fillWidth: true
 					label: key
 					text: value
+
+					onFocusChanged: if (focus)
+						root.positionViewAtItem(this)
 				}
 			}
 		}

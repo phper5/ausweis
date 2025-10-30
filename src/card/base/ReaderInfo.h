@@ -7,7 +7,6 @@
 #include "CardInfo.h"
 #include "ReaderConfigurationInfo.h"
 #include "ReaderManagerPluginInfo.h"
-#include "SmartCardDefinitions.h"
 
 #include <QString>
 #include <QVariant>
@@ -32,157 +31,37 @@ class ReaderInfo
 				const CardInfo& pCardInfo = CardInfo(CardType::NONE));
 
 		[[nodiscard]] ReaderConfigurationInfo getReaderConfigurationInfo() const;
+		[[nodiscard]] ReaderManagerPluginType getPluginType() const;
+		[[nodiscard]] bool isValid() const;
+		void invalidate();
+		[[nodiscard]] CardInfo& getCardInfo();
+		[[nodiscard]] const CardInfo& getCardInfo() const;
+		[[nodiscard]] CardType getCardType() const;
+		[[nodiscard]] QString getCardTypeString() const;
 
+		[[nodiscard]] bool hasCard() const;
+		[[nodiscard]] bool hasEid() const;
 
-		[[nodiscard]] ReaderManagerPluginType getPluginType() const
-		{
-			return mPluginType;
-		}
+		[[nodiscard]] int getRetryCounter() const;
+		[[nodiscard]] bool isRetryCounterDetermined() const;
+		[[nodiscard]] bool isPinDeactivated() const;
+		[[nodiscard]] bool isPukInoperative() const;
+		[[nodiscard]] bool isSoftwareSmartEid() const;
 
-
-		[[nodiscard]] bool isValid() const
-		{
-			return mPluginType != ReaderManagerPluginType::UNKNOWN;
-		}
-
-
-		void invalidate()
-		{
-			mPluginType = ReaderManagerPluginType::UNKNOWN;
-			mCardInfo = CardInfo(CardType::NONE);
-		}
-
-
-		[[nodiscard]] CardInfo& getCardInfo()
-		{
-			return mCardInfo;
-		}
-
-
-		[[nodiscard]] const CardInfo& getCardInfo() const
-		{
-			return mCardInfo;
-		}
-
-
-		[[nodiscard]] CardType getCardType() const
-		{
-			return mCardInfo.getCardType();
-		}
-
-
-		[[nodiscard]] QString getCardTypeString() const
-		{
-			return mCardInfo.getCardTypeString();
-		}
-
-
-		[[nodiscard]] bool hasCard() const
-		{
-			return mCardInfo.getCardType() != CardType::NONE;
-		}
-
-
-		[[nodiscard]] bool hasEid() const
-		{
-			return QList<CardType>({CardType::EID_CARD, CardType::SMART_EID}).contains(mCardInfo.getCardType());
-		}
-
-
-		[[nodiscard]] int getRetryCounter() const
-		{
-			return mCardInfo.getRetryCounter();
-		}
-
-
-		[[nodiscard]] bool isRetryCounterDetermined() const
-		{
-			return mCardInfo.isRetryCounterDetermined();
-		}
-
-
-		[[nodiscard]] bool isPinDeactivated() const
-		{
-			return mCardInfo.isPinDeactivated();
-		}
-
-
-		[[nodiscard]] bool isPukInoperative() const
-		{
-			return mCardInfo.isPukInoperative();
-		}
-
-
-		[[nodiscard]] bool isSoftwareSmartEid() const
-		{
-			return mCardInfo.getMobileEidType() == MobileEidType::HW_KEYSTORE;
-		}
-
-
-		[[nodiscard]] bool wasShelved() const
-		{
-			return mShelvedCard != CardType::NONE;
-		}
-
-
-		void shelveCard()
-		{
-			mShelvedCard = mCardInfo.getCardType();
-			mCardInfo.setCardType(CardType::NONE);
-		}
-
-
+		[[nodiscard]] bool wasShelved() const;
+		void shelveCard();
 		[[nodiscard]] bool isInsertable() const;
+		void insertCard();
 
 
-		void insertCard()
-		{
-			mCardInfo.setCardType(mShelvedCard);
-		}
+		void setCardInfo(const CardInfo& pCardInfo);
+		[[nodiscard]] const QString& getName() const;
+		void setBasicReader(bool pIsBasicReader);
+		[[nodiscard]] bool isBasicReader() const;
 
-
-		void setCardInfo(const CardInfo& pCardInfo)
-		{
-			mCardInfo = pCardInfo;
-		}
-
-
-		[[nodiscard]] const QString& getName() const
-		{
-			return mName;
-		}
-
-
-		void setBasicReader(bool pIsBasicReader)
-		{
-			mBasicReader = pIsBasicReader;
-		}
-
-
-		[[nodiscard]] bool isBasicReader() const
-		{
-			return mBasicReader;
-		}
-
-
-		void setMaxApduLength(int pMaxApduLength)
-		{
-			mMaxApduLength = pMaxApduLength;
-		}
-
-
-		[[nodiscard]] int getMaxApduLength() const
-		{
-			return mMaxApduLength;
-		}
-
-
-		[[nodiscard]] bool insufficientApduLength() const
-		{
-			return mMaxApduLength >= 0 && mMaxApduLength < 500;
-		}
-
-
+		void setMaxApduLength(int pMaxApduLength);
+		[[nodiscard]] int getMaxApduLength() const;
+		[[nodiscard]] bool insufficientApduLength() const;
 };
 
 } // namespace governikus

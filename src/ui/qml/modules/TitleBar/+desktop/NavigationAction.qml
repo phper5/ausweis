@@ -18,7 +18,6 @@ GLink {
 		Close
 	}
 
-	readonly property color pressColor: Qt.darker(Style.color.textTitle.basic, Style.color.highlightDarkerFactor)
 	property int type: NavigationAction.Action.Cancel
 
 	colorStyle: Style.color.linkTitle

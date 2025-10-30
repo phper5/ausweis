@@ -25,8 +25,6 @@ CheckBox {
 	contentItem: RowLayout {
 		id: contentLayout
 
-		readonly property int focusWidth: layoutDirection === Qt.RightToLeft ? width : implicitWidth
-
 		spacing: root.spacing
 
 		Rectangle {

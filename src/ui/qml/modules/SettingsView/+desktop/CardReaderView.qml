@@ -15,14 +15,14 @@ GPane {
 
 	property bool enablePaneOptic: true
 	readonly property bool hasConnectedReader: readerRepeater.count > 0
-	readonly property string hintTextBase: {
-		//: LABEL DESKTOP
-		qsTr("After connecting a new card reader it may take a few seconds to recognize the driver.") + "<br>" +
-		//: LABEL DESKTOP
-		qsTr("It may be necessary to restart your system after installing the driver.");
-	}
+	readonly property string hintTextBase: "%1<br>%2".arg(
+	//: LABEL DESKTOP
+	qsTr("After connecting a new card reader it may take a few seconds to recognize the driver.")).arg(
+	//: LABEL DESKTOP
+	qsTr("It may be necessary to restart your system after installing the driver."))
 	property alias showHint: hintAndDateText.visible
 
+	Accessible.ignored: true
 	color: root.enablePaneOptic ? Style.color.pane.background.basic : Style.color.transparent
 	contentPadding: root.enablePaneOptic ? Style.dimens.pane_padding : 0
 	layer.enabled: root.enablePaneOptic
@@ -39,6 +39,7 @@ GPane {
 		//: LABEL DESKTOP
 		Accessible.name: qsTr("List of connected card readers.")
 		Accessible.role: Accessible.List
+		Layout.topMargin: -root.contentSpacing
 		spacing: Style.dimens.pane_spacing
 		visible: root.hasConnectedReader
 
@@ -103,11 +104,8 @@ GPane {
 
 			Layout.alignment: Qt.AlignVCenter
 			color: Style.color.textSubline.basic
-			text: {
-				root.hintTextBase + " " +
-				//: LABEL DESKTOP
-				qsTr("Only connected card readers are shown here.") + " " + ReaderModel.lastUpdatedInformation;
-			}
+			//: LABEL DESKTOP
+			text: root.hintTextBase + " " + qsTr("Only connected card readers are shown here.") + " " + ReaderModel.lastUpdatedInformation
 			verticalAlignment: Text.AlignBottom
 		}
 	}

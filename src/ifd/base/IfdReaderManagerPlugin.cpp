@@ -5,13 +5,14 @@
 #include "IfdReaderManagerPlugin.h"
 
 #include "AppSettings.h"
-#include "IfdReader.h"
 #include "messages/IfdError.h"
 #include "messages/IfdGetStatus.h"
 
 #include <QLoggingCategory>
 
+
 using namespace governikus;
+
 
 Q_DECLARE_LOGGING_CATEGORY(card_remote)
 
@@ -26,7 +27,7 @@ void IfdReaderManagerPlugin::removeDispatcher(const QByteArray& pId)
 			continue;
 		}
 
-		if (QScopedPointer reader(mReaderList.take(readerName)); reader)
+		if (QSharedPointer reader(mReaders.take(readerName)); reader)
 		{
 			Q_EMIT fireReaderRemoved(reader->getReaderInfo());
 		}
@@ -58,12 +59,12 @@ void IfdReaderManagerPlugin::removeAllDispatchers()
 void IfdReaderManagerPlugin::processConnectedReader(const QString& pReaderName, const IfdStatus& pIfdStatus, const QSharedPointer<IfdDispatcherClient>& pDispatcher, const QByteArray& pId)
 {
 	bool newReader = false;
-	if (mReaderList.contains(pReaderName))
+	if (mReaders.contains(pReaderName))
 	{
-		if (auto* reader = mReaderList.value(pReaderName); reader)
+		if (const auto& reader = mReaders.value(pReaderName); reader)
 		{
 			qCDebug(card_remote) << "Update reader" << pReaderName;
-			static_cast<IfdReader*>(reader)->updateStatus(pIfdStatus);
+			reader->updateStatus(pIfdStatus);
 			return;
 		}
 		qCDebug(card_remote) << "Enable reader" << pReaderName;
@@ -74,13 +75,13 @@ void IfdReaderManagerPlugin::processConnectedReader(const QString& pReaderName, 
 		newReader = true;
 	}
 
-	auto* reader = new IfdReader(getInfo().getPluginType(), pReaderName, pDispatcher, pIfdStatus);
-	connect(reader, &IfdReader::fireCardInserted, this, &IfdReaderManagerPlugin::fireCardInserted);
-	connect(reader, &IfdReader::fireCardRemoved, this, &IfdReaderManagerPlugin::fireCardRemoved);
-	connect(reader, &IfdReader::fireCardInfoChanged, this, &IfdReaderManagerPlugin::fireCardInfoChanged);
-	connect(reader, &IfdReader::fireReaderPropertiesUpdated, this, &IfdReaderManagerPlugin::fireReaderPropertiesUpdated);
+	const auto& reader = QSharedPointer<IfdReader>::create(getInfo().getPluginType(), pReaderName, pDispatcher, pIfdStatus);
+	connect(reader.data(), &IfdReader::fireCardInserted, this, &IfdReaderManagerPlugin::fireCardInserted);
+	connect(reader.data(), &IfdReader::fireCardRemoved, this, &IfdReaderManagerPlugin::fireCardRemoved);
+	connect(reader.data(), &IfdReader::fireCardInfoChanged, this, &IfdReaderManagerPlugin::fireCardInfoChanged);
+	connect(reader.data(), &IfdReader::fireReaderPropertiesUpdated, this, &IfdReaderManagerPlugin::fireReaderPropertiesUpdated);
 
-	mReaderList.insert(pReaderName, reader);
+	mReaders.insert(pReaderName, reader);
 	if (newReader)
 	{
 		mReadersForDispatcher.insert(pId, pReaderName);
@@ -118,19 +119,19 @@ void IfdReaderManagerPlugin::handleIFDStatus(const QJsonObject& pJsonObject, con
 	ReaderInfo readerInfo(readerName);
 	readerInfo.setBasicReader(!ifdStatus.hasPinPad());
 	readerInfo.setMaxApduLength(ifdStatus.getMaxApduLength());
-	if (mReaderList.contains(readerName))
+	if (mReaders.contains(readerName))
 	{
 		qCDebug(card_remote) << "Disable reader" << readerName;
-		if (QScopedPointer reader(mReaderList.take(readerName)); reader)
+		if (const auto& reader = mReaders.take(readerName); reader)
 		{
-			mReaderList.insert(readerName, nullptr);
+			mReaders.insert(readerName, nullptr);
 		}
 		Q_EMIT fireReaderPropertiesUpdated(readerInfo);
 		return;
 	}
 
 	qCDebug(card_remote) << "Advertise reader" << readerName;
-	mReaderList.insert(readerName, nullptr);
+	mReaders.insert(readerName, nullptr);
 	mReadersForDispatcher.insert(pId, readerName);
 	Q_EMIT fireReaderAdded(readerInfo);
 }
@@ -214,7 +215,7 @@ IfdReaderManagerPlugin::IfdReaderManagerPlugin(ReaderManagerPluginType pPluginTy
 	:   ReaderManagerPlugin(pPluginType, pAvailable, pPluginEnabled)
 	, mReadersForDispatcher()
 	, mDispatcherList()
-	, mReaderList()
+	, mReaders()
 {
 }
 
@@ -222,7 +223,7 @@ IfdReaderManagerPlugin::IfdReaderManagerPlugin(ReaderManagerPluginType pPluginTy
 IfdReaderManagerPlugin::~IfdReaderManagerPlugin()
 {
 	// can't wait for removeAllDispatchers answer because were are in dtor
-	// and must delete Reader* of mReaderList.
+	// and must delete Reader* of mReaders.
 	const auto list = mDispatcherList.keys();
 	for (const auto& id : list)
 	{
@@ -240,11 +241,9 @@ void IfdReaderManagerPlugin::init()
 }
 
 
-QList<Reader*> IfdReaderManagerPlugin::getReaders() const
+QPointer<Reader> IfdReaderManagerPlugin::getReader(const QString& pReaderName) const
 {
-	auto readerList = mReaderList.values();
-	readerList.removeAll(nullptr);
-	return readerList;
+	return mReaders.value(pReaderName).data();
 }
 
 
@@ -264,7 +263,7 @@ void IfdReaderManagerPlugin::addDispatcher(const QSharedPointer<IfdDispatcherCli
 
 void IfdReaderManagerPlugin::insert(const QString& pReaderName, const QVariant& pData)
 {
-	Reader* const reader = mReaderList.value(pReaderName);
+	const auto& reader = mReaders.value(pReaderName);
 	if (!reader || !reader->getReaderInfo().isInsertable())
 	{
 		qCDebug(card_remote) << "Skipping insert because reader is not connected or there is no card available";
@@ -295,4 +294,13 @@ void IfdReaderManagerPlugin::stopScan(const QString& pError)
 const QMap<QByteArray, QSharedPointer<IfdDispatcherClient>>& IfdReaderManagerPlugin::getDispatchers() const
 {
 	return mDispatcherList;
+}
+
+
+void IfdReaderManagerPlugin::shelveAll() const
+{
+	for (const auto& reader : mReaders)
+	{
+		shelve(reader.data());
+	}
 }

@@ -30,10 +30,6 @@ spec:
               value: '5'
             - name: EXECUTOR
               value: '2'
-            - name: MAKE_FLAGS
-              value: '-j5'
-            - name: PROCESSOR_COUNT
-              value: '5'
             - name: PASSWORD
               valueFrom:
                 secretKeyRef:
@@ -52,7 +48,7 @@ spec:
                   key: username
                   name: dependency-check-credentials
                   optional: false
-            - name: SONARQUBE_TOKEN
+            - name: SONAR_TOKEN
               valueFrom:
                 secretKeyRef:
                   key: sonarqube
@@ -68,6 +64,8 @@ spec:
               value: redis://ausweisapp-redis.govkg.de:32379
             - name: CCACHE_REMOTE_ONLY
               value: 'true'
+            - name: SONAR_HOST_URL
+              value: 'https://sonar.govkg.de'
           image: dev-docker.governikus.de/ausweisapp2/ubuntu:vanilla
           imagePullPolicy: Always
           name: vanilla

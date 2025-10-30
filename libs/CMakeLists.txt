@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.10.0)
+cmake_minimum_required(VERSION 3.25)
 
 if(POLICY CMP0010)
 	cmake_policy(SET CMP0010 NEW)
@@ -12,11 +12,7 @@ if(POLICY CMP0135)
 	cmake_policy(SET CMP0135 NEW)
 endif()
 
-if(NOT ANDROID AND NOT IOS)
-	set(COMPILER_SEARCH C CXX)
-endif()
-
-project(AusweisApp_Libs ${COMPILER_SEARCH})
+project(AusweisApp_Libs)
 
 list(APPEND LIBS_ID_SALT ${CMAKE_VERSION})
 file(GLOB_RECURSE GENERATE_LIBS_ID_SEED "${CMAKE_SOURCE_DIR}/*")
@@ -79,11 +75,9 @@ else()
 	message(FATAL_ERROR "Cannot find 'make' command")
 endif()
 
-if(NOT DEFINED PROCESSOR_COUNT)
-	set(PROCESSOR_COUNT $ENV{PROCESSOR_COUNT})
-endif()
-
-if(NOT DEFINED PROCESSOR_COUNT)
+if(DEFINED ENV{CMAKE_BUILD_PARALLEL_LEVEL})
+	set(PROCESSOR_COUNT $ENV{CMAKE_BUILD_PARALLEL_LEVEL})
+else()
 	include(ProcessorCount)
 	ProcessorCount(PROCESSOR_COUNT)
 endif()
@@ -135,6 +129,7 @@ endif()
 
 ################################## Versions
 include(Versions.cmake)
+list(APPEND LIBS_ID_SALT "${OPENSSL} ${QT}")
 
 ################################## Files
 set(QT_FILE qt-everywhere-src-${QT}.tar.xz)
@@ -174,7 +169,13 @@ list(APPEND ENABLED_TARGETS openssl)
 set(OPENSSL_CONFIGURE_FLAGS no-camellia no-bf no-aria no-seed no-poly1305 no-srp no-gost no-idea no-mdc2 no-rc2 no-rc4 no-rc5 no-srtp no-sm2 no-sm3 no-sm4)
 set(OPENSSL_CONFIGURE_FLAGS ${OPENSSL_CONFIGURE_FLAGS} no-ct no-dgram no-cast no-chacha no-blake2 no-rmd160 no-scrypt no-siphash no-whirlpool no-md4 no-des no-ec2m)
 set(OPENSSL_CONFIGURE_FLAGS ${OPENSSL_CONFIGURE_FLAGS} no-tls1 no-tls1-method no-tls1_1 no-tls1_1-method no-tls1_3 no-ssl3 no-ssl3-method no-dtls no-dtls1-method no-dtls1_2-method)
-set(OPENSSL_CONFIGURE_FLAGS ${OPENSSL_CONFIGURE_FLAGS} no-deprecated no-engine no-async no-dso no-comp no-ts no-makedepend no-tests no-legacy)
+set(OPENSSL_CONFIGURE_FLAGS ${OPENSSL_CONFIGURE_FLAGS} no-deprecated no-engine no-async no-dso no-comp no-ts no-makedepend no-tests)
+if(OPENSSL VERSION_GREATER "1.1.1")
+	set(OPENSSL_CONFIGURE_FLAGS ${OPENSSL_CONFIGURE_FLAGS} no-legacy)
+endif()
+if(OPENSSL VERSION_GREATER_EQUAL "3.5")
+	set(OPENSSL_CONFIGURE_FLAGS ${OPENSSL_CONFIGURE_FLAGS} no-tls-deprecated-ec)
+endif()
 
 if(${CMAKE_BUILD_TYPE} STREQUAL "DEBUG")
 	set(OPENSSL_CONFIGURE_FLAGS --debug ${OPENSSL_CONFIGURE_FLAGS})
@@ -202,7 +203,9 @@ if(IOS)
 	set(OPENSSL_CONFIGURE_FLAGS ${OPENSSL_CONFIGURE_FLAGS} no-asm no-shared)
 	if(CMAKE_OSX_SYSROOT MATCHES "iphonesimulator")
 		set(OPENSSL_ARCH iossimulator-xcrun)
-		if (CMAKE_OSX_ARCHITECTURES STREQUAL "arm64")
+		if (CMAKE_OSX_ARCHITECTURES STREQUAL "x86_64")
+			set(OPENSSL_CONFIGURE_FLAGS ${OPENSSL_CONFIGURE_FLAGS} "-arch x86_64")
+		elseif (CMAKE_OSX_ARCHITECTURES STREQUAL "arm64")
 			set(OPENSSL_CONFIGURE_FLAGS ${OPENSSL_CONFIGURE_FLAGS} "-arch arm64")
 		endif()
 		set(OPENSSL_COMPILER_FLAGS ${OPENSSL_COMPILER_FLAGS} -mios-simulator-version-min=${CMAKE_OSX_DEPLOYMENT_TARGET})
@@ -214,15 +217,21 @@ if(IOS)
 	endif()
 	set(OPENSSL_COMPILER_FLAGS ${OPENSSL_COMPILER_FLAGS} -fvisibility=hidden)
 elseif(APPLE)
-	if(NOT CMAKE_OSX_ARCHITECTURES AND CMAKE_HOST_SYSTEM_PROCESSOR STREQUAL "arm64")
-		set(CMAKE_OSX_ARCHITECTURES arm64)
+	if(NOT CMAKE_OSX_ARCHITECTURES)
+		if(CMAKE_HOST_SYSTEM_PROCESSOR STREQUAL "x86_64")
+			set(CMAKE_OSX_ARCHITECTURES x86_64)
+		elseif(CMAKE_HOST_SYSTEM_PROCESSOR STREQUAL "arm64")
+			set(CMAKE_OSX_ARCHITECTURES arm64)
+		endif()
 	endif()
 
-	if(CMAKE_OSX_ARCHITECTURES STREQUAL "arm64")
+	if(CMAKE_OSX_ARCHITECTURES STREQUAL "x86_64")
+		set(OPENSSL_ARCH darwin64-x86_64-cc)
+	elseif(CMAKE_OSX_ARCHITECTURES STREQUAL "arm64")
 		set(OPENSSL_CONFIGURE_FLAGS ${OPENSSL_CONFIGURE_FLAGS} no-asm)
 		set(OPENSSL_ARCH darwin64-arm64-cc)
 	else()
-		set(OPENSSL_ARCH darwin64-x86_64-cc)
+		message(FATAL_ERROR "Unknown CMAKE_OSX_ARCHITECTURES: ${CMAKE_OSX_ARCHITECTURES}")
 	endif()
 
 	set(OPENSSL_COMPILER_FLAGS ${OPENSSL_COMPILER_FLAGS} -mmacosx-version-min=13.0)
@@ -256,14 +265,12 @@ elseif(ANDROID)
 	elseif(CMAKE_ANDROID_ARCH_ABI STREQUAL "x86_64")
 		set(OPENSSL_ARCH android-x86_64)
 		set(OPENSSL_NDK_PREFIX x86_64)
-		ADD_FLAG(-Wl,-z,max-page-size=16384 NOQUOTES VAR OPENSSL_COMPILER_FLAGS USE_SAME_FOR_LINKER USE_LINKER_ONLY)
 	elseif(CMAKE_ANDROID_ARCH_ABI STREQUAL "x86")
 		set(OPENSSL_ARCH android-x86)
 		set(OPENSSL_NDK_PREFIX i686)
 	elseif(CMAKE_ANDROID_ARCH_ABI STREQUAL "arm64-v8a")
 		set(OPENSSL_ARCH android-arm64)
 		set(OPENSSL_NDK_PREFIX aarch64)
-		ADD_FLAG(-Wl,-z,max-page-size=16384 NOQUOTES VAR OPENSSL_COMPILER_FLAGS USE_SAME_FOR_LINKER USE_LINKER_ONLY)
 	else()
 		message(FATAL_ERROR "CMAKE_ANDROID_ARCH_ABI not supported by openssl: ${CMAKE_ANDROID_ARCH_ABI}")
 	endif()
@@ -302,12 +309,16 @@ if(OPENSSL_ENV)
 	set(OPENSSL_ENV ${CMAKE_COMMAND} -E env ${OPENSSL_ENV})
 endif()
 
+if(OPENSSL_PATCHES)
+	set(OPENSSL_PATCHES_CMD ${CMAKE_COMMAND} -DCOMPONENT=openssl -P ${PATCH_CMAKE})
+endif()
+
 ExternalProject_Add(openssl
 	URL ${OPENSSL_URLS}
 	URL_HASH SHA256=${OPENSSL_HASH}
 	DOWNLOAD_DIR ${PACKAGES_DIR}
 
-	PATCH_COMMAND ${CMAKE_COMMAND} -DCOMPONENT=openssl -P ${PATCH_CMAKE}
+	PATCH_COMMAND ${OPENSSL_PATCHES_CMD}
 	CONFIGURE_COMMAND ${OPENSSL_ENV} ${PERL_EXECUTABLE} <SOURCE_DIR>/Configure --prefix=${DESTINATION_DIR} --libdir=lib ${OPENSSL_CONFIGURE_FLAGS} ${OPENSSL_ARCH} "${OPENSSL_COMPILER_FLAGS}"
 	BUILD_COMMAND ${OPENSSL_ENV} ${MAKE} ${MAKE_JOBS}
 	INSTALL_COMMAND ${OPENSSL_ENV} ${MAKE} ${MAKE_JOBS} install_sw
@@ -331,17 +342,9 @@ endif()
 if(IOS)
 	# Remove this work-around! Do not build any .dylib or be able to use .dylib
 	# Globbing is not supported by cmake command mode! This will work if executed with unix shell only.
-	if(CMAKE_VERSION VERSION_LESS "3.17")
-		add_custom_command(TARGET openssl POST_BUILD COMMAND ${CMAKE_COMMAND} -E remove ${DESTINATION_DIR}/lib/*.dylib)
-	else()
-		add_custom_command(TARGET openssl POST_BUILD COMMAND ${CMAKE_COMMAND} -E rm -f ${DESTINATION_DIR}/lib/*.dylib)
-	endif()
+	add_custom_command(TARGET openssl POST_BUILD COMMAND ${CMAKE_COMMAND} -E rm -f ${DESTINATION_DIR}/lib/*.dylib)
 elseif(ANDROID)
-	if(CMAKE_VERSION VERSION_LESS "3.17")
-		add_custom_command(TARGET openssl POST_BUILD COMMAND ${CMAKE_COMMAND} -E remove ${DESTINATION_DIR}/lib/*.a)
-	else()
-		add_custom_command(TARGET openssl POST_BUILD COMMAND ${CMAKE_COMMAND} -E rm -f ${DESTINATION_DIR}/lib/*.a)
-	endif()
+	add_custom_command(TARGET openssl POST_BUILD COMMAND ${CMAKE_COMMAND} -E rm -f ${DESTINATION_DIR}/lib/*.a)
 endif()
 
 ################################## Qt
@@ -371,6 +374,9 @@ endif()
 set(QT_CONFIGURE_FLAGS ${QT_CONFIGURE_FLAGS} -prefix ${DESTINATION_DIR})
 set(QT_CONFIGURE_FLAGS ${QT_CONFIGURE_FLAGS} -system-proxies -openssl-linked -I ${DESTINATION_DIR}/include -L ${DESTINATION_DIR}/lib)
 
+version_to_hex(QT_HEX "${QT}")
+
+set(QT_CONFIGURE_FLAGS_SHARED ${QT_CONFIGURE_FLAGS_SHARED} -disable-deprecated-up-to ${QT_HEX})
 set(QT_CONFIGURE_FLAGS_SHARED ${QT_CONFIGURE_FLAGS_SHARED} -opensource -confirm-license)
 set(QT_CONFIGURE_FLAGS_SHARED ${QT_CONFIGURE_FLAGS_SHARED} -nomake examples -nomake tests -no-mtdev -no-dbus)
 set(QT_CONFIGURE_FLAGS_SHARED ${QT_CONFIGURE_FLAGS_SHARED} -qt-zlib -qt-pcre -qt-harfbuzz)
@@ -399,6 +405,8 @@ list(APPEND NO_FEATURES brotli dnslookup dtls localserver libresolv)
 list(APPEND NO_FEATURES schannel sctp securetransport topleveldomain)
 # qtbase/src/testlib
 list(APPEND NO_FEATURES testlib_selfcover)
+# qtconnectivity
+list(APPEND NO_FEATURES bluetooth)
 # qtdeclarative/src/quickcontrols
 list(APPEND NO_FEATURES quickcontrols2-imagine quickcontrols2-material quickcontrols2-universal)
 if(NOT DEVELOPER)
@@ -428,7 +436,7 @@ endforeach()
 
 set(QT_MODULES qtbase,qtwebsockets,qtscxml)
 if(NOT INTEGRATED_SDK)
-	set(QT_MODULES ${QT_MODULES},qttranslations,qtdeclarative,qtimageformats,qttools,qtsvg,qtconnectivity,qtshadertools)
+	set(QT_MODULES ${QT_MODULES},qttranslations,qtdeclarative,qtimageformats,qttools,qtsvg,qtconnectivity)
 endif()
 set(QT_CONFIGURE_FLAGS ${QT_CONFIGURE_FLAGS} -submodules ${QT_MODULES})
 
@@ -450,7 +458,7 @@ if(IOS)
 
 	if(CMAKE_OSX_SYSROOT MATCHES "iphonesimulator")
 		set(QT_HOST_CMAKE_FLAGS ${QT_HOST_CMAKE_FLAGS} -DCMAKE_OSX_SYSROOT=macosx)
-		if (CMAKE_OSX_ARCHITECTURES STREQUAL "arm64")
+		if(CMAKE_OSX_ARCHITECTURES STREQUAL "x86_64" OR CMAKE_OSX_ARCHITECTURES STREQUAL "arm64")
 			set(ADDITIONAL_QT_DEFINES ${ADDITIONAL_QT_DEFINES} -DCMAKE_OSX_ARCHITECTURES=${CMAKE_OSX_ARCHITECTURES})
 		endif()
 		set(QT_CONFIGURE_FLAGS ${QT_CONFIGURE_FLAGS} -sdk iphonesimulator)
@@ -491,18 +499,25 @@ elseif(ANDROID)
 	set(QT_CONFIGURE_FLAGS ${QT_CONFIGURE_FLAGS} ${QT_CONFIGURE_FLAGS_OTHER}
 		-android-sdk ${ANDROID_SDK_ROOT} -android-ndk ${CMAKE_ANDROID_NDK} -android-ndk-platform android-${CMAKE_SYSTEM_VERSION}
 		-android-abis ${CMAKE_ANDROID_ARCH_ABI} -xplatform android-clang)
-	set(ANDROID_PAGE_SIZE_FLAGS "-Wl,-z,max-page-size=16384")
 	set(ADDITIONAL_QT_DEFINES ${ADDITIONAL_QT_DEFINES} -DQT_ANDROID_API_USED_FOR_JAVA=android-${ANDROID_COMPILE_SDK_VERSION})
-	if(CMAKE_ANDROID_ARCH_ABI STREQUAL "arm64-v8a")
-		set(QT_CONFIGURE_FLAGS ${QT_CONFIGURE_FLAGS} -no-use-gold-linker)
-		set(ADDITIONAL_QT_DEFINES ${ADDITIONAL_QT_DEFINES} -DCMAKE_SHARED_LINKER_FLAGS=${ANDROID_PAGE_SIZE_FLAGS} -DCMAKE_MODULE_LINKER_FLAGS=${ANDROID_PAGE_SIZE_FLAGS})
-	elseif(CMAKE_ANDROID_ARCH_ABI STREQUAL "x86_64")
-		set(ADDITIONAL_QT_DEFINES ${ADDITIONAL_QT_DEFINES} -DCMAKE_SHARED_LINKER_FLAGS=${ANDROID_PAGE_SIZE_FLAGS} -DCMAKE_MODULE_LINKER_FLAGS=${ANDROID_PAGE_SIZE_FLAGS})
-	endif()
 elseif(BSD)
 	set(QT_CONFIGURE_FLAGS ${QT_CONFIGURE_FLAGS} ${QT_CONFIGURE_FLAGS_OTHER} -no-libudev)
 elseif(LINUX)
-	set(QT_CONFIGURE_FLAGS ${QT_CONFIGURE_FLAGS} ${QT_CONFIGURE_FLAGS_OTHER} -no-libproxy --linker=gold)
+	set(QT_CONFIGURE_FLAGS ${QT_CONFIGURE_FLAGS} ${QT_CONFIGURE_FLAGS_OTHER} -no-libproxy)
+	find_program(LINKER ld.mold)
+	if(LINKER)
+		set(LINKER mold)
+	else()
+		find_program(LINKER ld.lld)
+		if(LINKER)
+			set(LINKER lld)
+		endif()
+	endif()
+
+	if(LINKER)
+		message(STATUS "Use linker: ${LINKER}")
+		list(APPEND QT_CONFIGURE_FLAGS --linker=${LINKER})
+	endif()
 else()
 	message(FATAL_ERROR "Unsupported system")
 endif()
@@ -524,6 +539,10 @@ if(IOS OR ANDROID)
 	endif()
 endif()
 
+if(QT_PATCHES)
+	set(QT_PATCHES_CMD ${CMAKE_COMMAND} -DCOMPONENT=qt -P ${PATCH_CMAKE})
+endif()
+
 # Build minimal qt for host tools until a dedicated target exists, see https://bugreports.qt.io/browse/QTQAINFRA-4203
 if (BUILD_HOST_QT AND (IOS OR ANDROID))
 	list(APPEND ENABLED_TARGETS qt-host)
@@ -533,15 +552,14 @@ if (BUILD_HOST_QT AND (IOS OR ANDROID))
 	set(QT_HOST_CONFIGURE_FLAGS -prefix ${QT_HOST_PATH} -release -optimize-size -shared -no-widgets -no-openssl -no-zstd -no-opengl)
 	set(QT_HOST_CONFIGURE_FLAGS ${QT_HOST_CONFIGURE_FLAGS} ${QT_CONFIGURE_FLAGS_SHARED})
 	set(QT_HOST_CMAKE_FLAGS ${QT_HOST_CMAKE_FLAGS} -DCMAKE_PREFIX_PATH=${QT_HOST_PATH})
-	set(QT_HOST_CONFIGURE_FLAGS ${QT_HOST_CONFIGURE_FLAGS} -submodules qtbase,qtdeclarative,qtshadertools,qttools)
+	set(QT_HOST_CONFIGURE_FLAGS ${QT_HOST_CONFIGURE_FLAGS} -submodules qtbase,qtdeclarative,qttools)
 
 	ExternalProject_Add(qt-host
 		URL ${QT_URLS}
 		URL_HASH SHA256=${QT_HASH}
 		DOWNLOAD_DIR ${PACKAGES_DIR}
 
-		PATCH_COMMAND ${CMAKE_COMMAND} -DCOMPONENT=qt -P ${PATCH_CMAKE} &&
-			${CMAKE_COMMAND} -E touch qtbase/.gitignore
+		PATCH_COMMAND ${QT_PATCHES_CMD}
 		CONFIGURE_COMMAND <SOURCE_DIR>/${QT_CONFIGURE} ${QT_HOST_CONFIGURE_FLAGS} -- ${QT_HOST_CMAKE_FLAGS}
 		BUILD_COMMAND ${CMAKE_COMMAND} --build . ${MAKE_JOBS}
 		INSTALL_COMMAND ${CMAKE_COMMAND} --install .
@@ -558,8 +576,7 @@ ExternalProject_Add(qt
 	URL_HASH SHA256=${QT_HASH}
 	DOWNLOAD_DIR ${PACKAGES_DIR}
 
-	PATCH_COMMAND ${CMAKE_COMMAND} -DCOMPONENT=qt -P ${PATCH_CMAKE} &&
-			${CMAKE_COMMAND} -E touch qtbase/.gitignore
+	PATCH_COMMAND ${QT_PATCHES_CMD}
 	CONFIGURE_COMMAND ${QT_ENV} <SOURCE_DIR>/${QT_CONFIGURE} ${QT_CONFIGURE_FLAGS} ${QT_CONFIGURE_FLAGS_SHARED} -- -DOPENSSL_ROOT_DIR=${DESTINATION_DIR} -DCMAKE_PREFIX_PATH=${DESTINATION_DIR} ${ADDITIONAL_QT_DEFINES}
 	BUILD_COMMAND ${CMAKE_COMMAND} --build . ${MAKE_JOBS}
 	INSTALL_COMMAND ${CMAKE_COMMAND} --install .
@@ -568,20 +585,13 @@ ExternalProject_Add(qt
 set(vendor_file "GovernikusConfig.cmake")
 add_custom_command(TARGET qt POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_BINARY_DIR}/${vendor_file} ${DESTINATION_DIR}/lib/cmake/Governikus/${vendor_file})
 
-configure_file(${PROJECT_SOURCE_DIR}/test/valgrind.supp.${CMAKE_BUILD_TYPE} "${CMAKE_BINARY_DIR}/valgrind.supp" COPYONLY)
-add_custom_command(TARGET qt POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_BINARY_DIR}/valgrind.supp" ${DESTINATION_DIR}/test/valgrind.supp)
-
 #########################################################################
 
 foreach(var ${ENABLED_TARGETS})
 	EXTERNALPROJECT_GET_PROPERTY(${var} INSTALL_DIR)
 	list(APPEND CLEAN_TARGETS ${INSTALL_DIR})
 endforeach()
-if(CMAKE_VERSION VERSION_LESS "3.15")
-	set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "${DESTINATION_DIR};${CLEAN_TARGETS}")
-else()
-	set_directory_properties(PROPERTIES ADDITIONAL_CLEAN_FILES "${DESTINATION_DIR};${CLEAN_TARGETS}")
-endif()
+set_directory_properties(PROPERTIES ADDITIONAL_CLEAN_FILES "${DESTINATION_DIR};${CLEAN_TARGETS}")
 
 option(COMPRESS_DEPENDS "Disable DEPENDS for compress target" ON)
 if(COMPRESS_DEPENDS)
@@ -604,15 +614,17 @@ if(DVCS_FOUND)
 	endif()
 endif()
 
-list(APPEND SYSTEM_NAME ${CMAKE_SYSTEM_NAME} ${CMAKE_CXX_COMPILER_ID})
+list(APPEND TARBALL_NAME Toolchain ${CMAKE_SYSTEM_NAME} ${CMAKE_HOST_SYSTEM_PROCESSOR} ${CMAKE_CXX_COMPILER_ID} ${CMAKE_BUILD_TYPE})
 if(ANDROID)
-	list(APPEND SYSTEM_NAME ${CMAKE_ANDROID_ARCH_ABI})
+	list(APPEND TARBALL_NAME ${CMAKE_ANDROID_ARCH_ABI})
 elseif(IOS)
 	if(CMAKE_OSX_SYSROOT MATCHES "iphonesimulator")
-		list(APPEND SYSTEM_NAME ${CMAKE_OSX_SYSROOT})
+		list(APPEND TARBALL_NAME iphonesimulator)
+	else()
+		list(APPEND TARBALL_NAME iphoneos)
 	endif()
 	if(CMAKE_OSX_ARCHITECTURES)
-		list(APPEND SYSTEM_NAME ${CMAKE_OSX_ARCHITECTURES})
+		list(APPEND TARBALL_NAME ${CMAKE_OSX_ARCHITECTURES})
 	endif()
 elseif(LINUX)
 	set(OS_RELEASE "/etc/os-release")
@@ -630,36 +642,20 @@ elseif(LINUX)
 
 		EXTRACT(ID LINUX_DISTRO)
 		EXTRACT(VERSION_ID LINUX_DISTRO_VERSION)
-		list(APPEND SYSTEM_NAME ${LINUX_DISTRO} ${LINUX_DISTRO_VERSION})
+		list(APPEND TARBALL_NAME ${LINUX_DISTRO} ${LINUX_DISTRO_VERSION})
 	endif()
 endif()
-list(JOIN SYSTEM_NAME "_" SYSTEM_NAME)
 
 if(WIN32)
 	if(SIGNTOOL_CMD)
 		configure_file(${PROJECT_CMAKE_DIR}/SignFiles.cmake.in ${CMAKE_BINARY_DIR}/SignFiles.cmake @ONLY)
-		list(APPEND GENERATE_LIBS_ID_SEED "${CMAKE_BINARY_DIR}/SignFiles.cmake")
+		list(APPEND GENERATE_LIBS_ID_SEED "${PROJECT_CMAKE_DIR}/SignFiles.cmake.in")
 		set(SIGN_COMMAND "${CMAKE_COMMAND}" -P "${CMAKE_BINARY_DIR}/SignFiles.cmake")
 	endif()
 endif()
 
-if(CMAKE_VERSION VERSION_LESS "3.15")
-	set(COMPRESSION cfJ)
-	set(COMPRESSION_FILENDING tar.xz)
-else()
-	set(COMPRESSION cf)
-	set(COMPRESSION_OPTION --zstd)
-	set(COMPRESSION_FILENDING tar.zstd)
-endif()
-
-if(CMAKE_VERSION VERSION_LESS "3.17")
-	set(REMOVE_DIRECTORIES ${CMAKE_COMMAND} -E remove_directory "${DESTINATION_DIR}/doc" "${DESTINATION_DIR}/share")
-else()
-	set(REMOVE_DIRECTORIES ${CMAKE_COMMAND} -E rm -rf "${DESTINATION_DIR}/doc" "${DESTINATION_DIR}/share")
-endif()
-
 add_custom_target(compress.pre
-		COMMAND ${REMOVE_DIRECTORIES}
+		COMMAND ${CMAKE_COMMAND} -E rm -rf "${DESTINATION_DIR}/doc" "${DESTINATION_DIR}/share"
 		COMMAND ${SIGN_COMMAND}
 		DEPENDS ${COMPRESS_TARGETS}
 		WORKING_DIRECTORY "${DESTINATION_DIR}")
@@ -667,15 +663,21 @@ add_custom_target(compress.pre
 if(SALT)
 	GENERATE_LIBS_ID(IDENTIFIER)
 endif()
-set(compressed_filename Toolchain_${SYSTEM_NAME}_${IDENTIFIER}.${COMPRESSION_FILENDING})
+list(APPEND TARBALL_NAME ${IDENTIFIER})
+list(JOIN TARBALL_NAME "_" TARBALL_NAME)
+set(compressed_filename ${TARBALL_NAME}.tar.zstd)
 message(STATUS "Use tarball: ${compressed_filename}")
 add_custom_command(OUTPUT ${compressed_filename}
-		COMMAND ${CMAKE_COMMAND} -E tar "${COMPRESSION}" "${compressed_filename}" ${COMPRESSION_OPTION} "${DESTINATION_DIR}"
+		COMMAND ${CMAKE_COMMAND} -E tar cf "${compressed_filename}" --zstd "${DESTINATION_DIR}"
 		DEPENDS compress.pre)
 add_custom_target(compress DEPENDS ${compressed_filename})
 
 include(patch.cmake)
-FETCH_PATCHES_NAMES(QT_PATCHES qt)
-FETCH_PATCHES_NAMES(OPENSSL_PATCHES openssl)
+if(QT_PATCHES)
+	FETCH_PATCHES_NAMES(QT_PATCHES qt)
+endif()
+if(OPENSSL_PATCHES)
+	FETCH_PATCHES_NAMES(OPENSSL_PATCHES openssl)
+endif()
 include(CMakePackageConfigHelpers)
 configure_package_config_file(${CMAKE_CURRENT_SOURCE_DIR}/${vendor_file}.in ${CMAKE_BINARY_DIR}/${vendor_file} INSTALL_DESTINATION ${DESTINATION_DIR})

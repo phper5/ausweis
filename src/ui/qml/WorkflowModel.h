@@ -55,7 +55,7 @@ class WorkflowModel
 	Q_PROPERTY(QString statusHintTitle READ getStatusHintTitle NOTIFY fireResultChanged)
 	Q_PROPERTY(QString statusHintActionText READ getStatusHintActionText NOTIFY fireResultChanged)
 	Q_PROPERTY(governikus::EnumGAnimation::GAnimation statusCodeAnimation READ getStatusCodeAnimation NOTIFY fireResultChanged)
-	Q_PROPERTY(bool showRemoveCardFeedback READ showRemoveCardFeedback WRITE setRemoveCardFeedback NOTIFY fireRemoveCardFeedbackChanged)
+	Q_PROPERTY(bool showRemoveCardFeedback READ showRemoveCardFeedback NOTIFY fireRemoveCardFeedbackChanged)
 	Q_PROPERTY(bool cardInitiallyAppeared READ getCardInitiallyAppeared NOTIFY fireHasCardChanged)
 	Q_PROPERTY(bool hasCard READ hasCard NOTIFY fireHasCardChanged)
 	Q_PROPERTY(governikus::EnumCardReturnCode::CardReturnCode lastReturnCode READ getLastReturnCode NOTIFY fireLastReturnCodeChanged)
@@ -106,7 +106,6 @@ class WorkflowModel
 		[[nodiscard]] Q_INVOKABLE bool invokeStatusHintAction();
 
 		[[nodiscard]] bool showRemoveCardFeedback() const;
-		void setRemoveCardFeedback(bool pEnabled);
 
 		Q_INVOKABLE void insertSmartCard() const;
 		Q_INVOKABLE void insertSimulator() const;

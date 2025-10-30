@@ -39,7 +39,7 @@ ResultView {
 	title: root.title
 
 	titleBarSettings: TitleBarSettings {
-		navigationAction: NavigationAction.Close
+		navigationAction: NavigationAction.Action.Close
 
 		onNavigationActionClicked: root.leaveView()
 	}

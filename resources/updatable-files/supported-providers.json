@@ -139,7 +139,7 @@
 			"homepage": "https://www.bitkasten.de",
 			"phone": "+49 911 6099 8688",
 			"email": "nachricht@bitkasten.de",
-			"postalAddress": "bitkasten GmbH<br/>Wallensteinstr. 63<br/>90431 Nürnberg",
+			"postalAddress": "bitkasten GmbH<br/>Frankenstraße 152<br/>90461 Nürnberg",
 			"image": "bitkasten_image.png",
 			"icon": "bitkasten_icon.png",
 			"category": "other"
@@ -661,20 +661,21 @@
 		},
 		{
 			"shortName": {
-				"": "Stadt Fürth"
+				"": "Digitale Bürgerdienste der Stadt Fürth"
 			},
 			"longName": {
-				"": "Stadt Fürth"
+				"": "Digitale Bürgerdienste der Stadt Fürth"
 			},
 			"longDescription": {
-				"": "Digitale Dienstleistungen der Stadt Fürth."
+				"": "Im Serviceportal der Stadt Fürth können Sie immer mehr Verwaltungsleistungen bequem online erledigen. Um diese vollständig digital nutzen zu können, benötigen Sie eine BayernID oder BundID. Diese können Sie schnell und einfach mit Ihrem Online-Ausweis erstellen, sodass Sie alle Vorteile des digitalen Verwaltungszugangs nutzen können.<br/>Auf der Webseite der Stadt Fürth können Sie mit Hilfe der Online-Ausweisfunktion zum Beispiel folgende Verwaltungsleistungen digital abwickeln. Viele weitere Leistungen sind teilweise auch ohne Online-Ausweis verfügbar.<ul><li>Digitale Wohnsitzanmeldung</li><li>Meldebescheinigung beantragen</li><li>Waffenrechtliche Erlaubnisse sowie Waffenschein beantragen</li><li>Aufenthaltstitel beantragen</li><li>Verpflichtungserklärung beantragen</li><li>Abfallbehälter bestellen oder abmelden</li><li>Gaststättenerlaubnis beantragen</li><li>Fahrerlaubnis beantragen</li><li>Führerschein Umtausch oder Änderungen durchführen</li><li>Fahrzeug online zulassen</li><li>Einbürgerung online</li><li>Bauantrag online</li></ul>Viele weitere Leistungen sind teilweise auch ohne Online-Ausweis direkt verfügbar wie zum Beispiel die Bestellung von Geburts- oder Eheurkunden, Gewerbeanmeldung, Bewohnerparkausweise, Sperrmüll, Hunde an- oder abmelden und über 120 weitere Leistungen."
 			},
 			"address": "https://www.fuerth.de/Home/edienste/online-anwendungen.aspx",
 			"homepage": "https://www.fuerth.de",
 			"phone": "+49 911 974 0",
-			"email": "poststelle@fuerth.de",
+			"email": "digitalisierung@fuerth.de",
 			"postalAddress": "Stadt Fürth<br/>Königstraße 88<br/>90762 Fürth",
 			"image": "StadtFuerth_image.jpg",
+			"icon": "StadtFuerth_icon.png",
 			"category": "citizen"
 		},
 		{
@@ -693,6 +694,25 @@
 			"email": "Online-Dienste@deutsche-rentenversicherung.de",
 			"postalAddress": "Deutsche Rentenversicherung Bund<br/>Hohenzollerndamm 45 - 47<br/>10713 Berlin",
 			"icon": "DRV_icon.png",
+			"category": "citizen"
+		},
+		{
+			"shortName": {
+				"": "DAKAPO"
+			},
+			"longName": {
+				"": "Digitales Auskunfts- und Katasterportal Brandenburg"
+			},
+			"longDescription": {
+				"": "Das Digitale Auskunfts- und Katasterportal im Land Brandenburg (DAKAPO) richtet sich an Nutzende, die hin und wieder vor allem im privaten Umfeld amtliche Auszüge aus dem Amtlichen Liegenschaftskatasterinformationssystem (ALKIS) zur Vorlage bei Ämtern, Notariaten, Gerichten oder Banken benötigen.<br/>Die Auszüge sind kostenpflichtig und können digital als PDF-Datei oder / und analog als Ausdruck per Postversand übermittelt werden. Die Bezahlung kann per PayPal, Kreditkarte oder per Überweisung erfolgen.<br/>Es ist ein Nutzerkonto bei BundID erforderlich, worüber die Anmeldung und die Auslieferung der Auszüge sowie des Gebührenbescheides erfolgt.<br/>Für den Erhalt von Auszügen mit Eigentümerinformationen ist die Darlegung des berechtigten Interesses erforderlich. Dessen Prüfung unterbricht zunächst den Bestellvorgang. Dieser wird im Anschluss fortgesetzt.<br/>Die Einsicht in das Liegenschaftskataster ist kostenfrei möglich."
+			},
+			"address": "https://dakapo.brandenburg.de",
+			"homepage": "https://geobasis-bb.de",
+			"phone": "+49 331 8844 123",
+			"email": "kundenservice@geobasis-bb.de",
+			"postalAddress": "LGB (Landesvermessung und Geobasisinformation Brandenburg)<br/>Heinrich-Mann-Allee 104 B<br/>14473 Potsdam",
+			"image": "DAKAPO_image.jpg",
+			"icon": "DAKAPO_icon.png",
 			"category": "citizen"
 		},
 		{

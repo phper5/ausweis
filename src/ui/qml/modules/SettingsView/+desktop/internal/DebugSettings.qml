@@ -14,7 +14,6 @@ ColumnLayout {
 	GPane {
 		Layout.fillWidth: true
 		contentPadding: 0
-		spacing: Style.dimens.pane_spacing
 
 		//: LABEL DESKTOP
 		title: qsTr("Create dummy entries")
@@ -29,7 +28,7 @@ ColumnLayout {
 				text: qsTr("Logfile")
 
 				onClicked: {
-					LogModel.saveDummyLogFile();
+					LogFilesModel.saveDummyLogFile();
 					ApplicationModel.showFeedback("Created new logfile.");
 				}
 			}

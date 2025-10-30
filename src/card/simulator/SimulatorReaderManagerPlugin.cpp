@@ -16,7 +16,7 @@ Q_DECLARE_LOGGING_CATEGORY(card_simulator)
 
 SimulatorReaderManagerPlugin::SimulatorReaderManagerPlugin()
 	: ReaderManagerPlugin(ReaderManagerPluginType::SIMULATOR, true)
-	, mSimulatorReader()
+	, mReader()
 {
 	connect(&Env::getSingleton<AppSettings>()->getSimulatorSettings(), &SimulatorSettings::fireEnabledChanged, this, &SimulatorReaderManagerPlugin::onSettingsChanged);
 	connect(Env::getSingleton<VolatileSettings>(), &VolatileSettings::fireUsedAsSdkChanged, this, &SimulatorReaderManagerPlugin::onSettingsChanged);
@@ -31,13 +31,14 @@ void SimulatorReaderManagerPlugin::init()
 }
 
 
-QList<Reader*> SimulatorReaderManagerPlugin::getReaders() const
+QPointer<Reader> SimulatorReaderManagerPlugin::getReader(const QString& pReaderName) const
 {
-	if (getInfo().isEnabled() && mSimulatorReader)
+	if (getInfo().isEnabled() && mReader && mReader->getName() == pReaderName)
 	{
-		return {mSimulatorReader.data()};
+		return mReader.data();
 	}
-	return {};
+
+	return nullptr;
 }
 
 
@@ -45,15 +46,15 @@ void SimulatorReaderManagerPlugin::startScan(bool pAutoConnect)
 {
 	if (getInfo().isEnabled())
 	{
-		mSimulatorReader.reset(new SimulatorReader());
+		mReader.reset(new SimulatorReader());
 
-		connect(mSimulatorReader.data(), &SimulatorReader::fireReaderPropertiesUpdated, this, &SimulatorReaderManagerPlugin::fireReaderPropertiesUpdated);
-		connect(mSimulatorReader.data(), &SimulatorReader::fireCardInserted, this, &SimulatorReaderManagerPlugin::fireCardInserted);
-		connect(mSimulatorReader.data(), &SimulatorReader::fireCardRemoved, this, &SimulatorReaderManagerPlugin::fireCardRemoved);
-		qCDebug(card_simulator) << "fireReaderAdded" << mSimulatorReader->getName();
-		Q_EMIT fireReaderAdded(mSimulatorReader->getReaderInfo());
+		connect(mReader.data(), &SimulatorReader::fireReaderPropertiesUpdated, this, &SimulatorReaderManagerPlugin::fireReaderPropertiesUpdated);
+		connect(mReader.data(), &SimulatorReader::fireCardInserted, this, &SimulatorReaderManagerPlugin::fireCardInserted);
+		connect(mReader.data(), &SimulatorReader::fireCardRemoved, this, &SimulatorReaderManagerPlugin::fireCardRemoved);
+		qCDebug(card_simulator) << "fireReaderAdded" << mReader->getName();
+		Q_EMIT fireReaderAdded(mReader->getReaderInfo());
 
-		mSimulatorReader->connectReader();
+		mReader->connectReader();
 		ReaderManagerPlugin::startScan(pAutoConnect);
 		setInitialScanState(ReaderManagerPluginInfo::InitialScan::SUCCEEDED);
 	}
@@ -62,12 +63,12 @@ void SimulatorReaderManagerPlugin::startScan(bool pAutoConnect)
 
 void SimulatorReaderManagerPlugin::stopScan(const QString& pError)
 {
-	if (mSimulatorReader)
+	if (mReader)
 	{
-		mSimulatorReader->disconnectReader(pError);
+		mReader->disconnectReader(pError);
 
-		auto info = mSimulatorReader->getReaderInfo();
-		mSimulatorReader.reset();
+		auto info = mReader->getReaderInfo();
+		mReader.reset();
 		Q_EMIT fireReaderRemoved(info);
 	}
 	ReaderManagerPlugin::stopScan(pError);
@@ -83,7 +84,7 @@ void SimulatorReaderManagerPlugin::insert(const QString& pReaderName, const QVar
 		return;
 	}
 
-	mSimulatorReader->insertCard(pData);
+	mReader->insertCard(pData);
 }
 
 
@@ -97,11 +98,20 @@ void SimulatorReaderManagerPlugin::onSettingsChanged()
 
 	qCDebug(card_simulator) << "SimulatorStateChanged:" << enabled;
 	setPluginEnabled(enabled);
-	if (!enabled && mSimulatorReader)
+	if (!enabled && mReader)
 	{
-		mSimulatorReader->disconnect(this);
-		const auto readerInfo = mSimulatorReader->getReaderInfo();
-		mSimulatorReader.reset();
+		mReader->disconnect(this);
+		const auto readerInfo = mReader->getReaderInfo();
+		mReader.reset();
 		Q_EMIT fireReaderRemoved(readerInfo);
+	}
+}
+
+
+void SimulatorReaderManagerPlugin::shelveAll() const
+{
+	if (getInfo().isEnabled() && mReader)
+	{
+		shelve(mReader.data());
 	}
 }

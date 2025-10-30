@@ -25,22 +25,22 @@ AnimationLoader {
 		switch (animation) {
 		case GAnimation.STATUS_OK:
 		case GAnimation.STATUS_ERROR:
-			return AnimationLoader.STATUS;
+			return AnimationLoader.Type.STATUS;
 		case GAnimation.PIN_ERROR:
-			return AnimationLoader.PIN;
+			return AnimationLoader.Type.PIN;
 		case GAnimation.CAN_ERROR:
-			return AnimationLoader.CAN;
+			return AnimationLoader.Type.CAN;
 		case GAnimation.PUK_ERROR:
 		case GAnimation.PUK_BLOCKED:
-			return AnimationLoader.PUK;
+			return AnimationLoader.Type.PUK;
 		case GAnimation.CARD_ERROR:
-			return AnimationLoader.CARD_RESULT;
+			return AnimationLoader.Type.CARD_RESULT;
 		case GAnimation.NETWORK_ERROR:
-			return AnimationLoader.NETWORK_ERROR;
+			return AnimationLoader.Type.NETWORK_ERROR;
 		case GAnimation.CHANGEPIN_SUCCESS:
-			return AnimationLoader.CHANGEPIN_SUCCESS;
+			return AnimationLoader.Type.CHANGEPIN_SUCCESS;
 		default:
-			return AnimationLoader.NONE;
+			return AnimationLoader.Type.NONE;
 		}
 	}
 }

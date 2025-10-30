@@ -12,6 +12,7 @@
 
 #include <QObject>
 #include <QQmlEngine>
+#include <QQuickItem>
 #include <QSharedPointer>
 #include <QStringList>
 #include <QTimer>
@@ -43,25 +44,24 @@ class ApplicationModel
 	friend class ::test_ApplicationModel;
 
 	Q_PROPERTY(QString storeUrl READ getStoreUrl NOTIFY fireStoreUrlChanged)
-	Q_PROPERTY(QUrl releaseNotesUrl READ getReleaseNotesUrl CONSTANT)
 
 	Q_PROPERTY(NfcState nfcState READ getNfcState NOTIFY fireNfcStateChanged)
 	Q_PROPERTY(bool extendedLengthApdusUnsupported READ isExtendedLengthApdusUnsupported NOTIFY fireReaderPropertiesUpdated)
 
-	Q_PROPERTY(bool isSmartSupported READ isSmartSupported CONSTANT)
+	Q_PROPERTY(bool smartSupported READ isSmartSupported CONSTANT)
 
 	Q_PROPERTY(bool wifiEnabled READ isWifiEnabled NOTIFY fireWifiEnabledChanged)
 
 	Q_PROPERTY(Workflow currentWorkflow READ getCurrentWorkflow NOTIFY fireCurrentWorkflowChanged)
 
-	// QT_VERSION_CHECK(6, 8, 0) qint64 to qsizetype
-	Q_PROPERTY(qint64 availablePcscReader READ getAvailablePcscReader NOTIFY fireAvailableReaderChanged)
-	Q_PROPERTY(qint64 availableRemoteReader READ getAvailableRemoteReader NOTIFY fireAvailableReaderChanged)
+	Q_PROPERTY(qsizetype availablePcscReader READ getAvailablePcscReader NOTIFY fireAvailableReaderChanged)
+	Q_PROPERTY(qsizetype availableRemoteReader READ getAvailableRemoteReader NOTIFY fireAvailableReaderChanged)
+	Q_PROPERTY(governikus::EnumReaderManagerPluginType::ReaderManagerPluginType usedPluginType READ getUsedPluginType NOTIFY fireAvailableReaderChanged)
 
 	Q_PROPERTY(QString feedback READ getFeedback NOTIFY fireFeedbackChanged)
 	Q_PROPERTY(int feedbackTimeout READ getFeedbackTimeout CONSTANT)
 
-	Q_PROPERTY(bool isScreenReaderRunning READ isScreenReaderRunning NOTIFY fireScreenReaderRunningChanged)
+	Q_PROPERTY(bool screenReaderRunning READ isScreenReaderRunning NOTIFY fireScreenReaderRunningChanged)
 
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
 	Q_PROPERTY(QUrl customConfigPath READ getCustomConfigPath CONSTANT)
@@ -135,7 +135,6 @@ class ApplicationModel
 		[[nodiscard]] Q_INVOKABLE int randomInt(int pLowerBound, int pUpperBound) const;
 
 		[[nodiscard]] QString getStoreUrl() const;
-		[[nodiscard]] QUrl getReleaseNotesUrl() const;
 
 		[[nodiscard]] NfcState getNfcState() const;
 		[[nodiscard]] bool isExtendedLengthApdusUnsupported() const;
@@ -151,7 +150,7 @@ class ApplicationModel
 
 		[[nodiscard]] bool isScreenReaderRunning() const;
 
-		[[nodiscard]] Q_INVOKABLE bool isReaderTypeAvailable(ReaderManagerPluginType pPluginType) const;
+		[[nodiscard]] ReaderManagerPluginType getUsedPluginType() const;
 
 		Q_INVOKABLE void enableWifi()const;
 
@@ -190,6 +189,8 @@ class ApplicationModel
 		void fireApplicationStateChanged(bool pIsAppInForeground);
 
 		void fireScreenReaderRunningChanged();
+
+		void fireA11yFocusChanged(QQuickItem* pItem);
 };
 
 

@@ -21,15 +21,8 @@ FlickableSectionPage {
 
 	spacing: Style.dimens.pane_spacing
 
-	Keys.onEnterPressed: continueClicked()
-	Keys.onEscapePressed: continueClicked()
-	Keys.onReturnPressed: continueClicked()
-
-	GText {
-		Layout.alignment: Qt.AlignHCenter
-		horizontalAlignment: Text.AlignHCenter
+	Heading {
 		text: header.text
-		textStyle: Style.text.headline
 		visible: subHeader.visible
 	}
 	AnimationLoader {
@@ -42,22 +35,20 @@ FlickableSectionPage {
 		type: {
 			switch (root.passwordType) {
 			case NumberModel.PasswordType.CAN:
-				return AnimationLoader.CAN;
+				return AnimationLoader.Type.CAN;
 			case NumberModel.PasswordType.PUK:
-				return AnimationLoader.PUK;
+				return AnimationLoader.Type.PUK;
 			case NumberModel.PasswordType.TRANSPORT_PIN:
-				return AnimationLoader.TRANSPORT_PIN;
+				return AnimationLoader.Type.TRANSPORT_PIN;
 			default:
-				return AnimationLoader.NONE;
+				return AnimationLoader.Type.NONE;
 			}
 		}
 	}
-	GText {
+	Heading {
 		id: header
 
-		Layout.alignment: Qt.AlignHCenter
 		Layout.bottomMargin: Style.dimens.pane_spacing
-		horizontalAlignment: Text.AlignHCenter
 		text: {
 			switch (root.passwordType) {
 			case NumberModel.PasswordType.CAN:
@@ -73,15 +64,13 @@ FlickableSectionPage {
 				return "";
 			}
 		}
-		textStyle: Style.text.headline
 		visible: !subHeader.visible
 	}
-	GText {
+	Subheading {
 		id: subHeader
 
 		//: LABEL ALL_PLATFORMS
 		text: qsTr("Now set your personal ID card PIN")
-		textStyle: Style.text.subline
 		visible: root.passwordType === NumberModel.PasswordType.TRANSPORT_PIN
 	}
 	GText {

@@ -124,7 +124,6 @@ ProgressView {
 			setPinWorkflowStateAndContinue(ChangePinController.WorkflowStates.Processing);
 			break;
 		case "FinalState":
-			showRemoveCardFeedback(ChangePinModel, false);
 			if (ChangePinModel.shouldSkipResultView()) {
 				ChangePinModel.continueWorkflow();
 				pop(root);
@@ -336,7 +335,7 @@ ProgressView {
 			progress: progressTracker
 
 			titleBarSettings: TitleBarSettings {
-				navigationAction: NavigationAction.Back
+				navigationAction: NavigationAction.Action.Back
 
 				onNavigationActionClicked: root.pop()
 			}
@@ -365,7 +364,7 @@ ProgressView {
 		id: cardPositionView
 
 		ResultView {
-			animation: AnimationLoader.NFC_RESULT
+			animation: AnimationLoader.Type.NFC_RESULT
 			animationSymbol: Symbol.Type.ERROR
 			progress: progressTracker
 			text: ChangePinModel.isRemoteReader ?
@@ -400,7 +399,7 @@ ProgressView {
 			title: root.title
 
 			titleBarSettings: TitleBarSettings {
-				navigationAction: NavigationAction.Close
+				navigationAction: NavigationAction.Action.Close
 
 				onNavigationActionClicked: pinResultView.leaveView()
 			}
@@ -432,7 +431,7 @@ ProgressView {
 	TitleBarSettings {
 		id: cancelNavigation
 
-		navigationAction: NavigationAction.Cancel
+		navigationAction: NavigationAction.Action.Cancel
 		navigationEnabled: ChangePinModel.isBasicReader
 
 		onNavigationActionClicked: {

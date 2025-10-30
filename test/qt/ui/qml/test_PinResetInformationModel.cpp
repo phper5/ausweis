@@ -6,6 +6,7 @@
 
 #include "Env.h"
 #include "ProviderConfiguration.h"
+#include "TestFileHelper.h"
 
 #include <QtTest>
 
@@ -22,7 +23,25 @@ class test_PinResetInformationModel
 {
 	Q_OBJECT
 
+	QTemporaryDir mTranslationDir;
+
 	private Q_SLOTS:
+		void initTestCase()
+		{
+			TestFileHelper::createTranslations(mTranslationDir.path());
+			LanguageLoader::getInstance().setPath(mTranslationDir.path());
+		}
+
+
+		void cleanup()
+		{
+			if (LanguageLoader::getInstance().isLoaded())
+			{
+				LanguageLoader::getInstance().unload();
+			}
+		}
+
+
 		void test_fireUpdateOnTranslationChanged()
 		{
 			auto pinResetInformationModel = Env::getSingleton<PinResetInformationModel>();
@@ -46,7 +65,17 @@ class test_PinResetInformationModel
 
 		void test_PinResetUrl()
 		{
-			QVERIFY(!Env::getSingleton<PinResetInformationModel>()->getPinResetUrl().isEmpty());
+			QCOMPARE(Env::getSingleton<PinResetInformationModel>()->getPinResetUrl(), QUrl(QStringLiteral("https://servicesuche.bund.de/#/en")));
+
+			auto* config = Env::getSingleton<ProviderConfiguration>();
+			config->parseProviderConfiguration(":/updatable-files/supported-providers_prs.json"_L1);
+			QCOMPARE(Env::getSingleton<PinResetInformationModel>()->getPinResetUrl(), QUrl(QStringLiteral("https://www.pin-ruecksetzbrief-bestellen.de/en")));
+
+			LanguageLoader::getInstance().load(QLocale::German);
+			QCOMPARE(Env::getSingleton<PinResetInformationModel>()->getPinResetUrl(), QUrl(QStringLiteral("https://www.pin-ruecksetzbrief-bestellen.de")));
+
+			config->parseProviderConfiguration(":/updatable-files/supported-providers_no-prs.json"_L1);
+			QCOMPARE(Env::getSingleton<PinResetInformationModel>()->getPinResetUrl(), QUrl(QStringLiteral("https://servicesuche.bund.de")));
 		}
 
 
@@ -58,7 +87,11 @@ class test_PinResetInformationModel
 
 		void test_AdministrativeSearchUrl()
 		{
-			QVERIFY(!Env::getSingleton<PinResetInformationModel>()->getAdministrativeSearchUrl().isEmpty());
+			QCOMPARE(Env::getSingleton<PinResetInformationModel>()->getAdministrativeSearchUrl(), QUrl(QStringLiteral("https://servicesuche.bund.de/#/en")));
+
+			LanguageLoader::getInstance().load(QLocale::German);
+			QCOMPARE(Env::getSingleton<PinResetInformationModel>()->getAdministrativeSearchUrl(), QUrl(QStringLiteral("https://servicesuche.bund.de")));
+
 		}
 
 

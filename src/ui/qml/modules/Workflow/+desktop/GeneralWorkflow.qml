@@ -26,14 +26,14 @@ SectionPage {
 	QtObject {
 		id: d
 
-		readonly property bool foundPCSCReader: ApplicationModel.availablePcscReader > 0 && ApplicationModel.isReaderTypeAvailable(ReaderManagerPluginType.PCSC)
-		readonly property bool foundRemoteReader: ApplicationModel.availableRemoteReader > 0 && ApplicationModel.isReaderTypeAvailable(ReaderManagerPluginType.REMOTE_IFD)
+		readonly property bool foundPCSCReader: ApplicationModel.availablePcscReader > 0 && (ApplicationModel.usedPluginType === ReaderManagerPluginType.UNKNOWN || ApplicationModel.usedPluginType === ReaderManagerPluginType.PCSC)
+		readonly property bool foundRemoteReader: ApplicationModel.availableRemoteReader > 0 && (ApplicationModel.usedPluginType === ReaderManagerPluginType.UNKNOWN || ApplicationModel.usedPluginType === ReaderManagerPluginType.REMOTE_IFD)
 		readonly property bool foundSelectedReader: foundPCSCReader || foundRemoteReader
 		readonly property bool showProgressIndicator: root.progress === null || !root.progress.enabled
 
-		onFoundPCSCReaderChanged: if (ApplicationModel.isScreenReaderRunning)
+		onFoundPCSCReaderChanged: if (root.visible && ApplicationModel.screenReaderRunning)
 			subText.forceActiveFocus()
-		onFoundRemoteReaderChanged: if (ApplicationModel.isScreenReaderRunning)
+		onFoundRemoteReaderChanged: if (root.visible && ApplicationModel.screenReaderRunning)
 			subText.forceActiveFocus()
 	}
 	Connections {
@@ -46,7 +46,7 @@ SectionPage {
 		target: RemoteServiceModel
 	}
 	ReaderDetection {
-		enabled: ApplicationModel.isScreenReaderRunning
+		enabled: ApplicationModel.screenReaderRunning
 
 		onNewPcscReaderDetected: root.push(readerFoundConfirmation, {
 			type: ReaderFoundConfirmation.ReaderType.PCSC
@@ -70,19 +70,19 @@ SectionPage {
 			switch (root.waitingFor) {
 			case Workflow.WaitingFor.Reader:
 				if (d.foundRemoteReader) {
-					return AnimationLoader.WAIT_FOR_CARD_SAC;
+					return AnimationLoader.Type.WAIT_FOR_CARD_SAC;
 				}
 				if (d.foundPCSCReader) {
-					return AnimationLoader.WAIT_FOR_CARD_USB;
+					return AnimationLoader.Type.WAIT_FOR_CARD_USB;
 				}
-				return AnimationLoader.WAIT_FOR_READER;
+				return AnimationLoader.Type.WAIT_FOR_READER;
 			case Workflow.WaitingFor.Password:
 				if (d.foundRemoteReader) {
-					return AnimationLoader.WAIT_FOR_SAC;
+					return AnimationLoader.Type.WAIT_FOR_SAC;
 				}
-				return AnimationLoader.WAIT_FOR_READER;
+				return AnimationLoader.Type.WAIT_FOR_READER;
 			default:
-				return AnimationLoader.NONE;
+				return AnimationLoader.Type.NONE;
 			}
 		}
 
@@ -114,10 +114,9 @@ SectionPage {
 			topMargin: 3 * Style.dimens.pane_spacing + Style.dimens.header_icon_size
 		}
 	}
-	GText {
+	Heading {
 		id: mainText
 
-		horizontalAlignment: Text.AlignHCenter
 		text: {
 			switch (root.waitingFor) {
 			case Workflow.WaitingFor.Reader:
@@ -140,7 +139,6 @@ SectionPage {
 				return "";
 			}
 		}
-		textStyle: Style.text.headline
 		visible: text !== ""
 		width: Math.min(parent.width - (2 * Style.dimens.pane_padding), Style.dimens.max_text_width)
 
@@ -211,7 +209,7 @@ SectionPage {
 			required property string deviceName
 
 			animationSymbol: Symbol.Type.ERROR
-			animationType: AnimationLoader.SAC_RESULT
+			animationType: AnimationLoader.Type.SAC_RESULT
 			//: INFO DESKTOP The paired devices was removed since it did not respond to connection attempts. It needs to be paired again if it should be used as card reader.
 			text: qsTr("The device \"%1\" was unpaired because it did not react to connection attempts. Pair the device again to use it as a card reader.").arg(deviceName)
 			title: root.title

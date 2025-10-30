@@ -13,6 +13,7 @@ PlatformStyle {
 	readonly property var currentTheme: UiPluginModel.highContrastEnabled ? highContrastTheme : UiPluginModel.darkModeEnabled ? darkTheme : defaultTheme
 	readonly property var dimens: currentTheme.dimens
 	readonly property var flickDeceleration: Style.is_layout_desktop ? 7500.0 : 1500.0
+	readonly property FontStyle font: fontStyles
 	readonly property double scrolling_speed: 7500.0
 	property bool software_renderer: false
 	readonly property var text: currentTheme.text
@@ -54,6 +55,10 @@ PlatformStyle {
 	}
 	TextStyles {
 		id: textStyles
+
+	}
+	FontStyle {
+		id: fontStyles
 
 	}
 }

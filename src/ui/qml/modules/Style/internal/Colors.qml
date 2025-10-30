@@ -25,7 +25,6 @@ QtObject {
 	required property ComponentColors linkTitle
 	required property CoreComponents pane
 	required property CoreComponents paneSublevel
-	required property color progressbar_text
 	required property ComponentColors remoteIndicator
 	property bool software_renderer: false
 	required property color success

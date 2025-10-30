@@ -43,6 +43,10 @@ class CommandLineParser(argparse.ArgumentParser):
 class QmlFileCache:
     def __init__(self, qml_dir):
         self.cache = dict()
+        self.qml_dir = qml_dir
+        if not self.qml_dir.endswith('/'):
+            self.qml_dir += '/'
+
         for path in self.collect_qml_files(qml_dir):
             with open(path, 'r', encoding='utf8') as fp:
                 self.cache[path] = [
@@ -78,7 +82,10 @@ class QmlFileCache:
         return 'pragma Singleton' in lines
 
     def unused_qml_files(self, exclude_filenames):
-        found_unused_file = False
+        def strip_basepath(path):
+            return file.split(self.qml_dir)[-1]
+
+        unused_files = []
         for file in self.cache.keys():
             filename, ext = os.path.splitext(os.path.split(file)[-1])
 
@@ -88,20 +95,20 @@ class QmlFileCache:
 
             if self.is_singleton(file):
                 if not self.in_cache(filename + '.'):
-                    print('QML singleton unused', file)
-                    found_unused_file = True
+                    print('QML singleton unused', strip_basepath(file))
+                    unused_files.append(strip_basepath(file))
             elif not self.in_cache(filename + ' {'):
-                print('QML file unused', file)
-                found_unused_file = True
+                print('QML file unused', strip_basepath(file))
+                unused_files.append(strip_basepath(file))
 
-        return found_unused_file
+        return unused_files
 
 
 class ResourceCache:
     def __init__(self, resources_dir):
         self.language_names = ['de', 'en', 'uk', 'ru']
         self.qrc_content = set()
-        self.found_duplicate = False
+        self.duplicate_files = []
         for qrc_file in self.collect_qrc_files(resources_dir):
             with open(qrc_file, 'r', encoding='utf8') as fp:
                 for line in [line.strip() for line in fp.read().splitlines()]:
@@ -110,10 +117,8 @@ class ResourceCache:
                         continue
 
                     if m.group(1) in self.qrc_content:
-                        self.found_duplicate = True
-                        print(
-                            'Duplicate QML resource in', qrc_file, m.group(1)
-                        )
+                        self.duplicate_files.append(m.group(1))
+                        print('Duplicate:', qrc_file, m.group(1))
 
                     self.qrc_content.add(m.group(1))
 
@@ -130,34 +135,34 @@ class ResourceCache:
         return len(self.qrc_content) == 0
 
     def resource_file_missing(self, resources_dir):
-        file_missing = False
+        missing_files = []
         for resource in self.qrc_content:
             if not os.path.exists(os.path.join(resources_dir, resource)):
-                print('QML resource is missing', resource)
-                file_missing = True
+                print('Missing:', resource)
+                missing_files.append(resource)
 
-        return file_missing
-
-    def has_duplicate(self):
-        return self.found_duplicate
+        return missing_files
 
     def resource_unused(self, qml_cache, excluded_resources):
-        resource_unused = False
+        unused_resources = []
         for line in sorted(self.qrc_content):
             if excluded_resources.is_excluded(line):
-                print('QML resource is excluded', line)
+                print('Skipping:', line)
+                continue
+
+            if qml_cache.in_cache(line):
                 continue
 
             if self.is_language_aware_resource(line):
                 language_filename = self.language_aware_filename(line)
                 if not qml_cache.in_cache(language_filename):
-                    print('Language aware QML resource is unused', line)
-                    resource_unused = True
-            elif not qml_cache.in_cache(line):
-                print('QML resource is unused', line)
-                resource_unused = True
+                    print('UNUSED language aware files:', line)
+                    unused_resources.append(line)
+            else:
+                print('UNUSED:', line)
+                unused_resources.append(line)
 
-        return resource_unused
+        return unused_resources
 
     def is_language_aware_resource(self, resource_file):
         return self.language_aware_filename(resource_file) is not None
@@ -192,6 +197,13 @@ class ExcludedResources:
 
 
 if __name__ == '__main__':
+
+    def print_if_not_empty(list_obj, message):
+        if len(list_obj):
+            print('\n%s' % message)
+            for line in list_obj:
+                print('  ', line)
+
     parser = CommandLineParser()
 
     qml_cache = QmlFileCache(parser.qml_module_dir())
@@ -201,14 +213,33 @@ if __name__ == '__main__':
 
     resource_cache = ResourceCache(parser.resources_dir())
     if resource_cache.is_empty():
-        print('Found no QML resources in', parser.resources_dir())
+        print('Found no resources in', parser.resources_dir())
         exit(1)
 
     excluded_resources = ExcludedResources(parser.exclude_resources())
 
-    has_error = qml_cache.unused_qml_files(parser.exclude_filenames())
-    has_error |= resource_cache.resource_file_missing(parser.resources_dir())
-    has_error |= resource_cache.has_duplicate()
-    has_error |= resource_cache.resource_unused(qml_cache, excluded_resources)
+    unused_qml_files = qml_cache.unused_qml_files(parser.exclude_filenames())
+    missing_resource_files = resource_cache.resource_file_missing(
+        parser.resources_dir()
+    )
+    duplicate_files = resource_cache.duplicate_files
+    unused_resources = resource_cache.resource_unused(
+        qml_cache, excluded_resources
+    )
 
-    exit(has_error)
+    if any(
+        [
+            len(unused_qml_files),
+            len(missing_resource_files),
+            len(duplicate_files),
+            len(unused_resources),
+        ]
+    ):
+        print('\n')
+        print_if_not_empty(unused_qml_files, 'Unused QML file(s):')
+        print_if_not_empty(missing_resource_files, 'Resource file(s) missing:')
+        print_if_not_empty(duplicate_files, 'Duplicated resources:')
+        print_if_not_empty(unused_resources, 'Unused resources:')
+        exit(1)
+    else:
+        exit(0)

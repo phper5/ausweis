@@ -49,7 +49,7 @@ Popup {
 
 	anchors.centerIn: parent
 	bottomMargin: parent ? 0.125 * parent.height : 0
-	closePolicy: Popup.CloseOnPressOutside | Popup.CloseOnEscape
+	closePolicy: Popup.CloseOnPressOutside
 	focus: true
 	leftMargin: parent ? 0.125 * parent.width : 0
 	modal: true
@@ -83,13 +83,13 @@ Popup {
 		RowLayout {
 			visible: root.title !== "" || root.showCloseButton
 
-			GText {
+			Heading {
+				Layout.alignment: Qt.AlignVCenter | Qt.AlignLeft
 				elide: Text.ElideRight
 				focus: true
 				horizontalAlignment: root.horizontalTextAlignment
 				maximumLineCount: 5
 				text: root.title
-				textStyle: Style.text.headline
 				visible: root.title !== ""
 			}
 			GSpacer {
@@ -112,19 +112,12 @@ Popup {
 		GText {
 			id: mainText
 
-			Layout.maximumWidth: Number.POSITIVE_INFINITY
-			Layout.preferredWidth: Math.ceil(hiddenText.implicitWidth)
+			// Layout.maximumWidth is only required for desktop as long as the minimum Qt version is <= 6.8.1
+			Layout.maximumWidth: Style.is_layout_desktop ? Number.POSITIVE_INFINITY : Math.ceil(implicitWidth)
 			horizontalAlignment: root.horizontalTextAlignment
 			text: root.text
 			textFormat: Text.RichText
 			visible: root.text !== ""
-
-			GText {
-				id: hiddenText
-
-				text: root.text
-				visible: false
-			}
 		}
 		Item {
 			id: customContent

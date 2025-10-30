@@ -171,35 +171,6 @@ ResponseApduResult PcscCard::transmit(const CommandApdu& pCmd)
 		return {CardReturnCode::COMMAND_FAILED};
 	}
 
-	ResponseApdu tempResponse(data.mResponse);
-
-	if (tempResponse.getSW1() == SW1::WRONG_LE_FIELD)
-	{
-		qCDebug(card_pcsc) << "got SW1 == 0x6C, retransmitting with new Le:" << tempResponse.getSW2();
-		CommandApdu retransmitCommand(pCmd.getHeaderBytes(), pCmd.getData(), tempResponse.getSW2());
-		data = transmit(QByteArray(retransmitCommand));
-		if (data.mReturnCode != pcsc::Scard_S_Success)
-		{
-			return {CardReturnCode::COMMAND_FAILED};
-		}
-	}
-
-	while (tempResponse.getSW1() == SW1::MORE_DATA_AVAILABLE)
-	{
-		qCDebug(card_pcsc) << "got SW1 == 0x61, getting response with Le:" << tempResponse.getSW2();
-		CommandApdu getResponseCommand(Ins::GET_RESPONSE, 0, 0, QByteArray(), tempResponse.getSW2());
-		CardResult tmpData = transmit(QByteArray(getResponseCommand));
-		if (data.mReturnCode != pcsc::Scard_S_Success)
-		{
-			return {CardReturnCode::COMMAND_FAILED};
-		}
-
-		tempResponse = ResponseApdu(tmpData.mResponse);
-		// cut off sw1 and sw2
-		data.mResponse.resize(data.mResponse.size() - 2);
-		data.mResponse += tmpData.mResponse;
-	}
-
 	return {CardReturnCode::OK, ResponseApdu(data.mResponse)};
 }
 

@@ -26,3 +26,21 @@ qreal UiPluginQml::getSystemFontScaleFactor() const
 {
 	return 1.0;
 }
+
+
+int UiPluginQml::getSystemFontWeightAdjustment() const
+{
+	return 0;
+}
+
+
+bool UiPluginQml::getA11yButtonShapeActive() const
+{
+	return false;
+}
+
+
+bool UiPluginQml::getA11yOnOffSwitchLabelActive() const
+{
+	return false;
+}

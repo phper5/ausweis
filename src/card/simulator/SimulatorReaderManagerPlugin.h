@@ -21,19 +21,21 @@ class SimulatorReaderManagerPlugin
 	Q_INTERFACES(governikus::ReaderManagerPlugin)
 
 	private:
-		QScopedPointer<SimulatorReader> mSimulatorReader;
+		QScopedPointer<SimulatorReader> mReader;
 
 	public:
 		SimulatorReaderManagerPlugin();
 
-		[[nodiscard]] QList<Reader*> getReaders() const override;
+		[[nodiscard]] QPointer<Reader> getReader(const QString& pReaderName) const override;
 
 		void init() override;
 
 		void startScan(bool pAutoConnect) override;
-		void stopScan(const QString& pError = QString()) override;
+		void stopScan(const QString& pError) override;
 
 		void insert(const QString& pReaderName, const QVariant& pData) override;
+
+		void shelveAll() const override;
 
 	private Q_SLOTS:
 		void onSettingsChanged();

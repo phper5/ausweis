@@ -7,24 +7,25 @@ pragma ComponentBehavior: Bound
 import QtQuick.Layouts
 
 import Governikus.Global
-import Governikus.Style
+import Governikus.Type
 
-GridLayout {
+RowLayout {
 	id: root
 
-	signal buttonClicked
-
-	columnSpacing: Style.dimens.pane_spacing
-	rowSpacing: Style.dimens.pane_spacing
+	spacing: 0
 
 	GRepeater {
 		id: repeater
 
-		delegate: LocationButton {
-			Layout.fillWidth: true
-			Layout.preferredWidth: Style.is_layout_desktop ? repeater.maxItemWidth : -1
+		delegate: GRadioButton {
+			required property int index
+			required property string value
 
-			onClicked: root.buttonClicked()
+			checked: SettingsModel.language === value
+			position: getPosition(index, repeater.count)
+			tintIcon: false
+
+			onToggled: SettingsModel.language = value
 		}
 		model: LanguageButtonData {
 		}

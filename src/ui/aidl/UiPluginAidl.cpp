@@ -189,15 +189,6 @@ JNIEXPORT jstring JNICALL Java_com_governikus_ausweisapp2_AidlBinder_resetValidS
 }
 
 
-JNIEXPORT jboolean JNICALL Java_com_governikus_ausweisapp2_AidlBinder_isSecureRandomPsk(JNIEnv* pEnv, jobject pObj)
-{
-	Q_UNUSED(pEnv)
-	Q_UNUSED(pObj)
-
-	return Randomizer::getInstance().isSecureRandom();
-}
-
-
 JNIEXPORT jboolean JNICALL Java_com_governikus_ausweisapp2_AidlBinder_startReaderManagerScans(JNIEnv* pEnv, jobject pObj)
 {
 	Q_UNUSED(pEnv)

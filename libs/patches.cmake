@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.19.0)
+cmake_minimum_required(VERSION 3.25)
 
 # How to use
 #
@@ -6,14 +6,14 @@ cmake_minimum_required(VERSION 3.19.0)
 # REPOSITORY_DIR as environment variable.
 #
 # - Apply existing patches
-# $ cmake -DCMD=apply -P libs/patches.cmake
+# $ cmake -P libs/patches.cmake apply
 # 1. This will clone all repositores to REPOSITORY_DIR.
 # 2. Checkout git tag from Versions.cmake to a new ausweisap_ branch.
 #    It will delete that branch if it exist.
 # 3. Apply all patches to the new branch.
 #
 # - Generate patches from repositories
-# $ cmake -DCMD=generate -P libs/patches.cmake
+# $ cmake -P libs/patches.cmake generate
 # 1. All existing patches in "patches" directory will be deleted.
 # 2. Branch of current Version on all repositories in REPOSITORY_DIR will be scanned.
 # 3. All changesets from the latest tag will be exported to "patches" dir.
@@ -31,8 +31,28 @@ cmake_minimum_required(VERSION 3.19.0)
 # 4. git checkout -b ausweisapp_6.6.0
 # 5. Bump version in Versions.cmake and use this script to generate the patches.
 
-if(NOT CMAKE_SCRIPT_MODE_FILE OR NOT CMD)
-	message(FATAL_ERROR "Usage: cmake -DCMD=apply|generate -P libs/patches.cmake")
+function(GET_PARAMS _params)
+	foreach(_arg RANGE ${CMAKE_ARGC})
+		if("${CMAKE_ARGV${_arg}}" STREQUAL "-P")
+			math(EXPR delimiter "${_arg}+2")
+			break()
+		endif()
+	endforeach()
+
+	if(DEFINED delimiter)
+		foreach(_arg RANGE ${delimiter} ${CMAKE_ARGC})
+			list(APPEND param ${CMAKE_ARGV${_arg}})
+		endforeach()
+		set(${_params} "${param}" PARENT_SCOPE)
+	endif()
+endfunction()
+
+GET_PARAMS(parameter)
+set(options apply generate)
+cmake_parse_arguments(_PARAM "${options}" "${oneValueArgs}" "${multiValueArgs}" ${parameter})
+
+if(NOT CMAKE_SCRIPT_MODE_FILE OR _PARAM_UNPARSED_ARGUMENTS)
+	message(FATAL_ERROR "Usage: cmake -P libs/patches.cmake apply|generate")
 endif()
 
 find_package(Git REQUIRED)
@@ -67,12 +87,31 @@ function(execute)
 endfunction()
 
 function(git_clone prefix)
-	if(NOT EXISTS "${REPOSITORY_DIR}/${prefix}")
+	set(REPOSITORY_PATH "${REPOSITORY_DIR}/${prefix}")
+	if(NOT EXISTS "${REPOSITORY_PATH}/.git")
 		message(STATUS "Repository not found: ${prefix}")
+		if(EXISTS "${REPOSITORY_PATH}")
+			message(STATUS "Folder exists and will be removed: ${prefix}")
+			file(REMOVE_RECURSE "${REPOSITORY_PATH}")
+		endif()
+
 		if(prefix STREQUAL "openssl")
 			execute(clone "https://github.com/openssl/openssl" "${prefix}")
 		elseif(prefix MATCHES "qt")
+			set(QT_GIT_HOOKS_URL "https://code.qt.io/cgit/qt/qtrepotools.git/plain/git-hooks")
 			execute(clone "https://code.qt.io/qt/${prefix}.git" "${prefix}")
+			execute_dir(${prefix} remote add gerrit "ssh://codereview.qt-project.org/qt/${prefix}")
+			file(DOWNLOAD "${QT_GIT_HOOKS_URL}/gerrit_commit_msg_hook" "${REPOSITORY_PATH}/.git/hooks/commit-msg")
+			file(DOWNLOAD "${QT_GIT_HOOKS_URL}/git_post_commit_hook" "${REPOSITORY_PATH}/.git/hooks/post-commit")
+			file(DOWNLOAD "${QT_GIT_HOOKS_URL}/sanitize-commit" "${REPOSITORY_PATH}/.git/hooks/sanitize-commit")
+			file(DOWNLOAD "${QT_GIT_HOOKS_URL}/clang-format-pre-commit" "${REPOSITORY_PATH}/.git/hooks/pre-commit")
+			file(CHMOD
+				"${REPOSITORY_PATH}/.git/hooks/commit-msg"
+				"${REPOSITORY_PATH}/.git/hooks/post-commit"
+				"${REPOSITORY_PATH}/.git/hooks/sanitize-commit"
+				"${REPOSITORY_PATH}/.git/hooks/pre-commit"
+				PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
+			)
 		endif()
 	endif()
 endfunction()
@@ -192,6 +231,10 @@ function(generate_patches)
 	foreach(prefix ${prefixes})
 		file(GLOB REPOS "${REPOSITORY_DIR}/${prefix}*")
 		foreach(repo ${REPOS})
+			if(NOT EXISTS "${repo}/.git")
+				message(STATUS "Not a repository: ${repo}")
+				continue()
+			endif()
 			get_filename_component(dirname "${repo}" NAME)
 			get_version_branch("${prefix}" version tmp_branch)
 			execute_process(COMMAND ${GIT_EXECUTABLE} checkout -q ${tmp_branch} WORKING_DIRECTORY ${repo} OUTPUT_QUIET ERROR_QUIET)
@@ -216,13 +259,12 @@ function(generate_patches)
 endfunction()
 
 
-
-if(CMD STREQUAL "generate")
-	message(STATUS "Generate patches!")
-	generate_patches()
-elseif(CMD STREQUAL "apply")
+if(_PARAM_apply)
 	message(STATUS "Apply patches!")
 	apply_patches()
-else()
-	message(FATAL_ERROR "Unknown CMD: ${CMD}")
+endif()
+
+if(_PARAM_generate)
+	message(STATUS "Generate patches!")
+	generate_patches()
 endif()

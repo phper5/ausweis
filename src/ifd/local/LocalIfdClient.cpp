@@ -43,7 +43,7 @@ LocalIfdClient::LocalIfdClient()
 {
 	Discovery discovery(QStringLiteral("LocalIfdClient"), QByteArray("LocalIfdClient"), PortFile::cDefaultPort, {IfdVersion::supported()});
 	discovery.setAddresses({QHostAddress::LocalHostIPv6});
-	mDevice.reset(new IfdListEntry(IfdDescriptor(discovery, true)));
+	mDevice.reset(new IfdListEntry(discovery));
 }
 
 

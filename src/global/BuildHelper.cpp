@@ -13,9 +13,6 @@
 	#include <QJniEnvironment>
 #endif
 
-#ifdef Q_OS_IOS
-	#include <QOperatingSystemVersion>
-#endif
 #include <QSysInfo>
 #include <openssl/crypto.h>
 
@@ -152,29 +149,12 @@ QByteArrayList BuildHelper::getAppCertificates(const QString& pPackageName)
 
 #endif
 
-QString getSystemName()
+QList<std::pair<QLatin1String, QString>> BuildHelper::getInformationHeader()
 {
-#ifdef Q_OS_IOS
-	const auto& osVersion = QOperatingSystemVersion::current();
-	return QStringLiteral("%1 (%2.%3.%4)").arg(
-			osVersion.name()).arg(
-			osVersion.majorVersion()).arg(
-			osVersion.minorVersion()).arg(
-			osVersion.microVersion());
-
-#else
-	return QSysInfo::prettyProductName();
-
-#endif
-}
-
-
-QList<QPair<QLatin1String, QString>> BuildHelper::getInformationHeader()
-{
-	QList<QPair<QLatin1String, QString>> data;
+	QList<std::pair<QLatin1String, QString>> data;
 	const auto& add = [&data](const char* pKey, const QString& pStr)
 			{
-				data << qMakePair(QLatin1String(pKey), pStr);
+				data << std::make_pair(QLatin1String(pKey), pStr);
 			};
 
 	add(QT_TR_NOOP("Application"), QCoreApplication::applicationName());
@@ -182,7 +162,7 @@ QList<QPair<QLatin1String, QString>> BuildHelper::getInformationHeader()
 	add(QT_TR_NOOP("Organization"), QCoreApplication::organizationName());
 	add(QT_TR_NOOP("Organization Domain"), QCoreApplication::organizationDomain());
 
-	add(QT_TR_NOOP("System"), getSystemName());
+	add(QT_TR_NOOP("System"), QSysInfo::prettyProductName());
 	add(QT_TR_NOOP("Kernel"), QSysInfo::kernelVersion());
 
 	QString architecture = QSysInfo::currentCpuArchitecture();

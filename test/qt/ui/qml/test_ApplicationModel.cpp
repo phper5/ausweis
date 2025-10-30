@@ -5,6 +5,8 @@
 #include "ApplicationModel.h"
 
 #include "MockIfdServer.h"
+#include "MockReaderManagerPlugin.h"
+#include "ReaderManager.h"
 #include "context/AuthContext.h"
 #include "context/ChangePinContext.h"
 #include "context/IfdServiceContext.h"
@@ -17,12 +19,37 @@
 
 using namespace governikus;
 
+Q_IMPORT_PLUGIN(MockReaderManagerPlugin)
+
 class test_ApplicationModel
 	: public QObject
 {
 	Q_OBJECT
 
 	private Q_SLOTS:
+		void initTestCase()
+		{
+			QThread::currentThread()->setObjectName(QStringLiteral("MainThread"));
+
+			auto* readerManager = Env::getSingleton<ReaderManager>();
+			QSignalSpy spy(readerManager, &ReaderManager::fireInitialized);
+			readerManager->init();
+			QTRY_COMPARE(spy.count(), 1); // clazy:exclude=qstring-allocations
+		}
+
+
+		void cleanupTestCase()
+		{
+			Env::getSingleton<ReaderManager>()->shutdown();
+		}
+
+
+		void cleanup()
+		{
+			MockReaderManagerPlugin::getInstance().removeAllReader();
+		}
+
+
 		void test_getFeedbackTimeout()
 		{
 			QCOMPARE(ApplicationModel::getFeedbackTimeout(), 7000);
@@ -77,6 +104,45 @@ class test_ApplicationModel
 			auto model = Env::getSingleton<ApplicationModel>();
 			model->resetContext(context);
 			QCOMPARE(model->getCurrentWorkflow(), workflow);
+		}
+
+
+		void test_usedPluginType_data()
+		{
+			QTest::addColumn<QString>("usedReader");
+			QTest::addColumn<QString>("readerName");
+			QTest::addColumn<ReaderManagerPluginType>("readerType");
+			QTest::addColumn<ReaderManagerPluginType>("usedPluginType");
+
+			QTest::addRow("No used reader - PCSC") << "" << "PcscReader" << ReaderManagerPluginType::PCSC << ReaderManagerPluginType::UNKNOWN;
+			QTest::addRow("No used reader - Remote") << "" << "RemoteReader" << ReaderManagerPluginType::REMOTE_IFD << ReaderManagerPluginType::UNKNOWN;
+
+			QTest::addRow("PCSC") << "PcscReader" << "PcscReader" << ReaderManagerPluginType::PCSC << ReaderManagerPluginType::PCSC;
+			QTest::addRow("Remote") << "RemoteReader" << "RemoteReader" << ReaderManagerPluginType::REMOTE_IFD << ReaderManagerPluginType::REMOTE_IFD;
+
+			QTest::addRow("Other Reader 1") << "RemoteReader" << "PcscReader" << ReaderManagerPluginType::PCSC << ReaderManagerPluginType::UNKNOWN;
+			QTest::addRow("Other Reader 2") << "PcscReader" << "RemoteReader" << ReaderManagerPluginType::REMOTE_IFD << ReaderManagerPluginType::UNKNOWN;
+		}
+
+
+		void test_usedPluginType()
+		{
+			QFETCH(QString, usedReader);
+			QFETCH(QString, readerName);
+			QFETCH(ReaderManagerPluginType, readerType);
+			QFETCH(ReaderManagerPluginType, usedPluginType);
+
+			QSharedPointer<WorkflowContext> context(new AuthContext());
+			context->setReaderName(usedReader);
+			if (!readerName.isEmpty())
+			{
+				MockReaderManagerPlugin::getInstance().addReader(readerName, readerType);
+			}
+
+			const auto model = Env::getSingleton<ApplicationModel>();
+			model->resetContext(context);
+
+			QCOMPARE(model->getUsedPluginType(), usedPluginType);
 		}
 
 

@@ -26,21 +26,21 @@ IfdListImpl::~IfdListImpl()
 }
 
 
-void IfdListImpl::update(const IfdDescriptor& pDescriptor)
+void IfdListImpl::update(const Discovery& pDiscovery)
 {
 	for (const QSharedPointer<IfdListEntry>& entry : std::as_const(mResponsiveList))
 	{
-		if (entry->containsEquivalent(pDescriptor))
+		if (entry->containsIfdId(pDiscovery.getIfdId()))
 		{
 			entry->setLastSeenToNow();
-			entry->setIfdDescriptor(pDescriptor);
+			entry->setDiscovery(pDiscovery);
 			Q_EMIT fireDeviceUpdated(entry);
 
 			return;
 		}
 	}
 
-	const auto& newDevice = QSharedPointer<IfdListEntry>::create(pDescriptor);
+	const auto& newDevice = QSharedPointer<IfdListEntry>::create(pDiscovery);
 	mResponsiveList += newDevice;
 
 	if (!mTimer.isActive())
@@ -72,22 +72,19 @@ QList<QSharedPointer<IfdListEntry>> IfdListImpl::getIfdList() const
 void IfdListImpl::onProcessUnresponsiveRemoteReaders()
 {
 	const QTime threshold(QTime::currentTime().addMSecs(-mReaderResponsiveTimeout));
-	QMutableListIterator i(mResponsiveList);
-	while (i.hasNext())
-	{
-		const QSharedPointer<IfdListEntry> entry = i.next();
-		if (entry->getLastSeen() < threshold)
-		{
-			i.remove();
-			Q_EMIT fireDeviceVanished(entry);
-			continue;
-		}
 
-		if (entry->cleanUpSeenTimestamps(mReaderResponsiveTimeout))
-		{
-			Q_EMIT fireDeviceUpdated(entry);
-		}
-	}
+	erase_if(mResponsiveList, [this, &threshold](const auto& pEntry) {
+				if (pEntry->getLastSeen() < threshold)
+				{
+					Q_EMIT fireDeviceVanished(pEntry);
+					return true;
+				}
+				if (pEntry->cleanUpSeenTimestamps(mReaderResponsiveTimeout))
+				{
+					Q_EMIT fireDeviceUpdated(pEntry);
+				}
+				return false;
+			});
 
 	if (mResponsiveList.isEmpty())
 	{

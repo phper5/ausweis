@@ -21,9 +21,6 @@ FlickableSectionPage {
 	fillWidth: true
 	spacing: Style.dimens.pane_spacing
 
-	Keys.onEnterPressed: confirmButton.clicked()
-	Keys.onReturnPressed: confirmButton.clicked()
-
 	RowLayout {
 		Layout.alignment: Qt.AlignHCenter
 		Layout.maximumWidth: Style.dimens.max_text_width * 1.2
@@ -170,7 +167,7 @@ FlickableSectionPage {
 
 		CertificateDescriptionPage {
 			titleBarSettings: TitleBarSettings {
-				navigationAction: NavigationAction.Back
+				navigationAction: NavigationAction.Action.Back
 
 				onNavigationActionClicked: root.pop()
 			}

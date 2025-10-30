@@ -76,7 +76,7 @@ BaseOnboardingView {
 			usedInOnboarding: true
 
 			navigationAction: NavigationAction {
-				action: NavigationAction.Back
+				action: NavigationAction.Action.Back
 
 				onClicked: root.leaveView()
 			}
@@ -152,17 +152,15 @@ BaseOnboardingView {
 			}
 		}
 	}
-	GText {
-		Layout.alignment: Text.AlignHCenter
+	Heading {
 		//: LABEL IOS ANDROID
 		text: qsTr("Read ID card")
-		textStyle: Style.text.headline
 	}
 	AnimationLoader {
 		Layout.alignment: Qt.AlignHCenter
 		animated: false
 		symbol: Symbol.Type.QUESTION
-		type: AnimationLoader.WAIT_FOR_CARD_SAC
+		type: AnimationLoader.Type.WAIT_FOR_CARD_SAC
 	}
 	GText {
 		id: subText

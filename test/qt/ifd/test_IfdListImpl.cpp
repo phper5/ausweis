@@ -32,50 +32,45 @@ class test_IfdListImpl
 			{
 				auto discovery = offerMsg1;
 				discovery.setAddresses({addr1});
-				const IfdDescriptor descr(discovery);
 
 				QSignalSpy spy(&deviceList, &IfdListImpl::fireDeviceAppeared);
-				deviceList.update(descr);
+				deviceList.update(discovery);
 				QCOMPARE(spy.count(), 1);
 			}
 
 			{
 				auto discovery = offerMsg1;
 				discovery.setAddresses({addr1});
-				const IfdDescriptor descr(discovery);
 
 				QSignalSpy spy(&deviceList, &IfdListImpl::fireDeviceAppeared);
-				deviceList.update(descr);
+				deviceList.update(discovery);
 				QCOMPARE(spy.count(), 0);
 			}
 
 			{
 				auto discovery = offerMsg1;
 				discovery.setAddresses({addr2});
-				const IfdDescriptor descr(discovery);
 
 				QSignalSpy spy(&deviceList, &IfdListImpl::fireDeviceAppeared);
-				deviceList.update(descr);
+				deviceList.update(discovery);
 				QCOMPARE(spy.count(), 0);
 			}
 
 			{
 				auto discovery = offerMsg2;
 				discovery.setAddresses({addr2});
-				const IfdDescriptor descr(discovery);
 
 				QSignalSpy spy(&deviceList, &IfdListImpl::fireDeviceAppeared);
-				deviceList.update(descr);
+				deviceList.update(discovery);
 				QCOMPARE(spy.count(), 1);
 			}
 
 			{
 				auto discovery = offerMsg2;
 				discovery.setAddresses({addr1});
-				const IfdDescriptor descr(discovery);
 
 				QSignalSpy spy(&deviceList, &IfdListImpl::fireDeviceAppeared);
-				deviceList.update(descr);
+				deviceList.update(discovery);
 				QCOMPARE(spy.count(), 0);
 			}
 

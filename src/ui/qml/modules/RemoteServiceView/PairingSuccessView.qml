@@ -11,7 +11,7 @@ ResultView {
 	required property string deviceName
 
 	animationSymbol: Symbol.Type.CHECK
-	animationType: AnimationLoader.SAC_CONNECTION
+	animationType: AnimationLoader.Type.SAC_CONNECTION
 	//: LABEL ALL_PLATFORMS
 	header: qsTr("Pairing successful")
 	//: LABEL ALL_PLATFORMS

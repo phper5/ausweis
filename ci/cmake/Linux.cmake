@@ -1,4 +1,4 @@
-block(PROPAGATE GOVERNIKUS_QT)
+block(PROPAGATE LIBS_GOVERNIKUS)
 	include(Libraries)
 endblock()
 
@@ -17,7 +17,7 @@ step(${T_BUILD})
 step(${T_CTEST} ENV QT_PLUGIN_PATH=${WORKSPACE}/libs/dist/plugins QML2_IMPORT_PATH=${WORKSPACE}/libs/dist/qml)
 step(${CMAKE_COMMAND} --install ${T_BUILD_DIR} ENV DESTDIR=${WORKSPACE}/install)
 
-if(GOVERNIKUS_QT)
+if(LIBS_GOVERNIKUS)
 	step(${T_TARGET} gcovr)
 endif()
 

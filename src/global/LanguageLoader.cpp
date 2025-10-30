@@ -47,12 +47,6 @@ const QLocale& LanguageLoader::getDefaultLanguage()
 }
 
 
-void LanguageLoader::setDefaultLanguage(const QLocale& pLocale)
-{
-	mDefaultLanguage = pLocale;
-}
-
-
 QString LanguageLoader::getLocaleCode(const QLocale& pLocale)
 {
 	return pLocale.bcp47Name().left(2);

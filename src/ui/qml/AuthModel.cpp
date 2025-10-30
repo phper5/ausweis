@@ -25,6 +25,7 @@ void AuthModel::resetAuthContext(const QSharedPointer<AuthContext>& pContext)
 		connect(mContext.data(), &AuthContext::fireShowChangePinViewChanged, this, &AuthModel::fireChangeTransportPinChanged);
 		connect(mContext.data(), &AuthContext::fireDidAuthenticateEac1Changed, this, &AuthModel::onDidAuthenticateEac1Changed);
 		connect(mContext.data(), &AuthContext::fireProgressChanged, this, &AuthModel::fireProgressChanged);
+		connect(mContext.data(), &AuthContext::fireRefreshUrlChanged, this, &AuthModel::fireRefreshUrlChanged);
 	}
 
 	if (!mTransactionInfo.isEmpty())
@@ -213,4 +214,14 @@ void AuthModel::onDidAuthenticateEac1Changed()
 			Q_EMIT fireTransactionInfoChanged();
 		}
 	}
+}
+
+
+QUrl AuthModel::getRefreshUrl() const
+{
+	if (mContext)
+	{
+		return mContext->getRefreshUrl();
+	}
+	return QUrl();
 }

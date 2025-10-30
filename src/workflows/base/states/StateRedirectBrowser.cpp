@@ -36,8 +36,10 @@ StateRedirectBrowser::StateRedirectBrowser(const QSharedPointer<WorkflowContext>
 }
 
 
-void StateRedirectBrowser::run()
+void StateRedirectBrowser::onEntry(QEvent* pEvent)
 {
+	AbstractState::onEntry(pEvent);
+
 	const auto& context = getContext();
 	if (const auto& url = context->getRefreshUrl(); url.isValid())
 	{
@@ -71,6 +73,12 @@ void StateRedirectBrowser::run()
 			qDebug() << "TcToken is missing";
 		}
 	}
+}
+
+
+void StateRedirectBrowser::run()
+{
+	const auto& context = getContext();
 
 	if (const auto& handler = context->getBrowserHandler(); handler)
 	{

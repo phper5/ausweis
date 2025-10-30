@@ -13,7 +13,7 @@ import Governikus.Style
 StackView {
 	id: root
 
-	readonly property bool animationEnabled: !ApplicationModel.isScreenReaderRunning && SettingsModel.useAnimations
+	readonly property bool animationEnabled: !ApplicationModel.screenReaderRunning && SettingsModel.useAnimations
 
 	function doActivate() {
 		if (visible && currentItem && (currentItem as BaseController)) {

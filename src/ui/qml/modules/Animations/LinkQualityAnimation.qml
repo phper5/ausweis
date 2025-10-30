@@ -17,6 +17,12 @@ Item {
 	property var percent
 	property int size: Style.dimens.icon_size
 
+	Accessible.name: inactive ?
+	//: INFO ALL_PLATFORMS
+	qsTr("Link quality unavailable.") :
+	//: INFO ALL_PLATFORMS %1 is replaced with a number between 0 and 100
+	qsTr("%1% link quality.").arg(percent)
+	Accessible.role: Accessible.StaticText
 	implicitHeight: size
 	implicitWidth: size
 

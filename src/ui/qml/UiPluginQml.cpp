@@ -28,12 +28,6 @@
 #include "context/ChangePinContext.h"
 #include "context/SelfAuthContext.h"
 
-#ifdef USE_CUSTOM_REGISTRATION
-	#include "DiagnosisModel.h"
-	#include "SectionModel.h"
-#endif
-
-
 #if __has_include("context/PersonalizationContext.h")
 	#include "context/PersonalizationContext.h"
 #endif
@@ -63,12 +57,8 @@
 #include <QQuickStyle>
 #include <QScopeGuard>
 #include <QScreen>
-#if (QT_VERSION >= QT_VERSION_CHECK(6, 5, 0))
-	#include <QStyleHints>
-#endif
-#if (QT_VERSION >= QT_VERSION_CHECK(6, 8, 0))
-	#include <QSvgRenderer>
-#endif
+#include <QStyleHints>
+#include <QSvgRenderer>
 #include <QtPlugin>
 #include <QtQml>
 
@@ -102,13 +92,14 @@ UiPluginQml::UiPluginQml()
 	, mShowFocusIndicator(false)
 	, mScaleFactor(1.0)
 	, mFontScaleFactor(getSystemFontScaleFactor())
+	, mFontWeightAdjustment(getSystemFontWeightAdjustment())
+	, mA11yButtonShapeActive(getA11yButtonShapeActive())
+	, mA11yOnOffSwitchLabelActive(getA11yOnOffSwitchLabelActive())
 #ifdef Q_OS_IOS
 	, mPrivate(new Private())
 #endif
 {
-#if (QT_VERSION >= QT_VERSION_CHECK(6, 8, 0))
 	QSvgRenderer::setDefaultOptions(QtSvg::AssumeTrustedSource);
-#endif
 
 	Env::getSingleton<VolatileSettings>()->setUsedAsSDK(false);
 
@@ -129,27 +120,26 @@ UiPluginQml::UiPluginQml()
 	connect(this, &UiPluginQml::fireAppConfigChanged, this, &UiPluginQml::onAppConfigChanged);
 	onAppConfigChanged();
 
+	connect(Env::getSingleton<ReaderManager>(), &ReaderManager::fireStatusChanged, this, &UiPluginQml::onReaderStatusChanged);
+
 	qApp->installEventFilter(this);
 }
 
 
-void UiPluginQml::registerQmlTypes()
+int UiPluginQml::getFontWeightAdjustment() const
 {
-#ifdef USE_CUSTOM_REGISTRATION
-	constexpr const char* cModuleName = "Governikus.Type";
-	qmlRegisterModule(cModuleName, 1, 0);
+	return mFontWeightAdjustment;
+}
 
-	qmlRegisterUncreatableMetaObject(EnumUiModule::staticMetaObject, cModuleName, 1, 0, "UiModule", QStringLiteral("Not creatable as it is an enum type"));
-	qmlRegisterUncreatableMetaObject(EnumReaderManagerPluginType::staticMetaObject, cModuleName, 1, 0, "ReaderManagerPluginType", QStringLiteral("Not creatable as it is an enum type"));
-	qmlRegisterUncreatableMetaObject(EnumCardReturnCode::staticMetaObject, cModuleName, 1, 0, "CardReturnCode", QStringLiteral("Not creatable as it is an enum type"));
-	qmlRegisterUncreatableMetaObject(EnumGAnimation::staticMetaObject, cModuleName, 1, 0, "GAnimation", QStringLiteral("Not creatable as it is an enum type"));
-	qmlRegisterUncreatableMetaObject(EnumGlobalStatusCode::staticMetaObject, cModuleName, 1, 0, "GlobalStatusCode", QStringLiteral("Not creatable as it is an enum type"));
 
-	#if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
-	qmlRegisterType<DiagnosisModel>(cModuleName, 1, 0, "DiagnosisModel");
-	qmlRegisterType<SectionModel>(cModuleName, 1, 0, "SectionModel");
-	#endif
-#endif
+void UiPluginQml::setFontWeightAdjustment(int pFontWeightAdjustment)
+{
+	if (pFontWeightAdjustment != mFontWeightAdjustment)
+	{
+		qCDebug(qml) << "System font weight adjustment has changed";
+		mFontWeightAdjustment = pFontWeightAdjustment;
+		Q_EMIT fireFontWeightAdjustmentChanged();
+	}
 }
 
 
@@ -185,18 +175,11 @@ void UiPluginQml::init()
 	connect(mEngine.data(), &QQmlApplicationEngine::warnings, this, &UiPluginQml::onQmlWarnings, Qt::QueuedConnection);
 	connect(mEngine.data(), &QQmlApplicationEngine::objectCreated, this, &UiPluginQml::onQmlObjectCreated, Qt::QueuedConnection);
 
-	UiPluginQml::registerQmlTypes();
-
 	mEngine->addImportPath(QStringLiteral("qrc:///qml/"));
-#if (QT_VERSION < QT_VERSION_CHECK(6, 5, 0))
-	mEngine->addImportPath(QStringLiteral("qrc:///qt/qml/"));
-	mEngine->load(QStringLiteral("qrc:///qt/qml/Governikus/Init/App.qml"));
-#else
-	#ifndef QT_NO_DEBUG
+#ifndef QT_NO_DEBUG
 	adjustQmlImportPath(mEngine.data());
-	#endif
-	mEngine->loadFromModule(QAnyStringView("Governikus.Init"), QAnyStringView("App"));
 #endif
+	mEngine->loadFromModule(QAnyStringView("Governikus.Init"), QAnyStringView("App"));
 
 	QQuickWindow* rootWindow = getRootWindow();
 	if (rootWindow != nullptr)
@@ -209,9 +192,7 @@ void UiPluginQml::init()
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
 		rootWindow->resize(getInitialWindowSize());
 #endif
-#if (QT_VERSION >= QT_VERSION_CHECK(6, 5, 0))
-		setOsDarkMode(qApp->styleHints()->colorScheme() == Qt::ColorScheme::Dark);
-#endif
+		setOsDarkMode(QGuiApplication::styleHints()->colorScheme() == Qt::ColorScheme::Dark);
 	}
 
 	onWindowPaletteChanged();
@@ -241,14 +222,9 @@ QString UiPluginQml::adjustQmlImportPath(QQmlEngine* pEngine)
 	{
 		qCDebug(qml) << "Override platform:" << platform;
 		auto importPath = pEngine->importPathList();
-		QMutableListIterator iter(importPath);
-		while (iter.hasNext())
-		{
-			if (iter.next() == primaryPrefix)
-			{
-				iter.remove();
-			}
-		}
+		erase_if(importPath, [primaryPrefix](const auto& pEntry){
+					return pEntry == primaryPrefix;
+				});
 		primaryPrefix = QStringLiteral("qrc:/%1").arg(platform);
 		importPath << primaryPrefix;
 		pEngine->setImportPathList(importPath);
@@ -545,13 +521,11 @@ bool UiPluginQml::eventFilter(QObject* pObj, QEvent* pEvent)
 		return true;
 	}
 
-#if (QT_VERSION >= QT_VERSION_CHECK(6, 5, 0))
 	if (pEvent->type() == QEvent::ThemeChange)
 	{
-		setOsDarkMode(qApp->styleHints()->colorScheme() == Qt::ColorScheme::Dark);
+		setOsDarkMode(QGuiApplication::styleHints()->colorScheme() == Qt::ColorScheme::Dark);
 		return true;
 	}
-#endif
 
 	if (pEvent->type() == QEvent::FocusIn)
 	{
@@ -794,18 +768,6 @@ void UiPluginQml::setOsDarkMode(bool pState)
 }
 
 
-bool UiPluginQml::isOsDarkModeSupported() const
-{
-#if (QT_VERSION >= QT_VERSION_CHECK(6, 5, 0))
-	return true;
-
-#else
-	return false;
-
-#endif
-}
-
-
 bool UiPluginQml::isDarkModeEnabled() const
 {
 	const auto userDarkMode = Env::getSingleton<SettingsModel>()->getDarkMode();
@@ -960,4 +922,72 @@ void UiPluginQml::onTrayIconEnabledChanged()
 void UiPluginQml::onAppConfigChanged()
 {
 	setFontScaleFactor(getSystemFontScaleFactor());
+	setFontWeightAdjustment(getSystemFontWeightAdjustment());
+	setA11yButtonShapeActive(getA11yButtonShapeActive());
+	setA11yOnOffSwitchLabelActive(getA11yOnOffSwitchLabelActive());
+	onUserDarkModeChanged();
+}
+
+
+void UiPluginQml::onReaderStatusChanged(const ReaderManagerPluginInfo& pInfo) const
+{
+#if defined(Q_OS_IOS)
+	if (pInfo.getPluginType() != ReaderManagerPluginType::NFC)
+	{
+		return;
+	}
+
+	QQuickWindow* rootWindow = getRootWindow();
+	if (!rootWindow)
+	{
+		return;
+	}
+
+	if (!pInfo.isScanRunning())
+	{
+		rootWindow->reportContentOrientationChange(Qt::PrimaryOrientation);
+		return;
+	}
+
+	if (QScreen* screen = rootWindow->screen(); screen)
+	{
+		rootWindow->reportContentOrientationChange(screen->orientation());
+	}
+#else
+	Q_UNUSED(pInfo)
+#endif
+}
+
+
+void UiPluginQml::setA11yButtonShapeActive(bool pActive)
+{
+	if (pActive != mA11yButtonShapeActive)
+	{
+		qCDebug(qml) << "A11y button shape changed to" << pActive;
+		mA11yButtonShapeActive = pActive;
+		Q_EMIT fireA11yButtonShapeActiveChanged();
+	}
+}
+
+
+bool UiPluginQml::isA11yButtonShapeActive() const
+{
+	return mA11yButtonShapeActive;
+}
+
+
+void UiPluginQml::setA11yOnOffSwitchLabelActive(bool pActive)
+{
+	if (pActive != mA11yOnOffSwitchLabelActive)
+	{
+		qCDebug(qml) << "A11y on off switch label changed to" << pActive;
+		mA11yOnOffSwitchLabelActive = pActive;
+		Q_EMIT fireA11yOnOffSwitchLabelActiveChanged();
+	}
+}
+
+
+bool UiPluginQml::isA11yOnOffSwitchLabelActive() const
+{
+	return mA11yOnOffSwitchLabelActive;
 }

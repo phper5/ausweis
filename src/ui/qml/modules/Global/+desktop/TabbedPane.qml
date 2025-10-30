@@ -26,12 +26,12 @@ Item {
 	property alias sectionCount: sectionNameList.count
 	property var sectionsModel: undefined
 
-	function handleKeyPress(key) {
+	function handleKeyPress(event) {
 		if (currentContentItem instanceof GListView) {
-			currentContentItem.handleKeyPress(key);
+			currentContentItem.handleKeyPress(event);
 			return;
 		}
-		flickable.handleKeyPress(key);
+		flickable.handleKeyPress(event);
 	}
 	function scrollYPositionIntoView(pYposition) {
 		let dy = pYposition - flickable.contentY - flickable.height;
@@ -65,9 +65,6 @@ Item {
 				top: parent.top
 			}
 			Item {
-				//: LABEL DESKTOP
-				Accessible.name: qsTr("Sidebar")
-				Accessible.role: Accessible.PageTabList
 				Layout.fillHeight: true
 				Layout.fillWidth: true
 
@@ -80,7 +77,9 @@ Item {
 				GListView {
 					id: sectionNameList
 
-					activeFocusOnTab: true
+					//: LABEL DESKTOP
+					Accessible.name: qsTr("Sidebar")
+					Accessible.role: Accessible.PageTabList
 					anchors.fill: parent
 					boundsBehavior: Flickable.StopAtBounds
 					clip: true
@@ -107,7 +106,7 @@ Item {
 		GFlickableColumnLayout {
 			id: flickable
 
-			Accessible.ignored: false
+			Accessible.ignored: !ApplicationModel.screenReaderRunning && (Qt.platform.os === "osx" || Qt.platform.os === "ios")
 			//: LABEL DESKTOP %1 will be replaced with the title of the tab
 			Accessible.name: root.sectionsModel ? qsTr("Content of tab \"%1\"").arg(root.sectionsModel[sectionNameList.currentIndex]) : ""
 			Accessible.role: Accessible.Grouping

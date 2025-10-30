@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.14)
+cmake_minimum_required(VERSION 3.25)
 
 if(NOT CMAKE_SCRIPT_MODE_FILE)
 	message(STATUS "Usage: cmake -P cmake/SwiftPackage.cmake")
@@ -65,6 +65,7 @@ file(REMOVE_RECURSE ${prefix}.xcframework)
 execute_process(COMMAND ${XCODEBUILD} -create-xcframework ${FRAMEWORK_PARAM} -output ${prefix}.xcframework)
 
 get_filename_component(SCRIPT_DIR "${CMAKE_SCRIPT_MODE_FILE}" DIRECTORY)
+configure_file("${SCRIPT_DIR}/../LICENSE.officially.txt" "${CMAKE_BINARY_DIR}/LICENSE.txt" COPYONLY)
 set(PACKAGING_DIR "${SCRIPT_DIR}/../resources/packaging")
 configure_file("${PACKAGING_DIR}/ios/Package.swift" "${CMAKE_BINARY_DIR}/Package.swift" COPYONLY)
 
@@ -80,4 +81,4 @@ endif()
 
 set(dist_filename ${DIST_DIR}/${prefix}-${APP_NAME_VERSION}${APP_MISMATCH}.swiftpackage.zip)
 message(STATUS "Create package: ${dist_filename}")
-execute_process(COMMAND ${CMAKE_COMMAND} -E tar cf "${dist_filename}" --format=zip ${prefix}.xcframework Package.swift)
+execute_process(COMMAND ${CMAKE_COMMAND} -E tar cf "${dist_filename}" --format=zip LICENSE.txt ${prefix}.xcframework Package.swift)

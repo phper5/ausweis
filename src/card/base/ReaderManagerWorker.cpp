@@ -11,11 +11,12 @@
 #include <QPluginLoader>
 #include <QThread>
 
-#include <algorithm>
 
 Q_DECLARE_LOGGING_CATEGORY(card)
 
+
 using namespace governikus;
+
 
 INIT_FUNCTION([] {
 			qRegisterMetaType<QSharedPointer<CardConnectionWorker>>("QSharedPointer<CardConnectionWorker>");
@@ -162,7 +163,7 @@ void ReaderManagerWorker::shelve()
 	for (const auto& plugin : std::as_const(mPlugins))
 	{
 		callOnPlugin(plugin->getInfo().getPluginType(), [](const ReaderManagerPlugin* pPlugin){
-					pPlugin->shelve();
+					pPlugin->shelveAll();
 				}, "Shelve");
 	}
 }
@@ -195,29 +196,12 @@ void ReaderManagerWorker::stopScan(ReaderManagerPluginType pType, const QString&
 }
 
 
-QList<ReaderInfo> ReaderManagerWorker::getReaderInfos() const
-{
-	Q_ASSERT(QObject::thread() == QThread::currentThread());
-
-	QList<ReaderInfo> list;
-	for (const auto& plugin : std::as_const(mPlugins))
-	{
-		const auto& readerList = plugin->getReaders();
-		for (const Reader* const reader : readerList)
-		{
-			list += reader->getReaderInfo();
-		}
-	}
-	return list;
-}
-
-
 void ReaderManagerWorker::updateReaderInfo(const QString& pReaderName) const
 {
 	Q_ASSERT(QObject::thread() == QThread::currentThread());
 
-	Reader* reader = getReader(pReaderName);
-	if (reader == nullptr)
+	const auto& reader = getReader(pReaderName);
+	if (!reader)
 	{
 		qCWarning(card) << "Requested reader does not exist:" << pReaderName;
 		return;
@@ -226,19 +210,16 @@ void ReaderManagerWorker::updateReaderInfo(const QString& pReaderName) const
 }
 
 
-Reader* ReaderManagerWorker::getReader(const QString& pReaderName) const
+QPointer<Reader> ReaderManagerWorker::getReader(const QString& pReaderName) const
 {
 	Q_ASSERT(QObject::thread() == QThread::currentThread());
 
 	for (auto& plugin : std::as_const(mPlugins))
 	{
-		const auto& readerList = plugin->getReaders();
-		for (Reader* reader : readerList)
+		const auto& reader = plugin->getReader(pReaderName);
+		if (reader)
 		{
-			if (reader->getName() == pReaderName)
-			{
-				return reader;
-			}
+			return reader;
 		}
 	}
 

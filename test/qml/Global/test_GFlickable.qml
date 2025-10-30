@@ -20,13 +20,13 @@ TestCase {
 		let childrenCount = testFlickable.columnChildren.length;
 		for (let i = 0; i < childrenCount; ++i) {
 			let child = testFlickable.columnChildren[i];
-			testFlickable.positionViewAtItem(child);
+			Utils.positionViewAtItem(child);
 			verify(testFlickable.contentY >= child.y);
 			verify(testFlickable.contentY <= (child.y + child.height));
 		}
 		for (let j = childrenCount - 1; j >= 0; --j) {
 			let child = testFlickable.columnChildren[j];
-			testFlickable.positionViewAtItem(child);
+			Utils.positionViewAtItem(child);
 			verify(testFlickable.contentY >= child.y);
 			verify(testFlickable.contentY <= (child.y + child.height));
 		}

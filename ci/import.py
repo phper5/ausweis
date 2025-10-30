@@ -100,7 +100,7 @@ class PatchProcessor:
                 client.import_(
                     [patch.encode('utf-8')],
                     user='CI',
-                    date='now',
+                    date='today',
                     message=patch,
                     nocommit=pending,
                 )

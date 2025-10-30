@@ -5,25 +5,24 @@
 #pragma once
 
 #include "IfdMessage.h"
+#include "IfdSlotHandle.h"
 
 
 namespace governikus
 {
 
 class IfdModifyPin
-	: public IfdMessage
+	: public IfdSlotHandle<IfdMessage>
 {
 	private:
-		QString mSlotHandle;
 		QByteArray mInputData;
 
 	public:
-		IfdModifyPin(const QString& pSlotHandle = QString(), const QByteArray& pInputData = QByteArray());
+		explicit IfdModifyPin(const QString& pSlotHandle = QString(), const QByteArray& pInputData = QByteArray());
 		explicit IfdModifyPin(const QJsonObject& pMessageObject);
 		~IfdModifyPin() override = default;
 
 		[[nodiscard]] bool isValid() const;
-		[[nodiscard]] const QString& getSlotHandle() const;
 		[[nodiscard]] const QByteArray& getInputData() const;
 		[[nodiscard]] QByteArray toByteArray(IfdVersion::Version pIfdVersion, const QString& pContextHandle) const override;
 };

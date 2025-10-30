@@ -6,7 +6,6 @@ import QtQuick.Controls
 import Governikus.Global
 import Governikus.View
 import Governikus.Style
-import Governikus.Type
 
 Button {
 	id: root
@@ -44,7 +43,7 @@ Button {
 
 			anchors.fill: parent
 			anchors.margins: image.height / -4
-			color: NotificationModel.lastType === "developermode" ? Style.color.warning : Style.color.green
+			color: Style.color.green
 			opacity: 0
 			radius: height / 4
 
@@ -71,7 +70,11 @@ Button {
 		}
 	}
 
+	Keys.onEscapePressed: tooltip.hide()
+
 	FocusFrame {
+		id: focusFrame
+
 	}
 	MouseArea {
 		id: mouseArea
@@ -85,8 +88,19 @@ Button {
 		}
 	}
 	ToolTip {
+		id: tooltip
+
 		delay: Style.toolTipDelay
 		text: root.text
 		visible: mouseArea.containsMouse
+
+		onAboutToHide: {
+			focusFrame.visible = true;
+			root.focus = false;
+		}
+		onAboutToShow: {
+			focusFrame.visible = false;
+			root.focus = true;
+		}
 	}
 }

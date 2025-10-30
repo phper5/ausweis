@@ -40,7 +40,7 @@ class SectionModel
 		explicit SectionModel(QObject* pParent = nullptr);
 
 		[[nodiscard]] QVariant data(const QModelIndex& pIndex, int pRole = Qt::DisplayRole) const override;
-		[[nodiscard]] int rowCount(const QModelIndex& pParent = QModelIndex()) const override;
+		[[nodiscard]] int rowCount(const QModelIndex& pParent) const override;
 		[[nodiscard]] QHash<int, QByteArray> roleNames() const override;
 
 		void removeAllItems();

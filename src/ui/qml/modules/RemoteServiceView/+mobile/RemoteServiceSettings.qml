@@ -5,6 +5,7 @@
 pragma ComponentBehavior: Bound
 
 import QtQuick
+import QtQuick.Layouts
 
 import Governikus.EnterPasswordView
 import Governikus.Global
@@ -45,23 +46,21 @@ FlickableSectionPage {
 	}
 	GOptionsContainer {
 		containerPadding: Style.dimens.pane_padding
+		containerSpacing: Style.dimens.text_spacing
 		//: LABEL ANDROID IOS
 		title: qsTr("Paired devices")
 		visible: availablePairedDeviceList.count > 0
 
-		ListView {
+		Repeater {
 			id: availablePairedDeviceList
 
-			height: childrenRect.height
-			interactive: false
 			model: RemoteServiceModel.availablePairedDevices
-			spacing: Style.dimens.text_spacing
-			width: parent.width
 
 			delegate: DevicesListDelegate {
+				Layout.fillWidth: true
 				description: root.allowUsage ?
 				//: LABEL ANDROID IOS
-				qsTr("Click to use device") :
+				qsTr("Tap to use device") :
 				//: LABEL ANDROID IOS
 				qsTr("Available")
 				width: availablePairedDeviceList.width
@@ -73,22 +72,20 @@ FlickableSectionPage {
 	}
 	GOptionsContainer {
 		containerPadding: Style.dimens.pane_padding
+		containerSpacing: Style.dimens.text_spacing
 		//: LABEL ANDROID IOS
 		title: qsTr("Last connected")
 		visible: unavailablePairedDeviceList.count > 0
 
-		ListView {
+		Repeater {
 			id: unavailablePairedDeviceList
 
-			height: childrenRect.height
-			interactive: false
 			model: RemoteServiceModel.unavailablePairedDevices
-			spacing: Style.dimens.text_spacing
-			width: parent.width
 
 			delegate: DevicesListDelegate {
+				Layout.fillWidth: true
 				//: LABEL ANDROID IOS
-				description: qsTr("Click to remove device")
+				description: qsTr("Tap to remove device")
 				width: unavailablePairedDeviceList.width
 
 				onActivate: (pIsSupported, pDeviceId) => {
@@ -117,22 +114,20 @@ FlickableSectionPage {
 	}
 	GOptionsContainer {
 		containerPadding: Style.dimens.pane_padding
-		containerSpacing: Style.dimens.pane_spacing
+		containerSpacing: Style.dimens.text_spacing
 		//: LABEL ANDROID IOS
 		title: qsTr("Add pairing")
 
-		GListView {
+		Repeater {
 			id: searchDeviceList
 
-			height: contentHeight
 			model: RemoteServiceModel.availableDevicesInPairingMode
-			spacing: Style.dimens.text_spacing
 			visible: ApplicationModel.wifiEnabled && count > 0
-			width: parent.width
 
 			delegate: DevicesListDelegate {
+				Layout.fillWidth: true
 				//: LABEL ANDROID IOS
-				description: qsTr("Click to pair")
+				description: qsTr("Tap to pair")
 				width: searchDeviceList.width
 
 				onActivate: (pIsSupported, pDeviceId) => {
@@ -148,10 +143,9 @@ FlickableSectionPage {
 			//: INFO ANDROID IOS Wifi is not enabled and no new devices can be paired.
 			text: qsTr("Please connect your WiFi to use another smartphone as card reader (SaC).")
 			visible: !ApplicationModel.wifiEnabled
-			width: parent.width
 		}
 		GButton {
-			anchors.horizontalCenter: parent.horizontalCenter
+			Layout.alignment: Qt.AlignHCenter
 
 			//: LABEL ANDROID IOS
 			text: qsTr("Enable WiFi")
@@ -161,11 +155,9 @@ FlickableSectionPage {
 		}
 		LocalNetworkInfo {
 			visible: RemoteServiceModel.requiresLocalNetworkPermission && !RemoteServiceModel.remoteReaderVisible
-			width: parent.width
 		}
 		PairingProcessInfo {
 			visible: !searchDeviceList.visible && ApplicationModel.wifiEnabled
-			width: parent.width
 
 			onInfoLinkClicked: root.push(noSacFoundInfo)
 		}
@@ -176,7 +168,7 @@ FlickableSectionPage {
 				progress: root.progress
 
 				infoContent: MultiInfoData {
-					contentType: MultiInfoData.NO_SAC_FOUND
+					contentType: MultiInfoData.Type.NO_SAC_FOUND
 				}
 				navigationAction: NavigationAction {
 					action: NavigationAction.Action.Back

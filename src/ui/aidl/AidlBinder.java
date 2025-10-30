@@ -72,19 +72,18 @@ class AidlBinder extends IAusweisApp2Sdk.Stub
 		}
 
 		mCallback = pCallback;
-		final boolean sessionIdIsSecure = isSecureRandomPsk();
 		LogHandler.getLogger().info("Android service: Callback connected.");
 
 		try
 		{
-			mCallback.sessionIdGenerated(sessionIdIsSecure ? mCallbackSessionId : null, sessionIdIsSecure);
+			mCallback.sessionIdGenerated(mCallbackSessionId);
 		}
 		catch (Throwable t)
 		{
 			handleClientException(t);
 		}
 
-		return startReaderManagerScans() && sessionIdIsSecure;
+		return startReaderManagerScans();
 	}
 
 
@@ -157,7 +156,6 @@ class AidlBinder extends IAusweisApp2Sdk.Stub
 
 
 	private native String resetValidSessionID();
-	private native boolean isSecureRandomPsk();
 	private native boolean startReaderManagerScans();
 	private native void aidlSend(String pMessageFromClient);
 }

@@ -12,6 +12,9 @@
 #include <QWebSocket>
 
 
+class test_ConnectRequest;
+
+
 namespace governikus
 {
 
@@ -20,31 +23,36 @@ class ConnectRequest
 {
 	Q_OBJECT
 
+	friend class ::test_ConnectRequest;
+
 	private:
-		const IfdDescriptor mIfdDescriptor;
-		QList<QUrl> mAddresses;
+		const Discovery mDiscovery;
 		const QByteArray mPsk;
-		const QSharedPointer<QWebSocket> mSocket;
+		QList<QSharedPointer<QWebSocket>> mSockets;
 		QTimer mTimer;
 		bool mRemoteHostRefusedConnection;
 
-		void setTlsConfiguration() const;
-		void tryNext();
+		QSslConfiguration getTlsConfiguration() const;
+#ifndef QT_NO_DEBUG
+		virtual
+#endif
+		QAbstractSocket::SocketState getState(const QSharedPointer<QWebSocket>& pSocket) const;
+		void processResult(const QSharedPointer<QWebSocket>& pSocket = nullptr);
 
 	private Q_SLOTS:
-		void onConnected();
-		void onError(QAbstractSocket::SocketError pError);
+		void onConnected(const QSharedPointer<QWebSocket>& pSocket);
+		void onError(const QSharedPointer<QWebSocket>& pSocket, QAbstractSocket::SocketError pError);
 		void onTimeout();
 		void onPreSharedKeyAuthenticationRequired(QSslPreSharedKeyAuthenticator* pAuthenticator) const;
-		void onSslErrors(const QList<QSslError>& pErrors);
+		void onSslErrors(const QSharedPointer<QWebSocket>& pSocket, const QList<QSslError>& pErrors) const;
 
 	public:
-		ConnectRequest(const IfdDescriptor& pIfdDescriptor,
+		ConnectRequest(const Discovery& pDiscovery,
 				const QByteArray& pPsk,
 				int pTimeoutMs);
 		~ConnectRequest() override = default;
 
-		[[nodiscard]] const IfdDescriptor& getIfdDescriptor() const;
+		[[nodiscard]] const Discovery& getDiscovery() const;
 
 		void start();
 

@@ -39,7 +39,7 @@ class NfcReader
 		[[nodiscard]] Card* getCard() const override;
 
 		void connectReader() override;
-		void disconnectReader(const QString& pError = QString()) override;
+		void disconnectReader(const QString& pError) override;
 };
 
 } // namespace governikus

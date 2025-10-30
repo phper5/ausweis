@@ -60,6 +60,7 @@ class test_SignatureChecker
 			QList<QSharedPointer<const CVCertificate>> certs;
 			SignatureChecker checker(certs);
 
+			QTest::ignoreMessage(QtCriticalMsg, "Certificate chain is empty");
 			QVERIFY(!checker.check());
 		}
 
@@ -70,7 +71,11 @@ class test_SignatureChecker
 			certs.removeAt(0);
 			SignatureChecker checker(certs);
 
+			QTest::ignoreMessage(QtCriticalMsg, "Certificate verification failed: \"DETESTeID00002\"");
 			QVERIFY(!checker.check());
+#if OPENSSL_VERSION_NUMBER >= 0x30500010L
+			QCOMPARE(getOpenSslError(), QByteArray("error:030000EA:digital envelope routines::provider signature failure"));
+#endif
 		}
 
 
@@ -82,6 +87,7 @@ class test_SignatureChecker
 			certs.removeAt(0);
 			SignatureChecker checker(certs);
 
+			QTest::ignoreMessage(QtCriticalMsg, "No elliptic curve parameters");
 			QVERIFY(!checker.check());
 		}
 
@@ -92,7 +98,11 @@ class test_SignatureChecker
 			certs.removeAt(2);
 			SignatureChecker checker(certs);
 
+			QTest::ignoreMessage(QtCriticalMsg, "Certificate verification failed: \"DEDVeIDDPST00035\"");
 			QVERIFY(!checker.check());
+#if OPENSSL_VERSION_NUMBER >= 0x30500010L
+			QCOMPARE(getOpenSslError(), QByteArray("error:030000EA:digital envelope routines::provider signature failure"));
+#endif
 		}
 
 
@@ -109,14 +119,14 @@ class test_SignatureChecker
 		{
 			QTest::ignoreMessage(QtCriticalMsg, "Cannot fetch signing key");
 			const auto& certificate = load(":/card/cvat-DEDEMODEV00038.hex"_L1);
-			SignatureChecker::checkSignature(nullptr, certificate, &certificate->getBody().getPublicKey());
+			QVERIFY(!SignatureChecker::checkSignature(nullptr, certificate, &certificate->getBody().getPublicKey()));
 
 			QTest::ignoreMessage(QtCriticalMsg, "Missing signing key");
-			SignatureChecker::checkSignature(nullptr, QByteArray(), QByteArray(), QCryptographicHash::Algorithm::Sha256);
+			QVERIFY(!SignatureChecker::checkSignature(nullptr, QByteArray(), QByteArray(), QCryptographicHash::Algorithm::Sha256));
 
 			QTest::ignoreMessage(QtCriticalMsg, "Cannot init verify ctx");
 			QSharedPointer<EVP_PKEY> key(EVP_PKEY_new(), [](EVP_PKEY* pKey){EVP_PKEY_free(pKey);});
-			SignatureChecker::checkSignature(key, QByteArray(), QByteArray(), QCryptographicHash::Algorithm::Sha256);
+			QVERIFY(!SignatureChecker::checkSignature(key, QByteArray(), QByteArray(), QCryptographicHash::Algorithm::Sha256));
 #if OPENSSL_VERSION_NUMBER < 0x30000000L
 			QCOMPARE(getOpenSslError(), QByteArray("error:0609D09C:digital envelope routines:int_ctx_new:unsupported algorithm | error:0608F096:digital envelope routines:EVP_PKEY_verify_init:operation not supported for this keytype"));
 #else

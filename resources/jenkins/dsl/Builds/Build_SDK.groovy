@@ -21,14 +21,14 @@ j.with
 {
 	steps {
 		phase('Build') {
-			for(ARCH in Constants.AndroidArchAAR)
+			for(ARCH in Constants.AndroidArch)
 			{
 				phaseJob(getName('Android_AAR_' + ARCH))
 			}
 
-			phaseJob(getName('iOS_Framework'))
+			phaseJob(getName('iOS_Framework_OS'))
 
-			phaseJob(getName('iOS_Framework_Simulator'))
+			phaseJob(getName('iOS_Framework_Simulator_x86_64'))
 
 			phaseJob(getName('iOS_Framework_Simulator_arm64'))
 		}
@@ -37,7 +37,7 @@ j.with
 			{
 				parameters
 				{
-					for(ARCH in Constants.AndroidArchAAR)
+					for(ARCH in Constants.AndroidArch)
 					{
 						predefinedProp('Android_AAR_' + ARCH.replace('-', '_'), getEnvNumber(getName('Android_AAR_' + ARCH)))
 					}
@@ -48,8 +48,8 @@ j.with
 			{
 				parameters
 				{
-					predefinedProp('iOS_Framework_Build', getEnvNumber(getName('iOS_Framework')))
-					predefinedProp('iOS_Framework_Simulator_Build', getEnvNumber(getName('iOS_Framework_Simulator')))
+					predefinedProp('iOS_Framework_OS_Build', getEnvNumber(getName('iOS_Framework_OS')))
+					predefinedProp('iOS_Framework_Simulator_x86_64_Build', getEnvNumber(getName('iOS_Framework_Simulator_x86_64')))
 					predefinedProp('iOS_Framework_Simulator_arm64_Build', getEnvNumber(getName('iOS_Framework_Simulator_arm64')))
 				}
 			}

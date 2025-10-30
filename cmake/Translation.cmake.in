@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.10.0)
+cmake_minimum_required(VERSION 3.25)
 
 if (@UPDATE_TRANSLATIONS_ADD_DVCS@)
 	foreach(file @TRANSLATION_FILES@)
@@ -7,13 +7,13 @@ if (@UPDATE_TRANSLATIONS_ADD_DVCS@)
 		string(REPLACE "\">\n<context>" "\
 \">\n\
 <context>\n\
-    <name>DvcsAttributes</name>\n\
-    <message>\n\
+	<name>DvcsAttributes</name>\n\
+	<message>\n\
 	<source>@dvcs_revision@</source>\n\
 	<extracomment>revision</extracomment>\n\
 	<translation>@dvcs_revision@</translation>\n\
-    </message>\n\
-    <message>\n\
+	</message>\n\
+	<message>\n\
 	<source>@PROJECT_VERSION@</source>\n\
 	<extracomment>version</extracomment>\n\
 	<translation>@PROJECT_VERSION@</translation>\n\

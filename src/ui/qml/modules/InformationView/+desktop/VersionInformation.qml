@@ -18,7 +18,6 @@ ColumnLayout {
 
 	GPane {
 		Layout.fillWidth: true
-		spacing: Style.dimens.pane_spacing
 
 		GMenuItem {
 			Layout.fillWidth: true
@@ -27,11 +26,10 @@ ColumnLayout {
 			buttonText: qsTr("Open website")
 			buttonTooltip: "https://www.ausweisapp.bund.de/%1/aa2/privacy".arg(SettingsModel.language)
 			iconSource: "qrc:/images/desktop/privacy_icon.svg"
+			linkToOpen: buttonTooltip
 
 			//: LABEL DESKTOP
 			title: qsTr("Privacy statement")
-
-			onClicked: Qt.openUrlExternally(buttonTooltip)
 		}
 		GSeparator {
 			Layout.fillWidth: true
@@ -43,11 +41,10 @@ ColumnLayout {
 			buttonText: qsTr("Open website")
 			buttonTooltip: "https://www.ausweisapp.bund.de/%1/aa2/a11y".arg(SettingsModel.language)
 			iconSource: "qrc:/images/desktop/a11y_icon.svg"
+			linkToOpen: buttonTooltip
 
 			//: LABEL DESKTOP
 			title: qsTr("Accessibility statement")
-
-			onClicked: Qt.openUrlExternally(buttonTooltip)
 		}
 	}
 	Item {
@@ -60,7 +57,6 @@ ColumnLayout {
 			id: column
 
 			anchors.fill: parent
-			spacing: Style.dimens.pane_spacing
 
 			Repeater {
 				id: repeater

@@ -88,7 +88,7 @@ OnboardingStartView {
 				steps: 6
 			}
 			titleBarSettings: TitleBarSettings {
-				navigationAction: NavigationAction.Back
+				navigationAction: NavigationAction.Action.Back
 				startEnabled: false
 
 				onNavigationActionClicked: root.pop()
@@ -294,7 +294,7 @@ OnboardingStartView {
 
 		ChangePinView {
 			activateUI: false
-			navigationActionType: NavigationAction.Back
+			navigationActionType: NavigationAction.Action.Back
 			onlyCheckPin: true
 			skipInfoView: false
 			title: root.title
@@ -328,7 +328,7 @@ OnboardingStartView {
 					relativeProgress: 1
 				}
 				titleBarSettings: TitleBarSettings {
-					navigationAction: NavigationAction.Back
+					navigationAction: NavigationAction.Action.Back
 					navigationEnabled: false
 				}
 
@@ -357,7 +357,7 @@ OnboardingStartView {
 					relativeProgress: 1
 				}
 				titleBarSettings: TitleBarSettings {
-					navigationAction: NavigationAction.Back
+					navigationAction: NavigationAction.Action.Back
 					navigationEnabled: false
 				}
 
@@ -365,7 +365,7 @@ OnboardingStartView {
 				onLeaveView: ChangePinModel.continueWorkflow()
 			}
 			titleBarSettings: TitleBarSettings {
-				navigationAction: NavigationAction.Back
+				navigationAction: NavigationAction.Action.Back
 				startEnabled: false
 
 				onNavigationActionClicked: root.pop()
@@ -391,7 +391,7 @@ OnboardingStartView {
 			title: root.title
 
 			titleBarSettings: TitleBarSettings {
-				navigationAction: NavigationAction.Cancel
+				navigationAction: NavigationAction.Action.Cancel
 				startEnabled: false
 
 				onNavigationActionClicked: root.continueToAutostartView()
@@ -427,7 +427,7 @@ OnboardingStartView {
 			title: root.title
 
 			titleBarSettings: TitleBarSettings {
-				navigationAction: NavigationAction.Back
+				navigationAction: NavigationAction.Action.Back
 				navigationEnabled: false
 				startEnabled: false
 			}
@@ -461,7 +461,7 @@ OnboardingStartView {
 			title: root.title
 
 			titleBarSettings: TitleBarSettings {
-				navigationAction: NavigationAction.Back
+				navigationAction: NavigationAction.Action.Back
 				startEnabled: false
 
 				onNavigationActionClicked: root.pop()

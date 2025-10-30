@@ -18,12 +18,9 @@ BaseOnboardingView {
 		readonly property bool continuesToAutoStart: numberOfPrompts > 0
 		readonly property int numberOfPrompts: Style.is_layout_desktop ? (SettingsModel.autoStartAvailable && !SettingsModel.autoStartSetByAdmin ? 2 : 1) : 0
 	}
-	GText {
-		Layout.alignment: Qt.AlignHCenter
-		horizontalAlignment: Text.AlignHCenter
+	Heading {
 		//: LABEL ALL_PLATFORMS
 		text: qsTr("Requirements not met")
-		textStyle: Style.text.headline
 	}
 	TintableIcon {
 		Layout.alignment: Qt.AlignHCenter
@@ -32,11 +29,10 @@ BaseOnboardingView {
 		sourceSize.height: Style.dimens.header_icon_size
 		tintColor: Style.color.image
 	}
-	GText {
+	Subheading {
 		Layout.topMargin: Style.dimens.pane_spacing
 		//: LABEL ALL_PLATFORMS %1 is replaced with the name "AusweisApp".
 		text: qsTr("You cannot use the %1").arg(Qt.application.name)
-		textStyle: Style.text.subline
 	}
 	GText {
 		Layout.topMargin: Style.dimens.text_spacing
@@ -57,7 +53,7 @@ BaseOnboardingView {
 		}
 
 		//: LABEL ALL_PLATFORMS %1 and %2 are replaced with bold emphasis.
-		readonly property string restartOnboardingText: qsTr("You may restart the setup anytime under %1Help > Onboarding%2.").arg("<b>").arg("</b>")
+		readonly property string restartOnboardingText: qsTr("You may restart the setup anytime under %1Help > Setup%2.").arg("<b>").arg("</b>")
 
 		Layout.topMargin: Style.dimens.text_spacing
 		text: abortText + " " + restartOnboardingText

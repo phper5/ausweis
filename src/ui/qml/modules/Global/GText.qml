@@ -25,15 +25,14 @@ Text {
 		}
 	}
 
+	Accessible.description: hasLink ? Utils.platformAgnosticLinkOpenText(link, Accessible.name) : ""
 	Accessible.focusable: true
 	Accessible.ignored: text === ""
-	Accessible.name: ApplicationModel.stripHtmlTags(text) + (Style.is_layout_desktop && hasLink ?
-		//: INFO DESKTOP Text read by screen reader if the text contains a weblink which may be opened.
-		" %1: %2".arg(qsTr("Press space to open link")).arg(d.link) : "")
-	Accessible.role: Style.is_layout_desktop && hasLink ? Accessible.Button : Accessible.StaticText
+	Accessible.name: ApplicationModel.stripHtmlTags(text)
+	Accessible.role: hasLink ? Accessible.Link : Accessible.StaticText
 	Layout.fillWidth: true
 	Layout.maximumWidth: Math.ceil(implicitWidth)
-	activeFocusOnTab: hasLink || (ApplicationModel.isScreenReaderRunning && !Accessible.ignored)
+	activeFocusOnTab: hasLink
 	color: textStyle.textColor
 	font.pixelSize: textStyle.textSize
 	font.weight: textStyle.fontWeight
@@ -43,7 +42,12 @@ Text {
 	verticalAlignment: Text.AlignVCenter
 	wrapMode: d.nonMultilineElided ? Text.NoWrap : Text.Wrap
 
+	Accessible.onPressAction: tryActivateLink()
+	Accessible.onScrollDownAction: Utils.scrollPageDownOnGFlickable(this)
+	Accessible.onScrollUpAction: Utils.scrollPageUpOnGFlickable(this)
 	Component.onCompleted: d.checkForLinks()
+	Keys.onEnterPressed: tryActivateLink()
+	Keys.onReturnPressed: tryActivateLink()
 	Keys.onSpacePressed: tryActivateLink()
 	onFocusChanged: if (focus)
 		Utils.positionViewAtItem(this)

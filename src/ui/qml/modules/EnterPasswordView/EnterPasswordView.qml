@@ -27,9 +27,6 @@ FlickableSectionPage {
 
 	fillWidth: true
 
-	Keys.onPressed: event => {
-		event.accepted = pinField.handleKeyEvent(event.key, event.modifiers);
-	}
 	onVisibleChanged: if (!visible)
 		pinField.number = ""
 
@@ -111,11 +108,8 @@ FlickableSectionPage {
 				Layout.bottomMargin: Style.dimens.pane_spacing
 				visible: grid.isLandscape && Style.is_layout_desktop
 			}
-			GText {
+			Heading {
 				id: mainText
-
-				Layout.alignment: Qt.AlignHCenter
-				horizontalAlignment: Text.AlignHCenter
 
 				//: LABEL ALL_PLATFORMS This is the large main text below the icon.
 				text: root.passwordType === NumberModel.PasswordType.CAN ? qsTr("Enter CAN") :
@@ -137,7 +131,6 @@ FlickableSectionPage {
 				root.passwordType === NumberModel.PasswordType.NEW_SMART_PIN_CONFIRMATION ? qsTr("Confirm Smart-eID PIN") :
 				//: LABEL ALL_PLATFORMS This is the large main text below the icon.
 				qsTr("Enter ID card PIN")
-				textStyle: Style.text.headline
 			}
 			GText {
 				id: infoText
@@ -247,7 +240,7 @@ FlickableSectionPage {
 
 				background: Rectangle {
 					border.color: Style.color.border
-					border.width: Style.dimens.separator_size
+					border.width: Style.dimens.border_width
 					color: Style.color.transparent
 					radius: Style.dimens.control_radius
 				}
@@ -312,7 +305,7 @@ FlickableSectionPage {
 			onDeletePressed: {
 				pinField.removeLast();
 				if (pinField.number.length === 0)
-					pinField.forceActiveFocus();
+					numberPad.forceActiveFocus();
 			}
 			onDigitPressed: digit => pinField.append(digit)
 			onSubmitPressed: d.setPassword()
@@ -334,23 +327,23 @@ FlickableSectionPage {
 		type: {
 			switch (root.passwordType) {
 			case NumberModel.PasswordType.TRANSPORT_PIN:
-				return AnimationLoader.TRANSPORT_PIN;
+				return AnimationLoader.Type.TRANSPORT_PIN;
 			case NumberModel.PasswordType.CAN:
-				return AnimationLoader.CAN;
+				return AnimationLoader.Type.CAN;
 			case NumberModel.PasswordType.SMART_PIN:
 			case NumberModel.PasswordType.PIN:
-				return AnimationLoader.PIN;
+				return AnimationLoader.Type.PIN;
 			case NumberModel.PasswordType.NEW_PIN_CONFIRMATION:
 			case NumberModel.PasswordType.NEW_PIN:
 			case NumberModel.PasswordType.NEW_SMART_PIN:
 			case NumberModel.PasswordType.NEW_SMART_PIN_CONFIRMATION:
-				return AnimationLoader.NEW_PIN;
+				return AnimationLoader.Type.NEW_PIN;
 			case NumberModel.PasswordType.PUK:
-				return AnimationLoader.PUK;
+				return AnimationLoader.Type.PUK;
 			case NumberModel.PasswordType.REMOTE_PIN:
-				return AnimationLoader.REMOTE_PIN;
+				return AnimationLoader.Type.REMOTE_PIN;
 			default:
-				return AnimationLoader.NONE;
+				return AnimationLoader.Type.NONE;
 			}
 		}
 	}

@@ -149,8 +149,13 @@ QSharedPointer<OSSL_PARAM> EcUtil::create(const std::function<bool(OSSL_PARAM_BL
 		return nullptr;
 	}
 
-	if (OSSL_PARAM* params = nullptr;
-			pFunc(bld) && (params = OSSL_PARAM_BLD_to_param(bld)) != nullptr)
+	if (!pFunc(bld))
+	{
+		qCCritical(card) << "Cannot initialize parameter builder";
+		return nullptr;
+	}
+
+	if (OSSL_PARAM* params = OSSL_PARAM_BLD_to_param(bld); params != nullptr)
 	{
 		static auto deleter = [](OSSL_PARAM* pParam)
 				{

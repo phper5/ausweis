@@ -9,43 +9,55 @@ import Governikus.Global
 import Governikus.Type
 import Governikus.Style
 
-RowLayout {
+ColumnLayout {
 	id: root
 
-	property bool downloadInProgress: false
-	required property int downloadProgressKiB
-	required property int downloadTotalKiB
+	required property bool downloadInProgress
+	required property int downloadProgressKB
+	required property int downloadTotalKB
+	required property string version
 
-	signal toggleUpdate
+	signal abortDownload
+	signal startDownload
 
-	spacing: Style.dimens.pane_spacing
-
+	GText {
+		//: LABEL DESKTOP %1 is replaced with the version number of the software update.
+		text: qsTr("The update (version %1) is being performed...").arg(root.version)
+		visible: root.downloadInProgress
+	}
 	GProgressBar {
 		id: bar
 
-		readonly property string localeDownloadedKB: (root.downloadProgressKiB * 1024 / 1000).toLocaleString(Qt.locale(SettingsModel.language), "f", 0)
-		readonly property string localeTotalKB: (root.downloadTotalKiB * 1024 / 1000).toLocaleString(Qt.locale(SettingsModel.language), "f", 0)
+		readonly property string localeDownloadedKB: root.downloadProgressKB.toLocaleString(Qt.locale(SettingsModel.language), "f", 0)
+		readonly property string localeTotalKB: root.downloadTotalKB.toLocaleString(Qt.locale(SettingsModel.language), "f", 0)
 
+		//: LABEL DESKTOP Name of an progress indicator during a download read by screen readers
+		Accessible.name: qsTr("Download progress")
 		Layout.fillWidth: true
-		text: "%1 KB / %2 KB".arg(localeDownloadedKB).arg(localeTotalKB)
-		value: root.downloadProgressKiB * 100 / root.downloadTotalKiB
+		text: "%1 %".arg(Math.floor(bar.value))
+		value: root.downloadProgressKB * 100 / root.downloadTotalKB
 		visible: root.downloadInProgress
-
-		//: LABEL DESKTOP %1 and %2 will be replaced with the already downloaded and the total file size.
-		onRequestA11yUpdate: pValue => Accessible.name = qsTr("%1 of %2 Kilobyte downloaded").arg(localeDownloadedKB).arg(localeTotalKB)
-	}
-	GSpacer {
-		Layout.fillWidth: true
-		visible: !root.downloadInProgress
 	}
 	GButton {
 		enabledTooltipText: SettingsModel.appUpdateData.url
-		text: root.downloadInProgress ?
-		//: LABEL DESKTOP Cancel the download of the update on Windows
-		qsTr("Cancel update") :
 		//: LABEL DESKTOP Start to download the update and execute it on Windows
-		qsTr("Start update")
+		text: qsTr("Start update")
+		visible: !root.downloadInProgress
 
-		onClicked: root.toggleUpdate()
+		onActiveFocusChanged: if (activeFocus)
+			Utils.positionViewAtItem(this)
+		onClicked: root.startDownload()
+	}
+	GLink {
+		colorStyle: Style.color.linkTitle
+		font.underline: true
+		horizontalPadding: 0
+		//: LABEL DESKTOP Cancel the download of the update on Windows
+		text: qsTr("Cancel update")
+		visible: root.downloadInProgress
+
+		onActiveFocusChanged: if (activeFocus)
+			Utils.positionViewAtItem(this)
+		onClicked: root.abortDownload()
 	}
 }

@@ -11,11 +11,11 @@
 
 #include <QAbstractListModel>
 #include <QList>
-#include <QPair>
 #include <QSharedPointer>
 #include <QString>
 #include <QtQml/qqmlregistration.h>
 
+#include <utility>
 
 class test_UiPluginQml;
 
@@ -38,7 +38,7 @@ class CertificateDescriptionModel
 	Q_PROPERTY(QString purpose READ getPurpose NOTIFY fireChanged)
 
 	private:
-		QList<QPair<QString, QString>> mData;
+		QList<std::pair<QString, QString>> mData;
 		QSharedPointer<WorkflowContext> mContext;
 
 		CertificateDescriptionModel();
@@ -67,7 +67,7 @@ class CertificateDescriptionModel
 		[[nodiscard]] QString getSubjectUrl() const;
 		[[nodiscard]] QString getPurpose() const;
 
-		[[nodiscard]] int rowCount(const QModelIndex& = QModelIndex()) const override;
+		[[nodiscard]] int rowCount(const QModelIndex&) const override;
 		[[nodiscard]] QVariant data(const QModelIndex& pIndex, int pRole = Qt::DisplayRole) const override;
 		[[nodiscard]] QHash<int, QByteArray> roleNames() const override;
 

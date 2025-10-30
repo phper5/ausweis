@@ -2,13 +2,12 @@
  * Copyright (c) 2015-2025 Governikus GmbH & Co. KG, Germany
  */
 import QtQuick
-import QtQuick.Controls
 import QtQuick.Layouts
 import Governikus.Global
 import Governikus.Style
 import Governikus.View
 
-AbstractButton {
+GAbstractButton {
 	id: root
 
 	property bool flowHorizontally: true
@@ -56,7 +55,6 @@ AbstractButton {
 				Accessible.ignored: true
 				Layout.alignment: root.flowHorizontally ? Qt.AlignLeft : Qt.AlignCenter
 				Layout.preferredWidth: Math.min(Math.ceil(implicitWidth), root.contentItem.width)
-				activeFocusOnTab: false
 				color: colors.textNormal
 				elide: Text.ElideRight
 				horizontalAlignment: Text.AlignHCenter

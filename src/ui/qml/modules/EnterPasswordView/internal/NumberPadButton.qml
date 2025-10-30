@@ -3,14 +3,13 @@
  */
 
 import QtQuick
-import QtQuick.Controls
 import QtQuick.Layouts
 import Governikus.Global
 import Governikus.Style
 import Governikus.View
 import Governikus.Type
 
-AbstractButton {
+GAbstractButton {
 	id: root
 
 	property string a11yDisabledText: qsTr("Disabled")

@@ -43,7 +43,6 @@ class QmlTestRunner
 			Env::getSingleton<ReaderManager>()->init();
 			mMockNetworkManager.reset(new MockNetworkManager());
 			Env::set(NetworkManager::staticMetaObject, mMockNetworkManager.get());
-			UiPluginQml::registerQmlTypes();
 		}
 
 
@@ -60,23 +59,6 @@ class QmlTestRunner
 		{
 			const auto& prefix = UiPluginQml::adjustQmlImportPath(pEngine);
 			pEngine->rootContext()->setContextProperty(QStringLiteral("importPrefix"), prefix);
-#if (QT_VERSION < QT_VERSION_CHECK(6, 4, 2))
-			pEngine->rootContext()->setContextProperty(QStringLiteral("hasBindingLoop"), true);
-#else
-			pEngine->rootContext()->setContextProperty(QStringLiteral("hasBindingLoop"), false);
-#endif
-#if (QT_VERSION < QT_VERSION_CHECK(6, 5, 2))
-			pEngine->rootContext()->setContextProperty(QStringLiteral("hasPolishLoop"), true);
-#else
-			pEngine->rootContext()->setContextProperty(QStringLiteral("hasPolishLoop"), false);
-#endif
-#if (QT_VERSION < QT_VERSION_CHECK(6, 6, 0))
-			pEngine->rootContext()->setContextProperty(QStringLiteral("canUseTypeCast"), false);
-#else
-			// Even though some UTs, that use casts, would fail on 6.4 and 6.5, the app itself is not
-			// affected and works without any issues or concerning log outputs.
-			pEngine->rootContext()->setContextProperty(QStringLiteral("canUseTypeCast"), true);
-#endif
 
 			connect(pEngine, &QQmlEngine::warnings, this, [](const QList<QQmlError>& pWarnings){
 						bool fail = false;

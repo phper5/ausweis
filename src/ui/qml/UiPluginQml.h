@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "ReaderManager.h"
 #include "TrayIcon.h"
 #include "UiPluginModel.h"
 
@@ -15,7 +16,7 @@
 #endif
 
 #ifdef Q_OS_IOS
-Q_FORWARD_DECLARE_OBJC_CLASS(FontChangeTracker);
+Q_FORWARD_DECLARE_OBJC_CLASS(SystemSettingsTracker);
 #endif
 
 
@@ -46,6 +47,9 @@ class UiPluginQml
 		bool mShowFocusIndicator;
 		qreal mScaleFactor;
 		qreal mFontScaleFactor;
+		int mFontWeightAdjustment;
+		bool mA11yButtonShapeActive;
+		bool mA11yOnOffSwitchLabelActive;
 
 		void init();
 		[[nodiscard]] static QString getOverridePlatform();
@@ -53,14 +57,20 @@ class UiPluginQml
 		[[nodiscard]] bool isHidden() const;
 		[[nodiscard]] qreal getSystemFontScaleFactor() const;
 		void setFontScaleFactor(qreal pFactor);
+		[[nodiscard]] int getSystemFontWeightAdjustment() const;
+		void setFontWeightAdjustment(int pFontWeightAdjustment);
 		void setOsDarkMode(bool pState);
+		[[nodiscard]] bool getA11yButtonShapeActive() const;
+		void setA11yButtonShapeActive(bool pActive);
+		[[nodiscard]] bool getA11yOnOffSwitchLabelActive() const;
+		void setA11yOnOffSwitchLabelActive(bool pActive);
 
 #ifdef Q_OS_IOS
 		struct Private
 		{
 			Private();
 			~Private();
-			FontChangeTracker* const mFontChangeTracker;
+			SystemSettingsTracker* const mSystemSettingsTracker;
 		};
 		const QScopedPointer<Private> mPrivate;
 #endif
@@ -72,7 +82,6 @@ class UiPluginQml
 		UiPluginQml();
 		~UiPluginQml() override = default;
 
-		static void registerQmlTypes();
 #ifndef QT_NO_DEBUG
 		static QString adjustQmlImportPath(QQmlEngine* pEngine);
 #endif
@@ -85,7 +94,6 @@ class UiPluginQml
 		[[nodiscard]] QVariantMap getSafeAreaMargins() const override;
 		[[nodiscard]] bool isHighContrastEnabled() const override;
 		[[nodiscard]] bool isOsDarkModeEnabled() const;
-		[[nodiscard]] bool isOsDarkModeSupported() const override;
 		[[nodiscard]] bool isDarkModeEnabled() const override;
 		[[nodiscard]] QString getFixedFontFamily() const override;
 		[[nodiscard]] QSize getInitialWindowSize() const override;
@@ -93,7 +101,10 @@ class UiPluginQml
 		[[nodiscard]] qreal getScaleFactor() const override;
 		void setScaleFactor(qreal pScaleFactor) override;
 		[[nodiscard]] qreal getFontScaleFactor() const override;
+		[[nodiscard]] int getFontWeightAdjustment() const override;
 		[[nodiscard]] bool isChromeOS() const override;
+		[[nodiscard]] bool isA11yButtonShapeActive() const override;
+		[[nodiscard]] bool isA11yOnOffSwitchLabelActive() const override;
 
 		Q_INVOKABLE void hideFromTaskbar() const override;
 		Q_INVOKABLE void doRefresh() override;
@@ -129,6 +140,7 @@ class UiPluginQml
 		void onUseSystemFontChanged() const;
 		void onTrayIconEnabledChanged();
 		void onAppConfigChanged();
+		void onReaderStatusChanged(const ReaderManagerPluginInfo& pInfo) const;
 };
 
 } // namespace governikus

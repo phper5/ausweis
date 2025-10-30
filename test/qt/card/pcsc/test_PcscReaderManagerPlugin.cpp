@@ -25,13 +25,15 @@ class test_PcscReaderManagerPlugin
 
 			PcscReaderManagerPlugin plugin;
 			QCOMPARE(plugin.objectName(), QStringLiteral("PcscReaderManager"));
-			QVERIFY(plugin.getReaders().isEmpty());
+			QVERIFY(plugin.mReaders.isEmpty());
+			QCOMPARE(plugin.getReader(QStringLiteral("PcscReaderManager")), nullptr);
 
 			QSignalSpy spyAdded(&plugin, &PcscReaderManagerPlugin::fireReaderAdded);
 			QTest::ignoreMessage(QtDebugMsg, QStringLiteral("fireReaderAdded: \"%1\" ( 1 reader in total )").arg(readerName).toUtf8().data());
 			plugin.addReaders({readerName});
 			QCOMPARE(spyAdded.size(), 1);
-			QCOMPARE(plugin.getReaders().size(), 1);
+			QCOMPARE(plugin.mReaders.size(), 1);
+			QVERIFY(plugin.getReader(readerName) != nullptr);
 		}
 
 

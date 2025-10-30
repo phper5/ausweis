@@ -66,8 +66,8 @@ class test_SelfAuthenticationData
 		void dateFormat()
 		{
 			SelfAuthenticationData::OrderedSelfData expected;
-			expected << qMakePair("Date of birth"_L1, "xx.xx.1946"_L1);
-			expected << qMakePair("Date of expiry"_L1, "xx.11.2029"_L1);
+			expected << std::make_pair("Date of birth"_L1, "xx.xx.1946"_L1);
+			expected << std::make_pair("Valid until"_L1, "xx.11.2029"_L1);
 
 			const auto& data = TestFileHelper::readFile(":/self/SelfAuthenticationDataDateFormat.json"_L1);
 			const SelfAuthenticationData selfAuthenticationData(data);
@@ -80,20 +80,20 @@ class test_SelfAuthenticationData
 		void orderedSelfData()
 		{
 			SelfAuthenticationData::OrderedSelfData expected;
-			expected << qMakePair("Family name"_L1, QStringLiteral("von Drebenbusch-Dalgo\u00DFen"));
-			expected << qMakePair("Birth name"_L1, QStringLiteral("Wei\u00dF"));
-			expected << qMakePair("Given name(s)"_L1, QStringLiteral("Hans-G\u00FCnther"));
-			expected << qMakePair("Doctoral degree"_L1, "Dr.eh.Dr."_L1);
-			expected << qMakePair("Date of birth"_L1, "25.01.1946"_L1);
-			expected << qMakePair("Place of birth"_L1, "BREMERHAVEN"_L1);
-			expected << qMakePair("Address"_L1, "WEG NR.12 8E"_L1);
-			expected << qMakePair(QString(), "22043 HAMBURG"_L1);
-			expected << qMakePair(QString(), "D"_L1);
-			expected << qMakePair("Document type"_L1, "ID"_L1);
-			expected << qMakePair("Nationality"_L1, "D"_L1);
-			expected << qMakePair("Religious / artistic name"_L1, QStringLiteral("Freiherr zu M\u00F6ckern-Windensberg"));
-			expected << qMakePair("Issuing country"_L1, "D"_L1);
-			expected << qMakePair("Date of expiry"_L1, "30.11.2029"_L1);
+			expected << std::make_pair("Family name"_L1, QStringLiteral("von Drebenbusch-Dalgo\u00DFen"));
+			expected << std::make_pair("Birth name"_L1, QStringLiteral("Wei\u00dF"));
+			expected << std::make_pair("Given name(s)"_L1, QStringLiteral("Hans-G\u00FCnther"));
+			expected << std::make_pair("Doctoral degree"_L1, "Dr.eh.Dr."_L1);
+			expected << std::make_pair("Date of birth"_L1, "25.01.1946"_L1);
+			expected << std::make_pair("Place of birth"_L1, "BREMERHAVEN"_L1);
+			expected << std::make_pair("Address"_L1, "WEG NR.12 8E"_L1);
+			expected << std::make_pair(QString(), "22043 HAMBURG"_L1);
+			expected << std::make_pair(QString(), "D"_L1);
+			expected << std::make_pair("Document type"_L1, "ID"_L1);
+			expected << std::make_pair("Nationality"_L1, "D"_L1);
+			expected << std::make_pair("Religious / artistic name"_L1, QStringLiteral("Freiherr zu M\u00F6ckern-Windensberg"));
+			expected << std::make_pair("Issuing country"_L1, "D"_L1);
+			expected << std::make_pair("Valid until"_L1, "30.11.2029"_L1);
 
 			const auto& data = TestFileHelper::readFile(":/self/SelfAuthenticationDataID.json"_L1);
 			SelfAuthenticationData selfAuthenticationData(data);

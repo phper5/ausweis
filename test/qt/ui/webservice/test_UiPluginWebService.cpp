@@ -188,9 +188,7 @@ class test_UiPluginWebService
 
 		void authentication()
 		{
-#if (QT_VERSION >= QT_VERSION_CHECK(6, 8, 0))
 			QSKIP("QTBUG-130666");
-#endif
 			connect(mUi.data(), &UiPlugin::fireWorkflowRequested, mUi.data(), &UiPlugin::onWorkflowStarted); // fake AppController
 
 			QTest::ignoreMessage(QtDebugMsg, "Request type: authentication");

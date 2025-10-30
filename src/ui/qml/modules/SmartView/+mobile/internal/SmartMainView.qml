@@ -28,9 +28,7 @@ ColumnLayout {
 		Layout.bottomMargin: Style.dimens.pane_spacing
 		Layout.maximumHeight: Style.dimens.header_icon_size
 	}
-	GText {
-		Layout.alignment: Qt.AlignHCenter
-		horizontalAlignment: Text.AlignHCenter
+	Heading {
 		text: {
 			switch (root.smartState) {
 			case SmartModel.State.UPDATING_STATUS:
@@ -43,7 +41,6 @@ ColumnLayout {
 				return "";
 			}
 		}
-		textStyle: Style.text.headline
 		visible: !root.showCheck
 		wrapMode: Text.WordWrap
 	}
@@ -84,13 +81,11 @@ ColumnLayout {
 
 			//: LABEL ANDROID IOS
 			text: qsTr("With the Smart-eID you may also use the online identification function without the ID card.")
-			width: parent.width
 		}
 		GText {
 
 			//: LABEL ANDROID IOS
 			text: qsTr("Check here if your device is suitable to set up a Smart-eID.")
-			width: parent.width
 		}
 	}
 	GSpacer {

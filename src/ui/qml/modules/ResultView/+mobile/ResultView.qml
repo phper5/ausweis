@@ -22,9 +22,11 @@ FlickableSectionPage {
 	property alias buttonText: buttonContinue.text
 	default property alias children: layout.data
 	property alias header: paneTitle.text
+	property string hintButtonLink
 	property alias hintButtonText: hintItem.buttonText
 	property alias hintText: hintItem.text
 	property alias hintTitle: hintItem.title
+	property string linkToOpen
 	property alias subheader: subheader.text
 	property alias text: resultText.text
 	property alias textFormat: resultText.textFormat
@@ -62,10 +64,9 @@ FlickableSectionPage {
 		Layout.maximumWidth: Number.POSITIVE_INFINITY
 		spacing: Style.dimens.pane_spacing
 
-		GText {
+		Subheading {
 			id: subheader
 
-			textStyle: Style.text.subline
 			visible: text !== ""
 		}
 		GText {
@@ -81,6 +82,7 @@ FlickableSectionPage {
 		id: hintItem
 
 		Layout.fillWidth: true
+		linkToOpen: root.hintButtonLink
 		//: LABEL ANDROID IOS
 		title: qsTr("Hint")
 		visible: text !== ""
@@ -90,6 +92,10 @@ FlickableSectionPage {
 	GButton {
 		id: buttonContinue
 
+		readonly property bool hasLink: root.linkToOpen !== ""
+
+		Accessible.description: hasLink ? Utils.platformAgnosticLinkOpenText(root.linkToOpen, Accessible.name) : ""
+		Accessible.role: hasLink ? Accessible.Link : Accessible.Button
 		Layout.alignment: Qt.AlignHCenter
 
 		//: LABEL ANDROID IOS

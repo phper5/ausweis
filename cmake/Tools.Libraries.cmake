@@ -13,11 +13,7 @@ if(NOT TARGET format.qml)
 		endif()
 	endfunction()
 
-	if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.25")
-		set(VALIDATOR VALIDATOR qmlformat_validator)
-	endif()
-
-	find_program(QMLFORMAT qmlformat HINTS "${QT_INSTALL_ARCHDATA}/bin" ${VALIDATOR} CMAKE_FIND_ROOT_PATH_BOTH)
+	find_program(QMLFORMAT qmlformat HINTS "${QT_INSTALL_ARCHDATA}/bin" VALIDATOR qmlformat_validator CMAKE_FIND_ROOT_PATH_BOTH)
 	if(QMLFORMAT)
 		execute_process(COMMAND ${QMLFORMAT} --version OUTPUT_VARIABLE QMLFORMAT_VERSION OUTPUT_STRIP_TRAILING_WHITESPACE)
 		string(REPLACE "qmlformat " "" QMLFORMAT_VERSION "${QMLFORMAT_VERSION}")

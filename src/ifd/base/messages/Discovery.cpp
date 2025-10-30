@@ -6,6 +6,7 @@
 #include "Discovery.h"
 
 #include "Initializer.h"
+#include "PortFile.h"
 #include "RemoteServiceSettings.h"
 
 #include <QJsonArray>
@@ -209,6 +210,12 @@ Discovery::Discovery(const QJsonObject& pMessageObject)
 }
 
 
+bool Discovery::isSupported() const
+{
+	return IfdVersion(IfdVersion::selectLatestSupported(mSupportedApis)).isValid();
+}
+
+
 const QString& Discovery::getIfdName() const
 {
 	return mIfdName;
@@ -245,7 +252,7 @@ bool Discovery::isPairing() const
 }
 
 
-void Discovery::setAddresses(const QList<QHostAddress>& pAddresses)
+void Discovery::setAddresses(const QSet<QHostAddress>& pAddresses)
 {
 	if (isIncomplete())
 	{
@@ -269,9 +276,27 @@ void Discovery::setAddresses(const QList<QHostAddress>& pAddresses)
 }
 
 
-const QList<QUrl>& Discovery::getAddresses() const
+bool Discovery::addressesMissing() const
+{
+	return mAddresses.isEmpty();
+}
+
+
+const QSet<QUrl>& Discovery::getAddresses() const
 {
 	return mAddresses;
+}
+
+
+bool Discovery::isLocalIfd() const
+{
+	if (mAddresses.size() != 1)
+	{
+		return false;
+	}
+
+	const auto& address = mAddresses.constBegin();
+	return address->port() == PortFile::cDefaultPort && QHostAddress(address->host()).isLoopback();
 }
 
 

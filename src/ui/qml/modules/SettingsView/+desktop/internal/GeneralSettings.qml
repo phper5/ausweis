@@ -12,11 +12,12 @@ import Governikus.Style
 ColumnLayout {
 	id: root
 
+	signal showUpdateRequested
+
 	spacing: Style.dimens.pane_spacing
 
 	GPane {
 		Layout.fillWidth: true
-		spacing: Style.dimens.pane_spacing
 		//: LABEL DESKTOP
 		title: qsTr("Change language")
 
@@ -24,13 +25,12 @@ ColumnLayout {
 			Utils.positionViewAtItem(this)
 
 		LanguageButtons {
-			columns: 4
 		}
 	}
 	GPane {
 		Layout.fillWidth: true
 		contentPadding: 0
-		spacing: 0
+		contentSpacing: Style.dimens.pane_spacing / 2
 		//: LABEL DESKTOP
 		title: qsTr("Appearance")
 
@@ -38,6 +38,8 @@ ColumnLayout {
 			Utils.positionViewAtItem(this)
 
 		DarkModeButtons {
+			Layout.leftMargin: Style.dimens.pane_padding
+			Layout.rightMargin: Style.dimens.pane_padding
 		}
 		GSwitch {
 			Layout.fillWidth: true
@@ -47,7 +49,7 @@ ColumnLayout {
 			description: qsTr("Toggling will restart the %1").arg(Qt.application.name)
 			drawBottomCorners: true
 			//: LABEL DESKTOP
-			text: qsTr("Use the system font")
+			text: qsTr("Use system font")
 
 			onCheckedChanged: {
 				if (checked !== SettingsModel.useSystemFont) {
@@ -62,7 +64,7 @@ ColumnLayout {
 	GPane {
 		Layout.fillWidth: true
 		contentPadding: 0
-		spacing: 0
+		contentSpacing: 0
 		//: LABEL DESKTOP
 		title: qsTr("Accessibility")
 
@@ -97,7 +99,7 @@ ColumnLayout {
 	GPane {
 		Layout.fillWidth: true
 		contentPadding: 0
-		spacing: 0
+		contentSpacing: 0
 		//: LABEL DESKTOP
 		title: qsTr("Behavior")
 
@@ -145,25 +147,66 @@ ColumnLayout {
 		}
 		GSwitch {
 			Layout.fillWidth: true
-			checked: SettingsModel.showInAppNotifications
-
-			//: LABEL DESKTOP Only visible when the user activates the developer mode in the settings.
-			description: SettingsModel.developerMode ? qsTr("Using the developer mode forces the notifications to be enabled.") : ""
-			drawBottomCorners: true
-			enabled: !SettingsModel.developerMode
+			checked: SettingsModel.autoUpdateCheck
+			//: LABEL DESKTOP %1 is replaced with the application name
+			description: qsTr("When you start %1, it automatically checks for updates. Updates are not performed automatically. If this option is disabled, you have to manually check for updates in the settings.").arg(Qt.application.name)
+			enabled: !SettingsModel.autoUpdateCheckSetByAdmin && !SettingsModel.appUpdateData.appcastRunning
 
 			//: LABEL DESKTOP
-			text: qsTr("Show notifications inside of %1").arg(Qt.application.name)
+			text: qsTr("Automatically check for software updates at program start (recommended)")
+			visible: SettingsModel.autoUpdateAvailable
 
-			onCheckedChanged: SettingsModel.showInAppNotifications = checked
-			onFocusChanged: if (focus)
-				Utils.positionViewAtItem(this)
+			onCheckedChanged: SettingsModel.autoUpdateCheck = checked
+		}
+		ColumnLayout {
+			readonly property bool isCheckingForUpdate: update.appcastRunning
+			readonly property var update: SettingsModel.appUpdateData
+			readonly property bool updateAvailable: SettingsModel.appUpdateData.updateAvailable
+			readonly property bool updateValid: SettingsModel.appUpdateData.valid
+
+			Layout.bottomMargin: Style.dimens.pane_padding
+			Layout.leftMargin: Style.dimens.pane_padding
+			Layout.rightMargin: Style.dimens.pane_padding
+			spacing: Style.dimens.pane_spacing
+			visible: SettingsModel.autoUpdateAvailable
+
+			GText {
+				color: (parent.updateAvailable || !parent.updateValid) ? Style.color.textNormal.basic : Style.color.textSubline.basic
+				text: parent.update.appcastStatus
+				visible: text !== ""
+			}
+			GButton {
+				//: LABEL DESKTOP
+				text: qsTr("Show update")
+				visible: parent.updateAvailable
+
+				onClicked: root.showUpdateRequested()
+			}
+			GProgressBar {
+				Layout.fillWidth: true
+				text: "%1 %".arg(Math.floor(value))
+				value: 100 * parent.update.appcastProgress / parent.update.appcastTotal
+				visible: parent.isCheckingForUpdate
+			}
+			GLink {
+				colorStyle: Style.color.linkTitle
+				font.underline: true
+				horizontalPadding: 0
+				text: !parent.isCheckingForUpdate ?
+				//: LABEL DESKTOP
+				qsTr("Start manual search for software update") :
+				//: LABEL DESKTOP
+				qsTr("Abort search")
+				verticalPadding: 0
+				visible: !parent.updateAvailable
+
+				onClicked: !parent.isCheckingForUpdate ? SettingsModel.updateAppcast() : SettingsModel.appUpdateData.abortDownload()
+			}
 		}
 	}
 	GPane {
 		Layout.fillWidth: true
 		contentPadding: 0
-		spacing: Style.dimens.pane_spacing
 		//: LABEL DESKTOP
 		title: qsTr("Network")
 		visible: SettingsModel.customProxyAttributesPresent

@@ -51,6 +51,8 @@ extend-ignore-re = [
     "posix-seh",
     "E-Mail-Adresse",
     "AppUpdatData",
+    "test_AppUpdatr",
+    "-DPENDING_PATCH",
 ]
 
 [default.extend-identifiers]

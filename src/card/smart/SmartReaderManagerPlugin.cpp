@@ -51,20 +51,20 @@ void SmartReaderManagerPlugin::onSmartAvailableChanged(bool pSmartAvailable)
 SmartReaderManagerPlugin::SmartReaderManagerPlugin()
 	: ReaderManagerPlugin(ReaderManagerPluginType::SMART)
 	, mReaderAdded(false)
-	, mSmartReader(nullptr)
+	, mReader(nullptr)
 {
 	connect(&Env::getSingleton<AppSettings>()->getGeneralSettings(), &GeneralSettings::fireSmartAvailableChanged, this, &SmartReaderManagerPlugin::onSmartAvailableChanged);
 }
 
 
-QList<Reader*> SmartReaderManagerPlugin::getReaders() const
+QPointer<Reader> SmartReaderManagerPlugin::getReader(const QString& pReaderName) const
 {
-	if (mSmartReader)
+	if (mReader && mReader->getName() == pReaderName)
 	{
-		return {mSmartReader.data()};
+		return mReader.data();
 	}
 
-	return {};
+	return nullptr;
 }
 
 
@@ -91,13 +91,13 @@ void SmartReaderManagerPlugin::init()
 	}
 
 	setPluginAvailable(true);
-	mSmartReader.reset(new SmartReader(READER_NAME()));
-	connect(mSmartReader.data(), &SmartReader::fireReaderPropertiesUpdated, this, &SmartReaderManagerPlugin::fireReaderPropertiesUpdated);
-	connect(mSmartReader.data(), &SmartReader::fireCardInfoChanged, this, &SmartReaderManagerPlugin::fireCardInfoChanged);
-	connect(mSmartReader.data(), &SmartReader::fireCardInserted, this, &SmartReaderManagerPlugin::fireCardInserted);
-	connect(mSmartReader.data(), &SmartReader::fireCardRemoved, this, &SmartReaderManagerPlugin::fireCardRemoved);
-	qCDebug(card_smart) << "Add reader" << mSmartReader->getName();
-	publishReader(mSmartReader->getReaderInfo());
+	mReader.reset(new SmartReader(READER_NAME()));
+	connect(mReader.data(), &SmartReader::fireReaderPropertiesUpdated, this, &SmartReaderManagerPlugin::fireReaderPropertiesUpdated);
+	connect(mReader.data(), &SmartReader::fireCardInfoChanged, this, &SmartReaderManagerPlugin::fireCardInfoChanged);
+	connect(mReader.data(), &SmartReader::fireCardInserted, this, &SmartReaderManagerPlugin::fireCardInserted);
+	connect(mReader.data(), &SmartReader::fireCardRemoved, this, &SmartReaderManagerPlugin::fireCardRemoved);
+	qCDebug(card_smart) << "Add reader" << mReader->getName();
+	publishReader(mReader->getReaderInfo());
 }
 
 
@@ -108,7 +108,7 @@ void SmartReaderManagerPlugin::shutdown()
 		return;
 	}
 
-	mSmartReader.reset();
+	mReader.reset();
 	Q_EMIT fireReaderPropertiesUpdated(ReaderInfo(READER_NAME()));
 	setPluginAvailable(false);
 }
@@ -128,13 +128,13 @@ void SmartReaderManagerPlugin::insert(const QString& pReaderName, const QVariant
 		return;
 	}
 
-	if (mSmartReader->getReaderInfo().getName() != pReaderName)
+	if (mReader->getReaderInfo().getName() != pReaderName)
 	{
 		qCDebug(card_smart) << "Skipping insert because of an unexpected reader name";
 		return;
 	}
 
-	mSmartReader->insertCard(pData);
+	mReader->insertCard(pData);
 }
 
 
@@ -142,7 +142,7 @@ void SmartReaderManagerPlugin::startScan(bool pAutoConnect)
 {
 	if (getInfo().isAvailable())
 	{
-		mSmartReader->connectReader();
+		mReader->connectReader();
 		ReaderManagerPlugin::startScan(pAutoConnect);
 	}
 }
@@ -152,7 +152,16 @@ void SmartReaderManagerPlugin::stopScan(const QString& pError)
 {
 	if (getInfo().isAvailable())
 	{
-		mSmartReader->disconnectReader(pError);
+		mReader->disconnectReader(pError);
 		ReaderManagerPlugin::stopScan(pError);
+	}
+}
+
+
+void SmartReaderManagerPlugin::shelveAll() const
+{
+	if (mReader)
+	{
+		shelve(mReader.data());
 	}
 }

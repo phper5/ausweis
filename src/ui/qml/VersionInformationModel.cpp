@@ -37,7 +37,7 @@ void VersionInformationModel::init()
 	mData.clear();
 
 	BuildHelper::processInformationHeader([this](const QString& pKey, const QString& pValue){
-				mData += qMakePair(pKey, pValue);
+				mData += std::make_pair(pKey, pValue);
 			});
 }
 
@@ -50,7 +50,7 @@ int VersionInformationModel::rowCount(const QModelIndex&) const
 
 QVariant VersionInformationModel::data(const QModelIndex& pIndex, int pRole) const
 {
-	if (pIndex.isValid() && pIndex.row() < rowCount())
+	if (pIndex.isValid() && pIndex.row() < rowCount(pIndex))
 	{
 		const auto& [key, value] = std::as_const(mData).at(pIndex.row());
 		if (pRole == KEY)

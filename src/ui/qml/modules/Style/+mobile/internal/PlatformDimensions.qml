@@ -35,13 +35,10 @@ BrandDimensions {
 	readonly property int pane_radius: 22
 	readonly property int pane_spacing: 20
 	readonly property int popup_border: 0
-	readonly property int progress_bar_border: 2
-	readonly property int progress_bar_height: 32
 	property int screenHeight: 0
 	readonly property int scrollbar_padding_horizontal: 0
 	readonly property int scrollbar_padding_vertical: 5
 	readonly property int scrollbar_width: 5
-	readonly property int separator_size: 1
 	readonly property int small_icon_size: 24
 	readonly property int stagedprogressbar_height: 8
 	readonly property int stagedprogressbar_spacing: 5

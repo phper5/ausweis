@@ -26,7 +26,7 @@ EnterPasswordView {
 	title: qsTr("Pairing")
 
 	titleBarSettings: TitleBarSettings {
-		navigationAction: NavigationAction.Cancel
+		navigationAction: NavigationAction.Action.Cancel
 
 		onNavigationActionClicked: root.pairingFailed()
 	}

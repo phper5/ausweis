@@ -294,7 +294,7 @@ void RemoteServiceModel::onEstablishConnectionDone(const QSharedPointer<IfdListE
 	const auto* const ifdClient = Env::getSingleton<RemoteIfdClient>();
 	disconnect(ifdClient, &IfdClient::fireEstablishConnectionDone, this, &RemoteServiceModel::onEstablishConnectionDone);
 	qDebug() << "Pairing finished:" << pStatus;
-	const auto deviceName = RemoteServiceSettings::escapeDeviceName(pEntry->getIfdDescriptor().getIfdName());
+	const auto deviceName = RemoteServiceSettings::escapeDeviceName(pEntry->getDiscovery().getIfdName());
 	if (pStatus.isError())
 	{
 		Q_EMIT firePairingFailed(deviceName, pStatus.toErrorDescription());

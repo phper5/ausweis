@@ -16,18 +16,15 @@ BaseOnboardingView {
 	signal useUsbReader
 
 	titleBarSettings: TitleBarSettings {
-		navigationAction: NavigationAction.Back
+		navigationAction: NavigationAction.Action.Back
 		startEnabled: false
 
 		onNavigationActionClicked: root.leaveView()
 	}
 
-	GText {
-		Layout.alignment: Qt.AlignHCenter
-		horizontalAlignment: Text.AlignHCenter
+	Heading {
 		//: LABEL DESKTOP
 		text: qsTr("How would you like to read your ID card?")
-		textStyle: Style.text.headline
 	}
 	GSpacer {
 		Layout.fillHeight: true

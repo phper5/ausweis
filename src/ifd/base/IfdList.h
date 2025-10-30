@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include "IfdDescriptor.h"
 #include "IfdListEntry.h"
+#include "messages/Discovery.h"
 
 #include <QList>
 
@@ -27,7 +27,7 @@ class IfdList
 		IfdList() = default;
 		~IfdList() override = default;
 
-		virtual void update(const IfdDescriptor& pDescriptor) = 0;
+		virtual void update(const Discovery& pDiscovery) = 0;
 		virtual void clear() = 0;
 		[[nodiscard]] virtual QList<QSharedPointer<IfdListEntry>> getIfdList() const;
 };

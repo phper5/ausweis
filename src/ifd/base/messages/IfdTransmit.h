@@ -5,17 +5,15 @@
 #pragma once
 
 #include "IfdMessage.h"
-
-#include <QByteArray>
+#include "IfdSlotHandle.h"
 
 
 namespace governikus
 {
 class IfdTransmit
-	: public IfdMessage
+	: public IfdSlotHandle<IfdMessage>
 {
 	private:
-		QString mSlotHandle;
 		QByteArray mInputApdu;
 		QString mDisplayText;
 
@@ -26,7 +24,6 @@ class IfdTransmit
 		explicit IfdTransmit(const QJsonObject& pMessageObject);
 		~IfdTransmit() override = default;
 
-		[[nodiscard]] const QString& getSlotHandle() const;
 		[[nodiscard]] const QByteArray& getInputApdu() const;
 		[[nodiscard]] const QString& getDisplayText() const;
 		[[nodiscard]] QByteArray toByteArray(IfdVersion::Version pIfdVersion, const QString& pContextHandle) const override;

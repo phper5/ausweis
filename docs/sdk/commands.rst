@@ -1,3 +1,5 @@
+.. _commands:
+
 Commands
 --------
 Your application (client) can send some commands (**cmd**) to

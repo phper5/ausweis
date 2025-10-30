@@ -19,6 +19,7 @@ class MockNetworkReply
 	Q_OBJECT
 
 	private:
+		QSslConfiguration mSslConfig;
 		MockSocket mSocket;
 
 	public:
@@ -53,6 +54,24 @@ class MockNetworkReply
 		void setRequest(const QNetworkRequest& pRequest)
 		{
 			QNetworkReply::setRequest(pRequest);
+		}
+
+
+		void setSslConfigurationImplementation(const QSslConfiguration& pConfiguration) override
+		{
+			mSslConfig = pConfiguration;
+		}
+
+
+		void sslConfigurationImplementation(QSslConfiguration& configuration) const override
+		{
+			configuration = mSslConfig;
+		}
+
+
+		QUrl url() const
+		{
+			return QUrl();
 		}
 
 

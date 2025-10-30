@@ -23,7 +23,6 @@ Column {
 	signal scrollPageUp
 
 	visible: repeater.count > 0
-	width: parent.width
 
 	PaneTitle {
 		id: dataTitle
@@ -68,14 +67,15 @@ Column {
 				onFocusChanged: item.focus = focus // QTBUG-122734
 
 				GSeparator {
-					anchors.left: parent.left
 					visible: !delegateLoader.isLast
+					z: 1
 
 					anchors {
+						bottom: parent.bottom
+						left: parent.left
 						leftMargin: Style.dimens.pane_padding
 						right: parent.right
 						rightMargin: Style.dimens.pane_padding
-						top: parent.bottom
 					}
 				}
 				Component {

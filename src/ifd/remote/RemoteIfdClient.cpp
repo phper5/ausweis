@@ -54,19 +54,18 @@ void RemoteIfdClient::onNewMessage(const QByteArray& pData, const QHostAddress& 
 		return;
 	}
 
-	if (discovery.getAddresses().isEmpty())
+	// addresses was introduced with 2.3.2. Use source for older versions.
+	if (discovery.addressesMissing())
 	{
 		discovery.setAddresses({pAddress});
+		if (discovery.addressesMissing())
+		{
+			qCCritical(ifd) << "Dropping message from unparsable address:" << pAddress;
+			return;
+		}
 	}
 
-	const IfdDescriptor remoteDeviceDescriptor(discovery);
-	if (remoteDeviceDescriptor.isNull())
-	{
-		qCCritical(ifd) << "Dropping message from unparsable address:" << pAddress;
-		return;
-	}
-
-	mIfdList->update(remoteDeviceDescriptor);
+	mIfdList->update(discovery);
 }
 
 

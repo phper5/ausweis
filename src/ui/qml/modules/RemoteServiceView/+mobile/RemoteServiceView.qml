@@ -72,9 +72,7 @@ FlickableSectionPage {
 		spacing: root.spacing
 		visible: root.nfcState !== ApplicationModel.NfcState.UNAVAILABLE
 
-		GText {
-			Layout.alignment: Qt.AlignHCenter
-			horizontalAlignment: Text.AlignHCenter
+		Heading {
 			//: LABEL ANDROID IOS
 			text: !ApplicationModel.wifiEnabled ? qsTr("WiFi not active") :
 			//: LABEL ANDROID IOS
@@ -91,7 +89,6 @@ FlickableSectionPage {
 			root.runnableNoPairedDevice ? qsTr("No device paired") :
 			//: LABEL ANDROID IOS
 			RemoteServiceModel.runnable && knownDeviceList.count > 0 && root.notRunningNoPairingMode ? qsTr("Card reader not active") : ""
-			textStyle: Style.text.headline
 			visible: text !== ""
 		}
 		TintableIcon {
@@ -106,14 +103,12 @@ FlickableSectionPage {
 		AnimationLoader {
 			Layout.alignment: Qt.AlignHCenter
 			animated: false
-			symbol: RemoteServiceModel.running ? Symbol.CHECK : Symbol.ERROR
-			type: AnimationLoader.WAIT_FOR_SAC
+			symbol: RemoteServiceModel.running ? Symbol.Type.CHECK : Symbol.Type.ERROR
+			type: AnimationLoader.Type.WAIT_FOR_SAC
 			visible: !pairingIcon.visible
 		}
-		GText {
+		Subheading {
 			id: subline
-
-			textStyle: Style.text.subline
 
 			states: [
 				State {
@@ -350,44 +345,41 @@ FlickableSectionPage {
 		id: knownDevicesContainer
 
 		containerPadding: Style.dimens.pane_padding
+		containerSpacing: Style.dimens.text_spacing
 		//: LABEL ANDROID IOS
 		title: qsTr("Paired Devices")
 		visible: RemoteServiceModel.runnable && knownDeviceList.count > 0 && !progressText.visible
 
-		ColumnLayout {
-			id: knownDevices
+		Repeater {
+			id: knownDeviceList
 
-			spacing: Style.dimens.text_spacing
-			width: parent.width
+			model: RemoteServiceModel.allDevices
 
-			Repeater {
-				id: knownDeviceList
-
-				model: RemoteServiceModel.allDevices
-
-				delegate: DevicesListDelegate {
-					Layout.fillWidth: true
-					linkQualityVisible: false
-					showSeparator: index < knownDeviceList.count - 1 || addPairingLink.visible
-					titleColor: Style.color.textNormal.basic
-				}
+			delegate: DevicesListDelegate {
+				Layout.fillWidth: true
+				linkQualityVisible: false
+				titleColor: Style.color.textNormal.basic
 			}
-			GLink {
-				id: addPairingLink
+		}
+		GSeparator {
+			Layout.fillWidth: true
+			visible: addPairingLink.visible
+		}
+		GLink {
+			id: addPairingLink
 
-				//: LABEL ANDROID IOS
-				Accessible.name: qsTr("Start pairing of a new device")
-				Layout.alignment: Qt.AlignLeft
-				horizontalPadding: 0
-				icon.source: "qrc:///images/material_add.svg"
-				//: LABEL ANDROID IOS
-				text: qsTr("Pair new device")
-				tintIcon: true
-				verticalPadding: 0
-				visible: root.notRunningNoPairingMode
+			//: LABEL ANDROID IOS
+			Accessible.name: qsTr("Start pairing of a new device")
+			Layout.alignment: Qt.AlignLeft
+			horizontalPadding: 0
+			icon.source: "qrc:///images/material_add.svg"
+			//: LABEL ANDROID IOS
+			text: qsTr("Pair new device")
+			tintIcon: true
+			verticalPadding: 0
+			visible: root.notRunningNoPairingMode
 
-				onClicked: RemoteServiceModel.setRunning(!RemoteServiceModel.running, !RemoteServiceModel.isPairing)
-			}
+			onClicked: RemoteServiceModel.setRunning(!RemoteServiceModel.running, !RemoteServiceModel.isPairing)
 		}
 	}
 	GSpacer {
@@ -399,6 +391,8 @@ FlickableSectionPage {
 		visible: RemoteServiceModel.requiresLocalNetworkPermission
 	}
 	GProgressBar {
+		//: LABEL ANDROID IOS Name of an progress indicator during the pairing process read by screen readers
+		Accessible.name: qsTr("Pairing progress")
 		Layout.fillWidth: true
 		value: RemoteServiceModel.percentage
 		visible: progressText.visible

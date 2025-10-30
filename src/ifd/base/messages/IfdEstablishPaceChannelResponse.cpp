@@ -16,7 +16,6 @@ using namespace governikus;
 
 namespace
 {
-VALUE_NAME(SLOT_HANDLE, "SlotHandle")
 VALUE_NAME(RESULT_CODE, "ResultCode")
 VALUE_NAME(OUTPUT_DATA, "OutputData")
 } // namespace
@@ -60,29 +59,19 @@ void IfdEstablishPaceChannelResponse::parseOutputData(const QJsonObject& pMessag
 
 
 IfdEstablishPaceChannelResponse::IfdEstablishPaceChannelResponse(const QString& pSlotHandle, const EstablishPaceChannelOutput& pOutputData, ECardApiResult::Minor pResultMinor)
-	: IfdMessageResponse(IfdMessageType::IFDEstablishPACEChannelResponse, pResultMinor)
-	, mSlotHandle(pSlotHandle)
+	: IfdSlotHandle<IfdMessageResponse>(IfdMessageType::IFDEstablishPACEChannelResponse, pSlotHandle, pResultMinor)
 	, mOutputData(pOutputData)
 {
 }
 
 
 IfdEstablishPaceChannelResponse::IfdEstablishPaceChannelResponse(const QJsonObject& pMessageObject)
-	: IfdMessageResponse(pMessageObject)
-	, mSlotHandle()
+	: IfdSlotHandle<IfdMessageResponse>(pMessageObject)
 	, mOutputData()
 {
-	mSlotHandle = getStringValue(pMessageObject, SLOT_HANDLE());
-
 	parseOutputData(pMessageObject);
 
 	ensureType(IfdMessageType::IFDEstablishPACEChannelResponse);
-}
-
-
-const QString& IfdEstablishPaceChannelResponse::getSlotHandle() const
-{
-	return mSlotHandle;
 }
 
 
@@ -121,7 +110,6 @@ QByteArray IfdEstablishPaceChannelResponse::toByteArray(IfdVersion::Version pIfd
 {
 	QJsonObject result = createMessageBody(pContextHandle);
 
-	result[SLOT_HANDLE()] = mSlotHandle;
 	if (pIfdVersion >= IfdVersion::Version::v2)
 	{
 		result[RESULT_CODE()] = QString::fromLatin1(mOutputData.toResultCode().toHex());

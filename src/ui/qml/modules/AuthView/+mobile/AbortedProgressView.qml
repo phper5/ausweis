@@ -14,7 +14,6 @@ ProgressView {
 
 	//: INFO DESKTOP The user aborted the authentication process, according to TR we need to inform the service provider
 	headline: qsTr("Aborting process and informing the service provider")
-	progressBarVisible: false
 	text: {
 		if (networkInterfaceActive) {
 			//: INFO DESKTOP Information message about cancellation process with present network connectivity

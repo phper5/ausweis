@@ -15,6 +15,7 @@
 #include "MockNetworkManager.h"
 #include "MockNetworkReply.h"
 
+#include <QNetworkReply>
 #include <QtCore>
 #include <QtNetwork>
 #include <QtTest>
@@ -125,6 +126,47 @@ class test_NetworkManager
 		}
 
 
+		void test_onSslErrors_OcspNoResponseFound()
+		{
+			auto sessionTicket = QByteArray("sessionTicket");
+			auto networkManager = Env::getSingleton<NetworkManager>();
+			auto reply = QSharedPointer<MockNetworkReply>::create();
+			auto spy = QSignalSpy(reply.data(), &QNetworkReply::finished);
+			auto sslcfg = QSslConfiguration();
+
+			sslcfg.setSessionTicket(sessionTicket);
+			networkManager->mUpdaterSessions.insert(sessionTicket);
+			reply->setSslConfigurationImplementation(sslcfg);
+			networkManager->onSslErrors(reply, QList<QSslError>(1, {QSslError(QSslError::OcspNoResponseFound)}));
+			QCOMPARE(spy.count(), 0);
+		}
+
+
+		void test_onSslErrors_CertificateBlacklisted()
+		{
+			auto networkManager = Env::getSingleton<NetworkManager>();
+			auto reply = QSharedPointer<MockNetworkReply>::create();
+			auto spy = QSignalSpy(reply.data(), &QNetworkReply::finished);
+			auto sslcfg = QSslConfiguration();
+
+			reply->setSslConfigurationImplementation(sslcfg);
+			QTest::ignoreMessage(QtCriticalMsg, QRegularExpression(QStringLiteral("Fatal SSL error: .*")));
+			networkManager->onSslErrors(reply, QList<QSslError>(1, {QSslError(QSslError::CertificateBlacklisted)}));
+			QCOMPARE(spy.count(), 1);
+		}
+
+
+		void test_onEncryptedResponse()
+		{
+			auto networkManager = Env::getSingleton<NetworkManager>();
+			auto reply = QSharedPointer<MockNetworkReply>::create();
+			auto spy = QSignalSpy(reply.data(), &QNetworkReply::finished);
+			QTest::ignoreMessage(QtCriticalMsg, QRegularExpression(QStringLiteral("Untrusted certificate found .*")));
+			networkManager->onEncryptedResponse(reply);
+			QCOMPARE(spy.count(), 1);
+		}
+
+
 		void serviceUnavailableWorkflow()
 		{
 			MockNetworkManager networkManager;
@@ -134,6 +176,8 @@ class test_NetworkManager
 					}, Qt::QueuedConnection);
 
 			auto* reply = new MockNetworkReply();
+			const auto url = reply->url().toString();
+			reply->setAttribute(QNetworkRequest::HttpStatusCodeAttribute, QVariant(503));
 			reply->setError(QNetworkReply::ServiceUnavailableError, "dummy"_L1);
 			networkManager.setNextReply(reply);
 
@@ -148,7 +192,11 @@ class test_NetworkManager
 			controller.run();
 
 			QTRY_COMPARE(spy.count(), 1); // clazy:exclude=qstring-allocations
-			QCOMPARE(context->getStatus(), GlobalStatus(GlobalStatus::Code::Workflow_TrustedChannel_ServiceUnavailable, {GlobalStatus::ExternalInformation::LAST_URL, QString()}));
+			const GlobalStatus::ExternalInfoMap infoMap {
+				{GlobalStatus::ExternalInformation::HTTP_STATUS_CODE, QString::number(503)},
+				{GlobalStatus::ExternalInformation::LAST_URL, url}
+			};
+			QCOMPARE(context->getStatus(), GlobalStatus(GlobalStatus::Code::Workflow_TrustedChannel_ServiceUnavailable, infoMap));
 		}
 
 

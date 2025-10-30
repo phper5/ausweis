@@ -1,24 +1,27 @@
 /**
  * Copyright (c) 2019-2025 Governikus GmbH & Co. KG, Germany
  */
+
 import QtQuick
-import QtQuick.Controls
 import QtQuick.Layouts
 import Governikus.Global
 import Governikus.Style
 import Governikus.View
 
-AbstractButton {
+GAbstractButton {
 	id: root
 
 	property alias description: descriptionText.text
 	property bool drawBottomCorners: false
 	property bool drawTopCorners: false
+	readonly property bool hasLink: linkToOpen !== ""
+	property string linkToOpen
 	property alias tintIcon: iconItem.tintEnabled
 	property alias title: titleText.text
 
+	Accessible.description: hasLink ? Utils.platformAgnosticLinkOpenText(linkToOpen, Accessible.name) : ""
 	Accessible.name: title + ". " + description
-	Accessible.role: Accessible.Button
+	Accessible.role: hasLink ? Accessible.Link : Accessible.Button
 	icon.source: "qrc:///images/material_arrow_right.svg"
 	padding: Style.dimens.pane_padding
 
@@ -47,7 +50,6 @@ AbstractButton {
 				id: titleText
 
 				Accessible.ignored: true
-				activeFocusOnTab: false
 				textStyle: Style.text.subline
 				visible: text !== ""
 			}
@@ -55,7 +57,6 @@ AbstractButton {
 				id: descriptionText
 
 				Accessible.ignored: true
-				activeFocusOnTab: false
 				visible: text !== ""
 			}
 		}
@@ -69,8 +70,10 @@ AbstractButton {
 		}
 	}
 
-	onFocusChanged: if (focus)
-		Utils.positionViewAtItem(this)
+	Accessible.onScrollDownAction: Utils.scrollPageDownOnGFlickable(this)
+	Accessible.onScrollUpAction: Utils.scrollPageUpOnGFlickable(this)
+	onClicked: if (hasLink)
+		Qt.openUrlExternally(linkToOpen)
 
 	StatefulColors {
 		id: colors

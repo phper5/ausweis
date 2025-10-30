@@ -24,37 +24,36 @@ workflow:
         PIPELINE_NAME: '${REVIEWBOARD_REVIEW_ID} / ${REVIEWBOARD_DIFF_REVISION}'
     - if: '$PATCH_IDENTIFIER != null'
       variables:
-        PIPELINE_NAME: 'Revision: $[[ inputs.revision ]] | Patch: ${PATCH_IDENTIFIER}'
+        PIPELINE_NAME: 'Rev: $[[ inputs.revision ]] | Patch: ${PATCH_IDENTIFIER}'
+    - if: '$SELECT_JOB_REGEX != null'
+      variables:
+        PIPELINE_NAME: 'Rev: $[[ inputs.revision ]] | ${SELECT_JOB_REGEX}'
     - when: always
       variables:
-        PIPELINE_NAME: 'Revision: $[[ inputs.revision ]]'
+        PIPELINE_NAME: 'Rev: $[[ inputs.revision ]]'
 
 stages:
   - generator
   - trigger
 
-bootstrap:
+Bootstrap:
   stage: generator
+  tags:
+    - $BOOTSTRAP_RUNNER
+  variables:
+    VIRTUAL_ENV: $CI_PROJECT_DIR/venv
   before_script:
     - env
-    - apk add mercurial
+    - apk add mercurial cmake uv
+    - uv venv $VIRTUAL_ENV
+    - source $VIRTUAL_ENV/bin/activate
   script:
-    - echo "RELEASE=$[[ inputs.release ]]" >> env
-    - echo "REV=$[[ inputs.revision ]]" >> env
     - hg clone -U ${REPOSITORY} source
-    - cd source
-    - hg update -r $[[ inputs.revision ]]
-    - echo "REVISION=$(hg log -r . -T '{node}')" >> ../env
-    - |
-      if [ -n "$REVIEWBOARD_REVIEW_ID" ]; then
-         apk add rbtools
-         rbt patch --server ${REVIEWBOARD_SERVER} --diff-revision ${REVIEWBOARD_DIFF_REVISION} ${REVIEWBOARD_REVIEW_ID}
-      elif [ -n "$PATCH_URL" ]; then
-         wget --header "JOB-TOKEN: ${CI_JOB_TOKEN}" -qO - "${PATCH_URL}" | hg --config patch.eol=auto import --no-commit -
-      fi
+    - hg update -r $[[ inputs.revision ]] -R source
+    - cmake -DSPLIT=OFF -DRELEASE="$[[ inputs.release ]]" -DREV="$[[ inputs.revision ]]" -P source/ci.cmake
   artifacts:
     paths:
-      - source/.gitlab-ci-child.yml
+      - gitlab-ci-child.yml
     reports:
       dotenv: env
 
@@ -62,8 +61,8 @@ execute:
   stage: trigger
   trigger:
     include:
-      - artifact: source/.gitlab-ci-child.yml
-        job: bootstrap
+      - artifact: gitlab-ci-child.yml
+        job: Bootstrap
     strategy: depend
     forward:
       pipeline_variables: true

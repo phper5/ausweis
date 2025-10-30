@@ -9,8 +9,9 @@
 #include "MockNetworkManager.h"
 
 #include <QList>
-#include <QPair>
 #include <QtTest>
+
+#include <utility>
 
 
 Q_DECLARE_LOGGING_CATEGORY(network)
@@ -19,7 +20,7 @@ using namespace Qt::Literals::StringLiterals;
 using namespace governikus;
 
 
-using Pair = QPair<QByteArray, QByteArray>;
+using Pair = std::pair<QByteArray, QByteArray>;
 Q_DECLARE_METATYPE(QList<Pair>)
 
 

@@ -6,7 +6,6 @@
 
 #include "context/WorkflowContext.h"
 
-#include <QPair>
 #include <QVariant>
 
 #include <functional>
@@ -48,7 +47,7 @@ class WorkflowRequest final
 						return QSharedPointer<Context>::create(std::forward<Args>(pArgs) ...);
 					};
 
-			return qMakePair(controller, context);
+			return std::make_pair(controller, context);
 		}
 
 	public:

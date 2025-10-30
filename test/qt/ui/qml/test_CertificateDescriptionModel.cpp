@@ -56,7 +56,7 @@ class test_CertificateDescriptionModel
 		{
 			QSignalSpy spy(mModel, &CertificateDescriptionModel::fireChanged);
 			mModel->resetContext(mContext);
-			QCOMPARE(mModel->rowCount(), 4);
+			QCOMPARE(mModel->rowCount(QModelIndex()), 4);
 
 			const QString termsOfUsage = QStringLiteral("Name, Anschrift und E-Mail-Adresse des Diensteanbieters:\nGovernikus GmbH & Co. KG\nHochschulring 4\n28359 Bremen\nE-Mail: kontakt@governikus.de ");
 			QCOMPARE(mModel->data(mModel->index(0), CertificateDescriptionModel::UserRoles::LABEL), "Provider"_L1);

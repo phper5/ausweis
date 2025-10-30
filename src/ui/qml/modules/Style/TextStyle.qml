@@ -4,7 +4,7 @@
 import QtQuick
 
 QtObject {
-	property int fontWeight: Font.Normal
+	property int fontWeight: Style.font.bold
 	property real lineHeight: Style.dimens.lineHeight
 	property color textColor: Style.color.textNormal.basic
 	property real textSize: Style.dimens.text

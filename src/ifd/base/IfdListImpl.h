@@ -26,10 +26,10 @@ class IfdListImpl
 		void onProcessUnresponsiveRemoteReaders();
 
 	public:
-		IfdListImpl(int pCheckInterval = 1000, int pReaderResponsiveTimeout = 5000);
+		explicit IfdListImpl(int pCheckInterval = 1000, int pReaderResponsiveTimeout = 5000);
 		~IfdListImpl() override;
 
-		void update(const IfdDescriptor& pDescriptor) override;
+		void update(const Discovery& pDiscovery) override;
 		void clear() override;
 		[[nodiscard]] QList<QSharedPointer<IfdListEntry>> getIfdList() const override;
 };

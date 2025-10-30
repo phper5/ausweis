@@ -16,6 +16,25 @@ Q_DECLARE_LOGGING_CATEGORY(qml)
 
 using namespace governikus;
 
+QJniObject getAndroidResources_helper()
+{
+	QJniObject ctx = QNativeInterface::QAndroidApplication::context();
+	if (!ctx.isValid())
+	{
+		qCWarning(qml) << "Android context is invalid" << ctx.toString();
+		return QJniObject();
+	}
+	auto rsc = ctx.callObjectMethod(
+			"getResources",
+			"()Landroid/content/res/Resources;");
+	if (!rsc.isValid())
+	{
+		qCWarning(qml) << "Android resources are invalid" << rsc.toString();
+		return QJniObject();
+	}
+	return rsc;
+}
+
 
 extern "C"
 {
@@ -34,24 +53,9 @@ JNIEXPORT void JNICALL Java_com_governikus_ausweisapp2_MainActivity_notifyConfig
 
 qreal UiPluginQml::getSystemFontScaleFactor() const
 {
-	QJniObject ctx = QNativeInterface::QAndroidApplication::context();
-	if (!ctx.isValid())
-	{
-		qCWarning(qml) << "Android context is invalid" << ctx.toString();
-		return 1.0;
-	}
-	auto rsc = ctx.callObjectMethod(
-			"getResources",
-			"()Landroid/content/res/Resources;");
+	QJniObject rsc = getAndroidResources_helper();
 	if (!rsc.isValid())
 	{
-		qCWarning(qml) << "Android resources are invalid" << rsc.toString();
-		return 1.0;
-	}
-	auto cfg = rsc.callObjectMethod("getConfiguration", "()Landroid/content/res/Configuration;");
-	if (!cfg.isValid())
-	{
-		qCWarning(qml) << "Android configuration is invalid" << cfg.toString();
 		return 1.0;
 	}
 	auto displayMetrics = rsc.callObjectMethod("getDisplayMetrics", "()Landroid/util/DisplayMetrics;");
@@ -66,7 +70,29 @@ qreal UiPluginQml::getSystemFontScaleFactor() const
 }
 
 
+int UiPluginQml::getSystemFontWeightAdjustment() const
+{
+	if (QJniObject::getStaticField<jint>("android/os/Build$VERSION", "SDK_INT") < 31) // Android 12
+	{
+		return 0;
+	}
+	QJniObject rsc = getAndroidResources_helper();
+	if (!rsc.isValid())
+	{
+		return 0;
+	}
+	auto cfg = rsc.callObjectMethod("getConfiguration", "()Landroid/content/res/Configuration;");
+	if (!cfg.isValid())
+	{
+		qCWarning(qml) << "Android configuration is invalid" << cfg.toString();
+		return 0;
+	}
+	return cfg.getField<jint>("fontWeightAdjustment");
 }
+
+
+}
+
 
 void UiPluginQml::onUserDarkModeChanged() const
 {
@@ -74,4 +100,16 @@ void UiPluginQml::onUserDarkModeChanged() const
 	{
 		activity.callMethod<void>("setAppearanceLightStatusBars", "(Z)V", !isDarkModeEnabled());
 	}
+}
+
+
+bool UiPluginQml::getA11yButtonShapeActive() const
+{
+	return false;
+}
+
+
+bool UiPluginQml::getA11yOnOffSwitchLabelActive() const
+{
+	return false;
 }

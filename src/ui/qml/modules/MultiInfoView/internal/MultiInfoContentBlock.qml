@@ -9,7 +9,7 @@ import Governikus.Animations
 
 QtObject {
 	property int blockAlignment: Qt.AlignLeft
-	property int blockHeaderAnimation: AnimationLoader.NONE
+	property int blockHeaderAnimation: AnimationLoader.Type.NONE
 	property url blockImage
 	property string blockTitle
 	property var paragraphList

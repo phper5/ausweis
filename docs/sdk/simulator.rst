@@ -1,8 +1,10 @@
+.. _simulator:
+
 Simulator
 =========
 The simulator provides a virtual card for testing purposes.
 It is enabled by default in all SDKs. This will be indicated by a :ref:`reader`
-message with the parameter **name** being `Simulator`.
+message with the parameter **name** being ``Simulator``.
 This virtual card can be inserted by :ref:`set_card` or can be automatically
 used in :ref:`automatic` mode.
 The default values of that virtual card are hardcoded and can be changed
@@ -26,6 +28,9 @@ The ``fileId`` and ``shortFileId`` are specified in `TR-03110_part4`_. The
 These are the default values if your application does not provide other values
 as **simulator** parameter in :ref:`set_card` or if you use the :ref:`automatic`
 mode of :doc:`desktop` or the :doc:`container` variant.
+
+.. versionchanged:: 2.4.0
+   Parameter **private** in **keys** removed.
 
 .. versionadded:: 2.2.0
    Parameter **content** in **keys** added.

@@ -68,7 +68,7 @@ GFlickableColumnLayout {
 		subTitleText: {
 			if (root.canUseSmart && !root.autoInsertCard) {
 				//: LABEL ANDROID IOS
-				return qsTr("Your Smart-eID is ready for use, press \"Continue\" to proceed.");
+				return qsTr("Your Smart-eID is ready for use, tap \"Continue\" to proceed.");
 			}
 			return "";
 		}

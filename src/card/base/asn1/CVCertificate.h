@@ -83,5 +83,4 @@ inline bool operator!=(const CVCertificate& pLeft, const CVCertificate& pRight)
 
 QDebug operator<<(QDebug pDbg, const governikus::CVCertificate& pCvc);
 QDebug operator<<(QDebug pDbg, const QSharedPointer<const governikus::CVCertificate>& pCvc);
-QDebug operator<<(QDebug pDbg, const QSharedPointer<governikus::CVCertificate>& pCvc);
-QDebug operator<<(QDebug pDbg, const QList<QSharedPointer<governikus::CVCertificate>>& pCvcs);
+QDebug operator<<(QDebug pDbg, const QList<QSharedPointer<const governikus::CVCertificate>>& pCvcs);

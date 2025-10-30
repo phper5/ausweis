@@ -21,7 +21,7 @@
       }
     },
     {
-      "name": "ci-ios-framework-simulator",
+      "name": "ci-ios-framework-simulator-x86_64",
       "inherits": "ci-ios-framework",
       "generator": "Xcode",
       "cacheVariables": {
@@ -31,7 +31,7 @@
     },
     {
       "name": "ci-ios-framework-simulator-arm64",
-      "inherits": "ci-ios-framework-simulator",
+      "inherits": "ci-ios-framework-simulator-x86_64",
       "cacheVariables": {
         "CMAKE_OSX_ARCHITECTURES": "arm64"
       }

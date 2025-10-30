@@ -411,15 +411,6 @@ bool WorkflowModel::showRemoveCardFeedback() const
 }
 
 
-void WorkflowModel::setRemoveCardFeedback(bool pEnabled)
-{
-	if (mContext)
-	{
-		mContext->setRemoveCardFeedback(pEnabled);
-	}
-}
-
-
 void WorkflowModel::setInitialPluginType()
 {
 #if defined(Q_OS_ANDROID) || defined(Q_OS_IOS)
@@ -501,7 +492,7 @@ void WorkflowModel::sendResultMail() const
 	Q_ASSERT(mContext);
 	QString mailSubject = getEmailHeader();
 	QString mailBody = getEmailBody(true, true);
-	QString url = QStringLiteral("mailto:support@ausweisapp.de?subject=%1&body=%2").arg(mailSubject, mailBody);
+	const auto url = QUrl(QStringLiteral("mailto:support@ausweisapp.de?subject=%1&body=%2").arg(mailSubject, mailBody));
 
 	QDesktopServices::openUrl(url);
 }

@@ -24,9 +24,6 @@ TestCase {
 		", testCase);
 	}
 	function test_load() {
-		if (hasBindingLoop && Style.is_layout_desktop) {
-			skip("Skip test because of QTBUG-110899");
-		}
 		let testObject = createTestObject();
 		verify(testObject, "Object loaded");
 	}

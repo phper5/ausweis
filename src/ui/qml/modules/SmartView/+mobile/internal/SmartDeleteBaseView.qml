@@ -73,7 +73,12 @@ FlickableSectionPage {
 
 			onCancelClicked: root.close()
 			onContinueClicked: root.close()
-			onMailClicked: LogModel.mailLog("support@ausweisapp.de", PersonalizationModel.getEmailHeader(), PersonalizationModel.getEmailBody())
+			onMailClicked: logModel.mailLogFile("support@ausweisapp.de", PersonalizationModel.getEmailHeader(), PersonalizationModel.getEmailBody())
+
+			LogModel {
+				id: logModel
+
+			}
 		}
 	}
 	TintableIcon {
@@ -89,13 +94,11 @@ FlickableSectionPage {
 		GText {
 			id: deleteDescription
 
-			width: parent.width
 		}
 		GText {
 
 			//: LABEL ANDROID IOS
 			text: qsTr("If you want to use that functionality again, you need to set up a new Smart-eID first.")
-			width: parent.width
 		}
 	}
 	GSpacer {

@@ -372,18 +372,17 @@ class Env
 			auto& holder = getInstance();
 			const QWriteLocker locker(&holder.mLock);
 
-			QMutableListIterator<Wrapper> iter(holder.mInstancesCreator);
-			while (iter.hasNext())
+			auto& creator = holder.mInstancesCreator;
+			for (auto iter = creator.begin(); iter != creator.end(); ++iter)
 			{
-				iter.next();
-				if (iter.value().dynamicCast<FuncWrapper<T, Args ...>>())
+				if (iter->dynamicCast<FuncWrapper<T, Args...>>())
 				{
-					iter.setValue(value);
+					*iter = value;
 					return;
 				}
 			}
 
-			holder.mInstancesCreator << value;
+			creator << value;
 		}
 
 

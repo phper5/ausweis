@@ -7,7 +7,7 @@ import QtQml
 import Governikus.Type
 
 QtObject {
-	property int navigationAction: NavigationAction.None
+	property int navigationAction: NavigationAction.Action.None
 	property bool navigationEnabled: true
 	property bool showSettings: false
 	property bool startEnabled: ApplicationModel.currentWorkflow === ApplicationModel.Workflow.NONE

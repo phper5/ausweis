@@ -383,17 +383,9 @@ class test_TlsChecker
 
 			QCOMPARE(logSpy.count(), 6);
 			QVERIFY(logSpy.at(0).at(0).toString().contains("Used session cipher QSslCipher(name=, bits=0, proto=)"_L1));
-#if (QT_VERSION < QT_VERSION_CHECK(6, 7, 0))
-			QVERIFY(logSpy.at(1).at(0).toString().contains("Used session protocol: \"UnknownProtocol\""_L1));
-#else
 			QVERIFY(logSpy.at(1).at(0).toString().contains("Used session protocol: QSsl::UnknownProtocol"_L1));
-#endif
 			QVERIFY(logSpy.at(2).at(0).toString().contains("Used ephemeral server key:"_L1));
-#if (QT_VERSION < QT_VERSION_CHECK(6, 5, 0))
-			QVERIFY(logSpy.at(3).at(0).toString().contains("Used peer certificate: QSslCertificate(\"\", \"\", \"1B2M2Y8AsgTpgAmY7PhCfg==\""_L1));
-#else
 			QVERIFY(logSpy.at(3).at(0).toString().contains(R"(Used peer certificate: QSslCertificate(Version="", SerialNumber="", Digest="1B2M2Y8AsgTpgAmY7PhCfg==", Issuer="", Subject="", AlternativeSubjectNames=QMultiMap(), EffectiveDate=QDateTime(Invalid), ExpiryDate=QDateTime(Invalid))"_L1));
-#endif
 			QVERIFY(logSpy.at(4).at(0).toString().contains("Used ssl session: \"\""_L1));
 			QVERIFY(logSpy.at(5).at(0).toString().contains("Handshake of tls connection done!"_L1));
 		}

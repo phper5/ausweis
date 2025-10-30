@@ -66,9 +66,8 @@ FlickableSectionPage {
 					spacing: Style.dimens.groupbox_spacing
 					width: parent.width
 
-					GText {
+					Subheading {
 						text: blockDelegate.blockTitle
-						textStyle: Style.text.subline
 						visible: text !== ""
 						width: parent.width
 						wrapMode: Text.WordWrap
@@ -80,6 +79,7 @@ FlickableSectionPage {
 						delegate: GText {
 							required property string modelData
 
+							Accessible.role: (textStyle === Style.text.headline || textStyle === Style.text.subline) ? Accessible.Heading : Accessible.StaticText
 							text: modelData
 							textStyle: blockDelegate.paragraphTextStyle
 							visible: text !== ""
@@ -109,15 +109,13 @@ FlickableSectionPage {
 		Layout.fillWidth: true
 		Layout.topMargin: Style.dimens.pane_spacing
 		buttonText: root.hintButtonText
+		linkToOpen: root.buttonLink
 		text: root.hint
 		//: LABEL ANDROID IOS
 		title: root.hintTitle !== "" ? root.hintTitle : qsTr("Hint")
 		visible: text !== ""
 
-		onClicked: {
-			root.abortCurrentWorkflow();
-			Qt.openUrlExternally(root.buttonLink);
-		}
+		onLinkAboutToOpen: root.abortCurrentWorkflow()
 	}
 	GSpacer {
 		Layout.fillHeight: true

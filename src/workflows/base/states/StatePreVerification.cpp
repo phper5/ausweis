@@ -5,7 +5,6 @@
 #include "StatePreVerification.h"
 
 #include "AppSettings.h"
-#include "EnumHelper.h"
 #include "SecureStorage.h"
 #include "asn1/SignatureChecker.h"
 
@@ -13,7 +12,9 @@
 
 #include <algorithm>
 
+
 Q_DECLARE_LOGGING_CATEGORY(developermode)
+
 
 using namespace governikus;
 
@@ -103,11 +104,9 @@ bool StatePreVerification::isValid(const QList<QSharedPointer<const CVCertificat
 {
 	qDebug() << "Check certificate chain validity on" << mValidationDateTime.toString(Qt::ISODate);
 
-	QListIterator<QSharedPointer<const CVCertificate>> i(pCertificates);
-	i.toBack();
-	while (i.hasPrevious())
+	for (auto iter = pCertificates.crbegin(); iter != pCertificates.crend(); ++iter)
 	{
-		auto cert = i.previous();
+		auto cert = *iter;
 		const QDate& expirationDate = cert->getBody().getCertificateExpirationDate();
 		const QDate& effectiveDate = cert->getBody().getCertificateEffectiveDate();
 		const QByteArray certInfo = cert->getBody().getCertificateHolderReference();

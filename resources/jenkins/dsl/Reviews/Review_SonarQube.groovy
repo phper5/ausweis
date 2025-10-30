@@ -6,7 +6,7 @@ def j = new Review
 		name: 'SonarQube',
 		label: 'Vanilla',
 		artifacts: 'tmp/*.log,tmp/sonar-metadata.txt',
-		excludePattern: 'source/**,cache/**',
+		excludePattern: 'source/**,sonar/**',
 		allowEmptyArtifacts: true,
 		xunit: true
 	).generate(this)
@@ -19,7 +19,7 @@ j.with
 		environmentVariables
 		{
 			env("XDG_RUNTIME_DIR", '$WORKSPACE/tmp')
-			env("SONAR_USER_HOME", '$WORKSPACE/cache/sonar')
+			env("SONAR_USER_HOME", '$WORKSPACE/sonar/home')
 		}
 	}
 

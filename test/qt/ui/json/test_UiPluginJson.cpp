@@ -14,7 +14,9 @@
 #include <QSignalSpy>
 #include <QtTest>
 
+
 Q_IMPORT_PLUGIN(MockReaderManagerPlugin)
+
 
 using namespace Qt::Literals::StringLiterals;
 using namespace governikus;
@@ -153,7 +155,7 @@ class test_UiPluginJson
 
 			QSignalSpy spy(&api, &UiPluginJson::fireMessage);
 
-			MockReader* reader = MockReaderManagerPlugin::getInstance().addReader("MockReader 0815"_L1);
+			const auto& reader = MockReaderManagerPlugin::getInstance().addReader("MockReader 0815"_L1);
 			reader->setCard(MockCardConfig());
 
 			QCOMPARE(spy.size(), 2);

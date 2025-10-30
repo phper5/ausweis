@@ -41,11 +41,7 @@ class test_CommandLineParser
 			out << QString();
 			out << QStringLiteral("Options:");
 			out << QStringLiteral("  -h, --help                       Displays help on commandline options.");
-#if (QT_VERSION >= QT_VERSION_CHECK(6, 6, 0))
 			out << QStringLiteral("  --help-all                       Displays help, including generic Qt options.");
-#else
-			out << QStringLiteral("  --help-all                       Displays help including Qt specific options.");
-#endif
 			out << QStringLiteral("  -v, --version                    Displays version information.");
 			out << QStringLiteral("  --keep                           Keep logfile.");
 			out << QStringLiteral("  --no-logfile                     Disable logfile.");

@@ -21,17 +21,16 @@ Q_DECLARE_LOGGING_CATEGORY(ifd)
 using namespace governikus;
 
 
-ConnectRequest::ConnectRequest(const IfdDescriptor& pIfdDescriptor,
+ConnectRequest::ConnectRequest(const Discovery& pDiscovery,
 		const QByteArray& pPsk,
 		int pTimeoutMs)
-	: mIfdDescriptor(pIfdDescriptor)
-	, mAddresses(pIfdDescriptor.getAddresses())
+	: mDiscovery(pDiscovery)
 	, mPsk(pPsk)
-	, mSocket(new QWebSocket(), &QObject::deleteLater)
+	, mSockets()
 	, mTimer()
 	, mRemoteHostRefusedConnection(false)
 {
-	if (mIfdDescriptor.isLocalIfd())
+	if (mDiscovery.isLocalIfd())
 	{
 		if (mPsk.isEmpty())
 		{
@@ -49,33 +48,19 @@ ConnectRequest::ConnectRequest(const IfdDescriptor& pIfdDescriptor,
 		}
 	}
 
-	setTlsConfiguration();
-
-	connect(mSocket.data(), &QWebSocket::preSharedKeyAuthenticationRequired, this, &ConnectRequest::onPreSharedKeyAuthenticationRequired);
-	connect(mSocket.data(), &QWebSocket::sslErrors, this, &ConnectRequest::onSslErrors);
-
-	mSocket->setProxy(QNetworkProxy(QNetworkProxy::NoProxy));
-	connect(mSocket.data(), &QWebSocket::connected, this, &ConnectRequest::onConnected);
-#if (QT_VERSION >= QT_VERSION_CHECK(6, 5, 0))
-	connect(mSocket.data(), &QWebSocket::errorOccurred, this, &ConnectRequest::onError);
-#else
-	connect(mSocket.data(), QOverload<QAbstractSocket::SocketError>::of(&QWebSocket::error), this, &ConnectRequest::onError);
-#endif
-
 	mTimer.setSingleShot(true);
 	mTimer.setInterval(pTimeoutMs);
 	connect(&mTimer, &QTimer::timeout, this, &ConnectRequest::onTimeout);
 }
 
 
-void ConnectRequest::setTlsConfiguration() const
+QSslConfiguration ConnectRequest::getTlsConfiguration() const
 {
 	QSslConfiguration config;
 
-	if (mIfdDescriptor.isLocalIfd())
+	if (mDiscovery.isLocalIfd())
 	{
 		config = Env::getSingleton<SecureStorage>()->getTlsConfigLocalIfd().getConfiguration();
-		qCInfo(ifd) << "Start local connection";
 	}
 	else
 	{
@@ -84,12 +69,10 @@ void ConnectRequest::setTlsConfiguration() const
 		{
 			config = Env::getSingleton<SecureStorage>()->getTlsConfigRemoteIfd().getConfiguration();
 			config.setCaCertificates(remoteServiceSettings.getTrustedCertificates());
-			qCInfo(ifd) << "Start reconnect to server";
 		}
 		else
 		{
 			config = Env::getSingleton<SecureStorage>()->getTlsConfigRemoteIfd(SecureStorage::TlsSuite::PSK).getConfiguration();
-			qCInfo(ifd) << "Start pairing to server";
 		}
 
 		config.setPrivateKey(remoteServiceSettings.getKey());
@@ -97,33 +80,75 @@ void ConnectRequest::setTlsConfiguration() const
 		config.setPeerVerifyMode(QSslSocket::VerifyPeer);
 	}
 
-	mSocket->setSslConfiguration(config);
+	return config;
 }
 
 
-void ConnectRequest::tryNext()
+QAbstractSocket::SocketState ConnectRequest::getState(const QSharedPointer<QWebSocket>& pSocket) const
 {
-	if (mAddresses.isEmpty())
+	if (!pSocket)
 	{
-		if (mRemoteHostRefusedConnection)
+		return QAbstractSocket::UnconnectedState;
+	}
+
+	return pSocket->state();
+}
+
+
+void ConnectRequest::processResult(const QSharedPointer<QWebSocket>& pSocket)
+{
+	const auto state = getState(pSocket);
+	if (pSocket)
+	{
+		qCDebug(ifd) << "    Connection to" << pSocket->requestUrl() << "finished with" << state;
+		if (!mSockets.removeOne(pSocket))
 		{
-			Q_EMIT fireConnectionError(this, IfdErrorCode::REMOTE_HOST_REFUSED_CONNECTION);
+			qCWarning(ifd) << "Ignoring result from unexpected socket. ConnectRequest has probably already been completed";
 			return;
 		}
 
-		Q_EMIT fireConnectionError(this, IfdErrorCode::CONNECTION_ERROR);
+		if (state != QAbstractSocket::ConnectedState && !mSockets.isEmpty())
+		{
+			qCDebug(ifd) << "    Connection failed. Waiting for pending connections";
+			return;
+		}
+	}
+
+	mTimer.stop();
+	for (const auto& socket : std::as_const(mSockets))
+	{
+		socket->abort();
+	}
+	mSockets.clear();
+
+	if (pSocket && state == QAbstractSocket::ConnectedState)
+	{
+		qCDebug(ifd) << "    Connection succeeded";
+		Q_EMIT fireConnectionCreated(this, pSocket);
 		return;
 	}
 
-	start();
+	if (pSocket)
+	{
+		qCDebug(ifd) << "    Connection failed. No more pending connections left";
+	}
+	else
+	{
+		qCWarning(ifd) << "Connection could not be established after" << mTimer.interval() << "ms";
+	}
+	if (mRemoteHostRefusedConnection)
+	{
+		Q_EMIT fireConnectionError(this, IfdErrorCode::REMOTE_HOST_REFUSED_CONNECTION);
+		return;
+	}
+
+	Q_EMIT fireConnectionError(this, IfdErrorCode::CONNECTION_ERROR);
 }
 
 
-void ConnectRequest::onConnected()
+void ConnectRequest::onConnected(const QSharedPointer<QWebSocket>& pSocket)
 {
-	mTimer.stop();
-
-	const auto& cfg = mSocket->sslConfiguration();
+	const auto& cfg = pSocket->sslConfiguration();
 	TlsChecker::logSslConfig(cfg, spawnMessageLogger(ifd));
 
 	bool isRemotePairing = false;
@@ -133,7 +158,7 @@ void ConnectRequest::onConnected()
 				return Env::getSingleton<SecureStorage>()->getMinimumIfdKeySize(pKeyAlgorithm);
 			};
 
-	if (mIfdDescriptor.isLocalIfd())
+	if (mDiscovery.isLocalIfd())
 	{
 		abortConnection |= !TlsChecker::hasValidEphemeralKeyLength(cfg.ephemeralServerKey(), minimalKeySizes);
 	}
@@ -150,93 +175,91 @@ void ConnectRequest::onConnected()
 	const auto rootCert = TlsChecker::getRootCertificate(cfg.peerCertificateChain());
 	if (rootCert.isNull())
 	{
-		qCCritical(ifd) << "No root certificate found!";
+		qCCritical(ifd) << "    No root certificate found!";
 		abortConnection = true;
 	}
 
 	if (abortConnection)
 	{
-		qCCritical(ifd) << "Server denied... abort connection!";
-		mSocket->abort();
-		Q_EMIT fireConnectionError(this, IfdErrorCode::REMOTE_HOST_REFUSED_CONNECTION);
+		qCCritical(ifd) << "    Server denied... abort connection!";
+		pSocket->abort();
+		mRemoteHostRefusedConnection = true;
+		processResult(pSocket);
 		return;
 	}
 
-	if (mIfdDescriptor.isLocalIfd())
+	if (mDiscovery.isLocalIfd())
 	{
-		qCDebug(ifd) << "Connected to localhost";
-		Q_EMIT fireConnectionCreated(this, mSocket);
-		return;
-	}
-
-	qCDebug(ifd) << "Connected to remote device";
-
-	auto& settings = Env::getSingleton<AppSettings>()->getRemoteServiceSettings();
-	if (isRemotePairing)
-	{
-		qCDebug(ifd) << "Pairing completed | Add certificate:" << rootCert;
-		settings.addTrustedCertificate(rootCert);
+		qCDebug(ifd) << "    Connected to localhost";
 	}
 	else
 	{
-		auto info = settings.getRemoteInfo(rootCert);
-		info.setLastConnected(QDateTime::currentDateTime());
-		settings.updateRemoteInfo(info);
+		qCDebug(ifd) << "    Connected to remote device";
+
+		auto& settings = Env::getSingleton<AppSettings>()->getRemoteServiceSettings();
+		if (isRemotePairing)
+		{
+			qCDebug(ifd) << "    Pairing completed | Add certificate:" << rootCert;
+			settings.addTrustedCertificate(rootCert);
+		}
+		else
+		{
+			auto info = settings.getRemoteInfo(rootCert);
+			info.setLastConnected(QDateTime::currentDateTime());
+			settings.updateRemoteInfo(info);
+		}
 	}
 
-	Q_EMIT fireConnectionCreated(this, mSocket);
+	processResult(pSocket);
 }
 
 
-void ConnectRequest::onError(QAbstractSocket::SocketError pError)
+void ConnectRequest::onError(const QSharedPointer<QWebSocket>& pSocket, QAbstractSocket::SocketError pError)
 {
-	if (mSocket)
+	if (pSocket)
 	{
-		qCWarning(ifd) << "Connection error:" << pError << mSocket->errorString();
+		qCWarning(ifd) << "    Connection error:" << pError << pSocket->errorString();
 	}
 	else
 	{
-		qCWarning(ifd) << "Connection error:" << pError;
+		qCWarning(ifd) << "    Connection error:" << pError;
 	}
 
-	mTimer.stop();
 	if (pError == QAbstractSocket::SocketError::RemoteHostClosedError
 			|| pError == QAbstractSocket::SocketError::SslHandshakeFailedError)
 	{
 		mRemoteHostRefusedConnection = true;
 	}
 
-	tryNext();
+	processResult(pSocket);
 }
 
 
 void ConnectRequest::onTimeout()
 {
-	qCWarning(ifd) << "Connection error: Timeout";
-
-	tryNext();
+	processResult();
 }
 
 
 void ConnectRequest::onPreSharedKeyAuthenticationRequired(QSslPreSharedKeyAuthenticator* pAuthenticator) const
 {
-	qCDebug(ifd) << "Request pairing...";
+	qCDebug(ifd) << "    Request pairing...";
 	pAuthenticator->setPreSharedKey(mPsk);
 }
 
 
-void ConnectRequest::onSslErrors(const QList<QSslError>& pErrors)
+void ConnectRequest::onSslErrors(const QSharedPointer<QWebSocket>& pSocket, const QList<QSslError>& pErrors) const
 {
-	QList<QSslError::SslError> allowedErrors = {
+	QList allowedErrors = {
 		QSslError::HostNameMismatch
 	};
 
-	if (mIfdDescriptor.isLocalIfd())
+	if (mDiscovery.isLocalIfd())
 	{
 		allowedErrors << QSslError::NoPeerCertificate;
 	}
 
-	const auto& config = mSocket->sslConfiguration();
+	const auto& config = pSocket->sslConfiguration();
 	const auto& pairingCiphers = Env::getSingleton<SecureStorage>()->getTlsConfigRemoteIfd(SecureStorage::TlsSuite::PSK).getCiphers();
 	if (pairingCiphers.contains(config.sessionCipher()))
 	{
@@ -256,30 +279,62 @@ void ConnectRequest::onSslErrors(const QList<QSslError>& pErrors)
 
 	if (ignoreErrors)
 	{
-		mSocket->ignoreSslErrors(pErrors);
+		pSocket->ignoreSslErrors(pErrors);
 		return;
 	}
 
-	qCDebug(ifd) << "Server is untrusted | cipher:" << config.sessionCipher() << "| certificate:" << config.peerCertificate() << "| error:" << pErrors;
+	qCDebug(ifd) << "    Server is untrusted | cipher:" << config.sessionCipher() << "| certificate:" << config.peerCertificate() << "| error:" << pErrors;
 }
 
 
-const IfdDescriptor& ConnectRequest::getIfdDescriptor() const
+const Discovery& ConnectRequest::getDiscovery() const
 {
-	return mIfdDescriptor;
+	return mDiscovery;
 }
 
 
 void ConnectRequest::start()
 {
-	if (mAddresses.isEmpty())
+	const auto& addresses = mDiscovery.getAddresses();
+	if (addresses.isEmpty())
 	{
 		Q_EMIT fireConnectionError(this, IfdErrorCode::INVALID_REQUEST);
 		return;
 	}
 
-	const auto& address = mAddresses.takeFirst();
-	qCDebug(ifd) << "Connecting to" << address;
-	mSocket->open(address);
+	if (mDiscovery.isLocalIfd())
+	{
+		qCInfo(ifd) << "Start local connection. Addresses:" << addresses;
+	}
+	else
+	{
+		if (mPsk.isEmpty())
+		{
+			qCInfo(ifd) << "Start reconnect to server. Addresses:" << addresses;
+		}
+		else
+		{
+			qCInfo(ifd) << "Start pairing to server. Addresses:" << addresses;
+		}
+	}
+
+	const auto& tlsConfig = getTlsConfiguration();
+	for (const auto& address : addresses)
+	{
+		const auto& socket = QSharedPointer<QWebSocket>(new QWebSocket(), &QObject::deleteLater);
+		socket->setProxy(QNetworkProxy(QNetworkProxy::NoProxy));
+		socket->setSslConfiguration(tlsConfig);
+
+		connect(socket.data(), &QWebSocket::preSharedKeyAuthenticationRequired, this, &ConnectRequest::onPreSharedKeyAuthenticationRequired);
+		connect(socket.data(), &QWebSocket::sslErrors, this, [socket, this](const QList<QSslError>& pErrors){onSslErrors(socket, pErrors);});
+		connect(socket.data(), &QWebSocket::connected, this, [socket, this](){onConnected(socket);});
+		connect(socket.data(), &QWebSocket::errorOccurred, this, [socket, this](QAbstractSocket::SocketError pError){onError(socket, pError);});
+
+		mSockets << socket;
+		QMetaObject::invokeMethod(this, [socket, address] {
+					socket->open(address);
+				}, Qt::QueuedConnection);
+	}
+
 	mTimer.start();
 }

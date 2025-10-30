@@ -50,17 +50,6 @@
       }
     },
     {
-      "name": "ci-gnu-debug",
-      "inherits": "ci",
-      "generator": "MinGW Makefiles",
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "DEBUG",
-        "WIN_SIGN_KEYSTORE": "$env{WIN_SIGN_KEYSTORE}",
-        "WIN_SIGN_KEYSTORE_PSW": "$env{WIN_SIGN_KEYSTORE_PSW}",
-        "WIN_SIGN_SUBJECT_NAME": "$env{WIN_SIGN_SUBJECT_NAME}"
-      }
-    },
-    {
       "name": "ci-android",
       "inherits": "ci",
       "toolchainFile": "${sourceParentDir}/cmake/android.toolchain.cmake",
@@ -77,7 +66,7 @@
       }
     },
     {
-      "name": "ci-ios-simulator",
+      "name": "ci-ios-simulator-x86_64",
       "inherits": "ci-ios",
       "generator": "Xcode",
       "cacheVariables": {
@@ -87,7 +76,7 @@
     },
     {
       "name": "ci-ios-simulator-arm64",
-      "inherits": "ci-ios-simulator",
+      "inherits": "ci-ios-simulator-x86_64",
       "cacheVariables": {
         "CMAKE_OSX_ARCHITECTURES": "arm64"
       }

@@ -23,15 +23,13 @@ GFlickableColumnLayout {
 	maximumContentWidth: Style.dimens.max_text_width
 	spacing: Style.dimens.pane_spacing
 
-	GText {
+	Heading {
 		id: pinDescWhatType
 
-		Layout.alignment: Qt.AlignHCenter
 		Layout.topMargin: root.titleTopMargin
 
 		//: LABEL ALL_PLATFORMS
 		text: qsTr("What kind of PIN do you have?")
-		textStyle: Style.text.headline
 		wrapMode: Text.WordWrap
 	}
 	MoreInformationLink {

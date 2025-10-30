@@ -84,8 +84,8 @@ QString RemoteDeviceModel::getStatus(const RemoteDeviceModelEntry& pRemoteDevice
 #if defined(Q_OS_ANDROID) || defined(Q_OS_IOS)
 	if (pRemoteDeviceModelEntry.isPairing())
 	{
-		//: LABEL ALL_PLATFORMS
-		return tr("Click to pair");
+		//: LABEL LABEL ANDROID IOS
+		return tr("Tap to pair");
 	}
 #endif
 
@@ -127,12 +127,12 @@ QString RemoteDeviceModel::getCurrentDeviceName(const QModelIndex& pIndex) const
 		}
 
 		const QSharedPointer<IfdListEntry> deviceListEntry = availableReader.getRemoteDeviceListEntry();
-		if (deviceListEntry.isNull() || deviceListEntry->getIfdDescriptor().isNull())
+		if (deviceListEntry.isNull() || deviceListEntry->getDiscovery().addressesMissing())
 		{
 			break;
 		}
 
-		return deviceListEntry->getIfdDescriptor().getIfdName();
+		return deviceListEntry->getDiscovery().getIfdName();
 	}
 	return {};
 }
@@ -254,7 +254,7 @@ bool RemoteDeviceModel::addOrUpdateReader(const RemoteDeviceModelEntry& pModelEn
 	if (!mAllRemoteReaders.contains(pModelEntry))
 	{
 		const auto readerCount = static_cast<int>(mAllRemoteReaders.size());
-		beginInsertRows(index(readerCount, 0), readerCount, readerCount);
+		beginInsertRows(QAbstractListModel::index(readerCount, 0), readerCount, readerCount);
 		mAllRemoteReaders.append(pModelEntry);
 		endInsertRows();
 		return true;
@@ -262,7 +262,7 @@ bool RemoteDeviceModel::addOrUpdateReader(const RemoteDeviceModelEntry& pModelEn
 
 	const auto readerIndex = mAllRemoteReaders.indexOf(pModelEntry);
 	mAllRemoteReaders[readerIndex] = pModelEntry;
-	const auto modelIndex = index(static_cast<int>(readerIndex), 0);
+	const auto modelIndex = QAbstractListModel::index(static_cast<int>(readerIndex), 0);
 	Q_EMIT dataChanged(modelIndex, modelIndex);
 	return false;
 }

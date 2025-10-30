@@ -25,11 +25,13 @@ RoundedRectangle {
 	//: INFO DESKTOP Text read by screen reader if the text contains a web link to a card reader driver which may be opened.
 	Accessible.name: readerName + ". " + ApplicationModel.stripHtmlTags(readerHTMLDescription) + ". " + (textDescription.hasLink ? qsTr("Press space to open link.") : "")
 	Accessible.role: textDescription.hasLink ? Accessible.Button : Accessible.ListItem
-	activeFocusOnTab: true
+	activeFocusOnTab: textDescription.hasLink
 	color: Style.color.paneSublevel.background.basic
 	implicitHeight: rowLayout.implicitHeight
 	implicitWidth: rowLayout.implicitWidth
 
+	Keys.onEnterPressed: textDescription.tryActivateLink()
+	Keys.onReturnPressed: textDescription.tryActivateLink()
 	Keys.onSpacePressed: textDescription.tryActivateLink()
 
 	FocusFrame {
@@ -73,7 +75,6 @@ RoundedRectangle {
 			GText {
 				Accessible.ignored: true
 				Layout.alignment: Qt.AlignLeft
-				activeFocusOnTab: false
 				clip: true
 				text: root.readerName
 				textStyle: Style.text.headline
@@ -83,7 +84,6 @@ RoundedRectangle {
 
 				Accessible.ignored: true
 				Layout.alignment: Qt.AlignLeft
-				activeFocusOnTab: false
 				text: root.readerHTMLDescription
 				visible: text !== ""
 			}

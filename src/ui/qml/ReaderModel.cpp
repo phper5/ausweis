@@ -77,7 +77,7 @@ bool ReaderModel::indexIsValid(const QModelIndex& pIndex) const
 		return false;
 	}
 
-	if (pIndex.row() >= rowCount())
+	if (pIndex.row() >= rowCount(pIndex))
 	{
 		Q_ASSERT(false && "Invoked with a row which is out of bounds.");
 		return false;

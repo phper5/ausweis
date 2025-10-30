@@ -18,23 +18,23 @@ workflow:
     - !reference [.prepare, uv]
     - hg clone -U ${REPOSITORY} source
     - hg -R source update -r $REVISION
-    - !reference [.prepare, patch]
   pkg:
     - |
       if command -v apk >/dev/null 2>&1; then
         apk add mercurial cmake samurai make gdb lldb uv python3
       elif command -v apt-get >/dev/null 2>&1; then
         apt-get update
-        apt-get install -y mercurial cmake ninja-build make gdb lldb python3 curl
-        curl --proto '=https' --tlsv1.2 -LsSf https://github.com/astral-sh/uv/releases/download/0.7.12/uv-installer.sh | sh
+        apt-get install -y mercurial cmake ninja-build make gdb lldb python3 curl ca-certificates
+        curl --proto '=https' --tlsv1.2 -LsSf https://github.com/astral-sh/uv/releases/download/0.9.3/uv-installer.sh | sh
         source $HOME/.local/bin/env
       elif command -v dnf >/dev/null 2>&1; then
         dnf -y install mercurial cmake ninja-build make gdb lldb uv python3
       elif command -v sw_vers >/dev/null 2>&1; then
         export UV_NO_MODIFY_PATH=1
         export UV_INSTALL_DIR=$BINARY_DIR
-        curl --proto '=https' --tlsv1.2 -LsSf https://github.com/astral-sh/uv/releases/download/0.7.12/uv-installer.sh | sh
-        curl --proto '=https' --tlsv1.2 -LsSf https://github.com/ccache/ccache/releases/download/v4.11.3/ccache-4.11.3-darwin.tar.gz | tar -C $BINARY_DIR --strip-components=1 -xz "*/ccache"
+        curl --proto '=https' --tlsv1.2 -LsSf https://github.com/astral-sh/uv/releases/download/0.9.3/uv-installer.sh | sh
+        curl --proto '=https' --tlsv1.2 -LsSf https://github.com/ccache/ccache/releases/download/v4.12.1/ccache-4.12.1-darwin.tar.gz \
+             | tar -C $BINARY_DIR --strip-components=1 -xz "*/ccache"
         export PATH="$BINARY_DIR/:$PATH"
       fi
   uv:
@@ -42,28 +42,29 @@ workflow:
     - source $VIRTUAL_ENV/bin/activate
     - |
       if command -v sw_vers >/dev/null 2>&1; then
-        uv pip install mercurial cmake==4.0.2 ninja
-      fi
-  patch:
-    - |
-      if [ -n "$REVIEWBOARD_REVIEW_ID" ]; then
-        uv pip install rbtools python-hglib
-        rbt patch --write $CI_PROJECT_DIR/patch.diff --server ${REVIEWBOARD_SERVER} --diff-revision ${REVIEWBOARD_DIFF_REVISION} ${REVIEWBOARD_REVIEW_ID}
-      elif [ -n "$PATCH_URL" ]; then
-        uv pip install python-hglib
-        if command -v curl >/dev/null 2>&1; then
-          curl --header "JOB-TOKEN: ${CI_JOB_TOKEN}" -s -o $CI_PROJECT_DIR/patch.diff "${PATCH_URL}"
-        else
-          wget --header "JOB-TOKEN: ${CI_JOB_TOKEN}" -qO $CI_PROJECT_DIR/patch.diff "${PATCH_URL}"
-        fi
+        uv pip install mercurial cmake==4.1.0 ninja
       fi
 
 .Base:
+  tags:
+    - $LOW_RUNNER
   rules:
-    - if: '$SELECT_JOB_REGEX != null && $CI_JOB_NAME !~ $SELECT_JOB_REGEX && $CI_JOB_NAME =~ /^Libraries/'
+    - if: '$SELECT_JOB_REGEX != null && $CI_JOB_NAME !~ $SELECT_JOB_REGEX && ($CI_JOB_NAME =~ /^Libraries/ || $SELECT_JOB_MANUAL == null)'
+      when: never
+    - if: '$USE_DISTRIBUTION_PROFILE == "ON" && $RELEASE != "true"'
       when: never
     - if: '$SELECT_JOB_REGEX != null && $CI_JOB_NAME !~ $SELECT_JOB_REGEX'
       when: manual
+    - if: '$CI_JOB_NAME =~ /^Deploy_Final/ && $RELEASE_FINAL != "true"'
+      when: never
+    - if: '$CI_JOB_NAME =~ /^Deploy/ && $RELEASE == "true"'
+      when: manual
+    - if: '$CI_JOB_NAME =~ /^Deploy/'
+      when: never
+    - if: '$CI_JOB_NAME =~ /^Light/ && $SELECT_JOB_REGEX != null && $CI_JOB_NAME =~ $SELECT_JOB_REGEX'
+      when: on_success
+    - if: '$CI_JOB_NAME =~ /^Light/'
+      when: never
     - when: on_success
 
 .Packages:
@@ -83,21 +84,24 @@ default:
 
 Libraries_Linux:
   extends: .Packages
+  tags:
+    - $HIGH_RUNNER
   before_script:
     - !reference [.prepare, setup]
     - |
       apk add wget g++ ccache perl \
-              pkgconf binutils-gold lld pcsc-lite-dev \
+              pkgconf lld pcsc-lite-dev \
               mesa-dev libx11-dev libxkbcommon-dev xcb-util-wm-dev xcb-util-image-dev xcb-util-keysyms-dev
   script:
     - cmake -P source/ci.cmake
 
 Linux_Debian_Vanilla:
   extends: .Base
+  tags:
+    - $MEDIUM_RUNNER
   parallel:
     matrix:
       - version:
-          - bookworm-slim
           - trixie-slim
   image: ${DOCKER_REGISTRY_MIRROR}/debian:$version
   variables:
@@ -111,14 +115,20 @@ Linux_Debian_Vanilla:
       apt-get install -y g++ pkgconf ccache \
                      libhttp-parser-dev libpcsclite-dev libssl-dev \
                      qt6-base-dev qt6-base-private-dev qt6-declarative-dev \
-                     qt6-scxml-dev qt6-shadertools-dev qt6-svg-dev \
+                     qt6-scxml-dev qt6-svg-dev \
                      qt6-tools-dev qt6-websockets-dev qt6-connectivity-dev \
                      \
                      libqt6svg6 qml6-module-qt-labs-platform qml6-module-qtqml \
                      qml6-module-qtqml-models qml6-module-qtqml-statemachine \
                      qml6-module-qtqml-workerscript qml6-module-qtquick-controls \
                      qml6-module-qtquick-layouts qml6-module-qtquick-templates \
-                     qml6-module-qtquick-window
+                     qml6-module-qtquick-window qml6-module-qtquick-dialogs \
+                     qml6-module-qtcore
+
+      if [ "$version" == "bookworm-slim" ]; then
+        apt-get install -y qml6-module-qt-labs-folderlistmodel
+      fi
+
     - cmake -P source/ci.cmake
   artifacts:
     expire_in: 1 week
@@ -127,6 +137,8 @@ Linux_Debian_Vanilla:
 
 Linux_Alpine:
   extends: Libraries_Linux
+  tags:
+    - $MEDIUM_RUNNER
   needs:
     - job: Libraries_Linux
       artifacts: false
@@ -135,16 +147,87 @@ Linux_Alpine:
     matrix:
       - variant: [App, Integrated]
         compiler: [g++, clang++, clazy]
+        cxx_standard: [20]
+      - variant: [App]
+        compiler: [g++]
+        cxx_standard: [17]
   script:
-    - apk add clang clazy gnupg gcovr check-jsonschema typos py3-codespell
-    - cmake -P source/ci.cmake -- -DCMAKE_CXX_COMPILER=${compiler}
+    - apk add clang clazy gnupg gcovr check-jsonschema typos py3-codespell yamllint ruff
+    - uv pip install sphinx-lint
+    - cmake -P source/ci.cmake -- -DCMAKE_CXX_COMPILER=${compiler} -DCMAKE_CXX_STANDARD=${cxx_standard}
   artifacts:
     expire_in: 1 week
     reports:
       junit: build/**/results.*.junit.xml
 
+Translations:
+  extends: Libraries_Linux
+  tags:
+    - $LOW_RUNNER
+  needs:
+    - job: Libraries_Linux
+      artifacts: false
+      optional: true
+  script:
+    - cmake -P source/ci.cmake
+  artifacts:
+    expire_in: 1 week
+    paths:
+      - source/resources/translations/*.ts
+
+Linux_OpenSSL:
+  extends: Libraries_Linux
+  tags:
+    - $HIGH_RUNNER
+  parallel:
+    matrix:
+      - openssl:
+          - "1.1.1w"
+          - "3.0.18"
+  script:
+    - apk add gcovr
+    - cmake -DOPENSSL=${openssl} -P source/ci.cmake
+  artifacts:
+    expire_in: 1 week
+    reports:
+      junit: build/**/results.*.junit.xml
+
+SonarQube:
+  extends: .Packages
+  tags:
+    - $HIGH_RUNNER
+  image: ${DOCKER_REGISTRY_MIRROR}/ubuntu:25.10
+  variables:
+    LANG: "C.UTF-8"
+    LC_ALL: "C.UTF-8"
+  cache:
+    - key: packages
+      paths:
+        - packages
+      when: always
+    - key: "${CI_JOB_NAME}-${REV}"
+      paths:
+        - sonar
+      when: always
+  script:
+    - |
+      apt-get install -y openjdk-21-jdk-headless g++ pkgconf ccache mold \
+                     libpcsclite-dev perl libgl1-mesa-dev libglu1-mesa-dev libegl1-mesa-dev
+    - uv pip install gcovr
+    - cmake -DSPLIT=OFF -P source/ci.cmake
+  artifacts:
+    expire_in: 1 week
+    reports:
+      junit: build/**/results.*.junit.xml
+
+Light_Analyze:
+  extends: SonarQube
+  resource_group: SonarQube
+
 Formatting:
   extends: Libraries_Linux
+  tags:
+    - $LOW_RUNNER
   needs:
     - job: Libraries_Linux
       artifacts: false
@@ -156,11 +239,14 @@ Formatting:
 
 Linux_Debian_Qt:
   extends: .Base
+  tags:
+    - $MEDIUM_RUNNER
   parallel:
     matrix:
       - QT:
           - 6.8.0
           - 6.9.0
+          - 6.10.0
   image: ${DOCKER_REGISTRY_MIRROR}/debian:stable-slim
   variables:
     LANG: "C.UTF-8"
@@ -168,7 +254,8 @@ Linux_Debian_Qt:
   script:
     - |
       apt-get install -y g++ pkgconf ccache libpcsclite-dev libssl-dev libudev-dev \
-                         libglib2.0-0 libvulkan-dev libegl1-mesa-dev libxkbcommon0 libdbus-1-3
+                         libglib2.0-0 libvulkan-dev libegl1-mesa-dev libxkbcommon0 libdbus-1-3 \
+                         libfontconfig1
     - uv pip install aqtinstall
     - cmake -DQT=$QT -P source/ci.cmake
   artifacts:
@@ -180,8 +267,8 @@ Linux_Debian_Qt:
   extends: .Packages
   variables:
     ANDROID_CMDLINE_TOOLS: 13114758
-    ANDROID_NDK_VERSION: 28.1.13356709
-    ANDROID_COMPONENTS: '"cmdline-tools;19.0" "build-tools;36.0.0" "platforms;android-35" "ndk;${ANDROID_NDK_VERSION}"'
+    ANDROID_NDK_VERSION: 28.2.13676358
+    ANDROID_COMPONENTS: '"cmdline-tools;19.0" "build-tools;36.1.0" "platforms;android-35" "ndk;${ANDROID_NDK_VERSION}"'
     ANDROID_SDK_ROOT: $CI_PROJECT_DIR/android-sdk
     ANDROID_NDK_ROOT: $ANDROID_SDK_ROOT/ndk/$ANDROID_NDK_VERSION
     ANDROID_CMDLINE_TOOLS_ZIP: commandlinetools-linux-${ANDROID_CMDLINE_TOOLS}_latest.zip
@@ -221,17 +308,20 @@ Linux_Debian_Qt:
 
 Libraries_Android:
   extends: .AndroidBase
+  tags:
+    - $HIGH_RUNNER
   parallel:
     matrix:
       - arch: arm64-v8a
       - arch: armeabi-v7a
       - arch: x86_64
-      - arch: x86
   script:
     - cmake -P source/ci.cmake -- -DCMAKE_ANDROID_ARCH_ABI=${arch}
 
 Android_AAR:
   extends: .AndroidBase
+  tags:
+    - $MEDIUM_RUNNER
   needs:
     - job: Libraries_Android
       artifacts: false
@@ -247,6 +337,8 @@ Android_AAR:
 
 Android_Merged-AAR:
   extends: .Base
+  tags:
+    - $LOW_RUNNER
   needs:
     - job: Android_AAR
       artifacts: true
@@ -261,6 +353,8 @@ Android_Merged-AAR:
 
 Android_APK:
   extends: .AndroidBase
+  tags:
+    - $MEDIUM_RUNNER
   needs:
     - job: Libraries_Android
       artifacts: false
@@ -271,12 +365,17 @@ Android_APK:
           - arm64-v8a
           - armeabi-v7a
           - x86_64
-          - x86
   script:
+    - |
+      if [ "$RELEASE" == "true" ]; then
+        uv pip install google-api-python-client
+      fi
     - cmake -DPROPAGATE=ON -P source/ci.cmake -- -DCMAKE_ANDROID_ARCH_ABI=${arch}
 
 Docs:
-  image: ${DOCKER_REGISTRY_MIRROR}/pandoc/latex:3.6.4-alpine
+  image:
+    name: ${DOCKER_REGISTRY_MIRROR}/pandoc/latex:3.6.4-alpine
+    entrypoint: [""]
   extends: .Base
   script:
     - |
@@ -292,7 +391,8 @@ Docs:
   artifacts:
     expire_in: 1 week
     paths:
-      - build/*.pdf
+      - build/*-Lizenz.pdf
+      - build/*-Lizenz.txt
       - build/docs/**/*.pdf
       - build/docs/**/*.tar.xz
       - build/docs/notes/singlehtml/**/appcast.html
@@ -311,7 +411,7 @@ Source:
 Container:
   extends: .Base
   tags:
-    - default-medium-s3
+    - $CONTAINER_RUNNER
   parallel:
     matrix:
       - target:
@@ -355,8 +455,8 @@ Libraries_iOS:
   parallel:
     matrix:
       - target:
-          - Phone
-          - Simulator
+          - OS
+          - Simulator_x86_64
           - Simulator_arm64
   tags:
     - iOS
@@ -377,7 +477,7 @@ Libraries_iOS:
       - build/*.bcsymbolmap
       - AusweisApp_BuildDir.tar.zstd
 
-iOS_Phone_IPA:
+iOS_IPA:
   extends: .iOS
   needs:
     - job: Libraries_iOS
@@ -385,39 +485,32 @@ iOS_Phone_IPA:
       optional: true
       parallel:
         matrix:
-          - target: Phone
+          - target: OS
+  parallel:
+    matrix:
+      - USE_DISTRIBUTION_PROFILE:
+          - 'ON'
+          - 'OFF'
+  script:
+    - cmake -P source/ci.cmake -- -DUSE_DISTRIBUTION_PROFILE=${USE_DISTRIBUTION_PROFILE}
 
 iOS_Framework:
-  extends: iOS_Phone_IPA
-
-iOS_Framework_Simulator:
   extends: .iOS
   needs:
     - job: Libraries_iOS
       artifacts: false
       optional: true
-      parallel:
-        matrix:
-          - target: Simulator
-
-iOS_Framework_Simulator_arm64:
-  extends: .iOS
-  needs:
-    - job: Libraries_iOS
-      artifacts: false
-      optional: true
-      parallel:
-        matrix:
-          - target: Simulator_arm64
+  parallel:
+    matrix:
+      - target:
+          - OS
+          - Simulator_x86_64
+          - Simulator_arm64
 
 iOS_SwiftPackage:
   extends: .iOS
   needs:
     - job: iOS_Framework
-      artifacts: true
-    - job: iOS_Framework_Simulator
-      artifacts: true
-    - job: iOS_Framework_Simulator_arm64
       artifacts: true
   script:
     - find build -type f -exec mv {} $CI_PROJECT_DIR/ \;
@@ -442,12 +535,14 @@ MacOS:
       optional: true
   parallel:
     matrix:
-      - target:
-          - DMG_PKG
-          - Tests
-          - Integrated
+      - target: DMG_PKG
+        USE_DISTRIBUTION_PROFILE: 'ON'
+      - target: DMG_PKG
+        USE_DISTRIBUTION_PROFILE: 'OFF'
+      - target: Tests
+      - target: Integrated
   script:
-    - cmake -P source/ci.cmake
+    - cmake -P source/ci.cmake -- -DUSE_DISTRIBUTION_PROFILE=${USE_DISTRIBUTION_PROFILE}
   artifacts:
     expire_in: 1 week
     paths:
@@ -455,3 +550,248 @@ MacOS:
       - build/*.pkg*
     reports:
       junit: build/**/results.*.junit.xml
+
+.Windows:
+  extends: .Packages
+  variables:
+    GIT_STRATEGY: none
+  before_script:
+    - "ls env:"
+    - |
+      $items = Get-ChildItem -Force
+      foreach ($item in $items) {
+        if ($item.PSIsContainer -and $item.Name -ieq "packages") {
+          continue
+        }
+        cmake -E rm -rf $item.name
+      }
+    - |
+      hg clone -U $REPOSITORY source
+      hg update -r $REVISION -R source
+    - uv venv $VIRTUAL_ENV
+    - powershell -Command "& '$env:VIRTUAL_ENV\Scripts\activate.ps1'"
+  script:
+    - cmake -P source/ci.cmake
+  after_script:
+    - cmake -E rm -rf source libs
+  artifacts:
+    expire_in: 1 week
+    paths:
+      - build/*.msi*
+      - build/Appcast*
+    reports:
+      junit: build/**/results.*.junit.xml
+
+Libraries_Win_GNU:
+  extends: .Windows
+  tags:
+    - Win64_GNU
+
+Libraries_Win_MSVC:
+  extends: .Windows
+  tags:
+    - Win64_MSVC
+  parallel:
+    matrix:
+      - target:
+          - release
+          - dev
+
+Win_GNU:
+  extends: Libraries_Win_GNU
+  needs:
+    - job: Libraries_Win_GNU
+      artifacts: false
+      optional: true
+  parallel:
+    matrix:
+      - target:
+          - MSI
+          - Tests
+
+Win_MSVC:
+  extends: Libraries_Win_MSVC
+  needs:
+    - job: Libraries_Win_MSVC
+      artifacts: false
+      optional: true
+  parallel:
+    matrix:
+      - target: MSI
+        compiler: cl
+      - target: MSI
+        compiler: clang-cl
+      - target: MSI
+        compiler: clang++
+      - target: MSI_dev
+        compiler: cl
+      - target: Tests_dev
+        compiler: cl
+  script:
+    - cmake -P source/ci.cmake -- -DCMAKE_CXX_COMPILER="$env:compiler"
+
+.Deploy:
+  extends: .Base
+  stage: deploy
+  script:
+    - find build -type f -exec mv {} $CI_PROJECT_DIR/ \;
+    - cmake -P source/ci.cmake
+
+Deploy_iOS_IPA:
+  extends: .Deploy
+  tags:
+    - iOS
+  needs:
+    - job: iOS_IPA
+      parallel:
+        matrix:
+          - USE_DISTRIBUTION_PROFILE: 'ON'
+
+Deploy_Final_Framework:
+  extends: .Deploy
+  needs:
+    - job: iOS_SwiftPackage
+  script:
+    - apk add github-cli
+    - !reference [.Deploy, script]
+
+Deploy_MacOS_PKG:
+  extends: .Deploy
+  tags:
+    - macOS
+  needs:
+    - job: MacOS
+      parallel:
+        matrix:
+          - target: DMG_PKG
+            USE_DISTRIBUTION_PROFILE: 'ON'
+
+Deploy_Android_APK:
+  extends: .Deploy
+  needs:
+    - job: Android_APK
+  script:
+    - uv pip install google-api-python-client
+    - !reference [.Deploy, script]
+
+Deploy_Android_AAR:
+  extends: .Deploy
+  needs:
+    - job: Android_Merged-AAR
+  script:
+    - apk add curl
+    - !reference [.Deploy, script]
+
+Deploy_Archive:
+  extends: .Deploy
+  needs:
+    - job: Android_APK
+    - job: Android_Merged-AAR
+    - job: iOS_SwiftPackage
+    - job: iOS_IPA
+      parallel:
+        matrix:
+          - USE_DISTRIBUTION_PROFILE: 'ON'
+          - USE_DISTRIBUTION_PROFILE: 'OFF'
+    - job: MacOS
+      parallel:
+        matrix:
+          - target: DMG_PKG
+            USE_DISTRIBUTION_PROFILE: 'ON'
+          - target: DMG_PKG
+            USE_DISTRIBUTION_PROFILE: 'OFF'
+    - job: Win_MSVC
+      parallel:
+        matrix:
+          - target: MSI
+            compiler: cl
+    - job: Docs
+    - job: Source
+  script:
+    - apk add samba-client
+    - !reference [.Deploy, script]
+
+Deploy_Allowlist:
+  extends: .Deploy
+  needs:
+    - job: Win_MSVC
+      parallel:
+        matrix:
+          - target: MSI
+            compiler: cl
+    - job: MacOS
+      parallel:
+        matrix:
+          - target: DMG_PKG
+            USE_DISTRIBUTION_PROFILE: 'OFF'
+  script:
+    - apk add curl
+    - !reference [.Deploy, script]
+
+Deploy_Cloud:
+  extends: .Deploy
+  needs:
+    - job: Android_APK
+    - job: iOS_IPA
+      parallel:
+        matrix:
+          - USE_DISTRIBUTION_PROFILE: 'OFF'
+    - job: MacOS
+      parallel:
+        matrix:
+          - target: DMG_PKG
+            USE_DISTRIBUTION_PROFILE: 'OFF'
+    - job: Win_MSVC
+      parallel:
+        matrix:
+          - target: MSI
+            compiler: cl
+  script:
+    - apk add curl
+    - !reference [.Deploy, script]
+
+Deploy_Final_Container:
+  extends: .Deploy
+  needs:
+    - job: Container
+      parallel:
+        matrix:
+          - target: SDK
+  script:
+    - apk add skopeo
+    - !reference [.Deploy, script]
+
+Deploy_Final_GitHub:
+  extends: .Deploy
+  needs:
+    - job: Android_APK
+    - job: Source
+    - job: MacOS
+      parallel:
+        matrix:
+          - target: DMG_PKG
+            USE_DISTRIBUTION_PROFILE: 'OFF'
+    - job: Win_MSVC
+      parallel:
+        matrix:
+          - target: MSI
+            compiler: cl
+    - job: Docs
+  script:
+    - apk add github-cli
+    - !reference [.Deploy, script]
+
+Light_Configuration:
+  extends: Libraries_Linux
+  needs:
+    - job: Libraries_Linux
+      artifacts: false
+      optional: true
+  script:
+    - cmake -P source/ci.cmake
+
+Light_Packages:
+  extends: .Base
+  script:
+    - uv pip install python-gitlab
+    - cmake -P source/ci.cmake

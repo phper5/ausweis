@@ -5,14 +5,16 @@
 #include "MessageDispatcher.h"
 #include "MockReaderManagerPlugin.h"
 #include "ReaderManager.h"
-#include "messages/MsgHandlerReader.h"
 
 #include <QtTest>
 
+
 Q_IMPORT_PLUGIN(MockReaderManagerPlugin)
+
 
 using namespace Qt::Literals::StringLiterals;
 using namespace governikus;
+
 
 class test_MsgHandlerReaderList
 	: public QObject
@@ -73,7 +75,7 @@ class test_MsgHandlerReaderList
 
 		void oneReaderWithCard()
 		{
-			MockReader* reader = MockReaderManagerPlugin::getInstance().addReader("MockReader 0815"_L1);
+			const auto& reader = MockReaderManagerPlugin::getInstance().addReader("MockReader 0815"_L1);
 			reader->setCard(MockCardConfig());
 
 			MessageDispatcher dispatcher;
@@ -95,7 +97,7 @@ class test_MsgHandlerReaderList
 		{
 			QFETCH(MsgLevel, msgLevel);
 
-			MockReader* reader = MockReaderManagerPlugin::getInstance().addReader("MockReader 0815"_L1);
+			auto reader = MockReaderManagerPlugin::getInstance().addReader("MockReader 0815"_L1);
 			reader->setCard(MockCardConfig());
 			reader = MockReaderManagerPlugin::getInstance().addReader("ReaderMock"_L1);
 			reader->setCard(MockCardConfig());

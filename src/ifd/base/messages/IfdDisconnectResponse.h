@@ -5,22 +5,19 @@
 #pragma once
 
 #include "IfdMessageResponse.h"
+#include "IfdSlotHandle.h"
 
 
 namespace governikus
 {
 class IfdDisconnectResponse
-	: public IfdMessageResponse
+	: public IfdSlotHandle<IfdMessageResponse>
 {
-	private:
-		QString mSlotHandle;
-
 	public:
-		IfdDisconnectResponse(const QString& pSlotHandle, ECardApiResult::Minor pResultMinor = ECardApiResult::Minor::null);
+		explicit IfdDisconnectResponse(const QString& pSlotHandle, ECardApiResult::Minor pResultMinor = ECardApiResult::Minor::null);
 		explicit IfdDisconnectResponse(const QJsonObject& pMessageObject);
 		~IfdDisconnectResponse() override = default;
 
-		[[nodiscard]] const QString& getSlotHandle() const;
 		[[nodiscard]] QByteArray toByteArray(IfdVersion::Version pIfdVersion, const QString& pContextHandle) const override;
 };
 

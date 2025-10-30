@@ -48,11 +48,7 @@ bool TlsChecker::hasValidCertificateKeyLength(const QSslCertificate& pCertificat
 
 	auto keyLength = pCertificate.publicKey().length();
 	auto keyAlgorithm = pCertificate.publicKey().algorithm();
-#if (QT_VERSION < QT_VERSION_CHECK(6, 7, 0))
-	qDebug() << "Check certificate key of type" << TlsChecker::toString(keyAlgorithm) << "and key size" << keyLength;
-#else
 	qDebug() << "Check certificate key of type" << keyAlgorithm << "and key size" << keyLength;
-#endif
 	return isValidKeyLength(keyLength, keyAlgorithm, pFuncMinKeySize(keyAlgorithm));
 }
 
@@ -67,11 +63,7 @@ bool TlsChecker::hasValidEphemeralKeyLength(const QSslKey& pEphemeralServerKey, 
 		qWarning() << "Qt failed to determine algorithm";
 	}
 
-#if (QT_VERSION < QT_VERSION_CHECK(6, 7, 0))
-	qDebug() << "Check ephemeral key of type" << TlsChecker::toString(keyAlgorithm) << "and key size" << keyLength;
-#else
 	qDebug() << "Check ephemeral key of type" << keyAlgorithm << "and key size" << keyLength;
-#endif
 	return isValidKeyLength(keyLength, keyAlgorithm, pFuncMinKeySize(keyAlgorithm));
 }
 
@@ -79,11 +71,7 @@ bool TlsChecker::hasValidEphemeralKeyLength(const QSslKey& pEphemeralServerKey, 
 FailureCode::FailureInfoMap TlsChecker::getEphemeralKeyInfoMap(const QSslKey& pEphemeralServerKey)
 {
 	FailureCode::FailureInfoMap infoMap;
-#if (QT_VERSION < QT_VERSION_CHECK(6, 7, 0))
-	infoMap.insert(FailureCode::Info::Ephemeral_Server_Key_Algorithm, TlsChecker::toString(pEphemeralServerKey.algorithm()));
-#else
 	infoMap.insert(FailureCode::Info::Ephemeral_Server_Key_Algorithm, getEnumName(pEphemeralServerKey.algorithm()));
-#endif
 	infoMap.insert(FailureCode::Info::Ephemeral_Server_Key_Length, QString::number(pEphemeralServerKey.length()));
 	return infoMap;
 }
@@ -110,11 +98,7 @@ bool TlsChecker::isValidKeyLength(int pKeyLength, QSsl::KeyAlgorithm pKeyAlgorit
 	bool sufficient = pKeyLength >= pMinKeySize;
 	if (!sufficient)
 	{
-#if (QT_VERSION < QT_VERSION_CHECK(6, 7, 0))
-		auto keySizeError = QStringLiteral("%1 key with insufficient key size found %2").arg(toString(pKeyAlgorithm)).arg(pKeyLength);
-#else
 		auto keySizeError = QStringLiteral("%1 key with insufficient key size found %2").arg(getEnumName(pKeyAlgorithm)).arg(pKeyLength);
-#endif
 		if (Env::getSingleton<AppSettings>()->getGeneralSettings().isDeveloperMode())
 		{
 			qCWarning(developermode).noquote() << keySizeError;
@@ -129,95 +113,9 @@ bool TlsChecker::isValidKeyLength(int pKeyLength, QSsl::KeyAlgorithm pKeyAlgorit
 }
 
 
-#if (QT_VERSION < QT_VERSION_CHECK(6, 7, 0))
-QString TlsChecker::toString(QSsl::SslProtocol pProtocol)
-{
-	switch (pProtocol)
-	{
-		case QSsl::SslProtocol::AnyProtocol:
-			return QStringLiteral("AnyProtocol");
-
-		case QSsl::SslProtocol::SecureProtocols:
-			return QStringLiteral("SecureProtocols");
-
-			QT_WARNING_PUSH
-					QT_WARNING_DISABLE_DEPRECATED
-
-		case QSsl::SslProtocol::TlsV1_0:
-			return QStringLiteral("TlsV1_0");
-
-		case QSsl::SslProtocol::TlsV1_0OrLater:
-			return QStringLiteral("TlsV1_0OrLater");
-
-		case QSsl::SslProtocol::TlsV1_1:
-			return QStringLiteral("TlsV1_1");
-
-		case QSsl::SslProtocol::TlsV1_1OrLater:
-			return QStringLiteral("TlsV1_1OrLater");
-
-		case QSsl::SslProtocol::DtlsV1_0:
-			return QStringLiteral("DtlsV1_0");
-
-		case QSsl::SslProtocol::DtlsV1_0OrLater:
-			return QStringLiteral("DtlsV1_0OrLater");
-
-		case QSsl::SslProtocol::DtlsV1_2:
-			return QStringLiteral("DtlsV1_2");
-
-		case QSsl::SslProtocol::DtlsV1_2OrLater:
-			return QStringLiteral("DtlsV1_2OrLater");
-
-			QT_WARNING_POP
-
-		case QSsl::SslProtocol::TlsV1_2:
-			return QStringLiteral("TlsV1_2");
-
-		case QSsl::SslProtocol::TlsV1_2OrLater:
-			return QStringLiteral("TlsV1_2OrLater");
-
-		case QSsl::SslProtocol::TlsV1_3:
-			return QStringLiteral("TlsV1_3");
-
-		case QSsl::SslProtocol::TlsV1_3OrLater:
-			return QStringLiteral("TlsV1_3OrLater");
-
-		case QSsl::SslProtocol::UnknownProtocol:
-			return QStringLiteral("UnknownProtocol");
-	}
-
-	Q_UNREACHABLE();
-}
-
-
-QString TlsChecker::toString(QSsl::KeyAlgorithm pKeyAlgorithm)
-{
-	switch (pKeyAlgorithm)
-	{
-		case QSsl::KeyAlgorithm::Opaque:
-			return QStringLiteral("Opaque");
-
-		case QSsl::KeyAlgorithm::Dsa:
-			return QStringLiteral("Dsa");
-
-		case QSsl::KeyAlgorithm::Rsa:
-			return QStringLiteral("Rsa");
-
-		case QSsl::KeyAlgorithm::Ec:
-			return QStringLiteral("Ec");
-
-		case QSsl::KeyAlgorithm::Dh:
-			return QStringLiteral("Dh");
-	}
-
-	return QStringLiteral("Unknown (%1)").arg(pKeyAlgorithm);
-}
-
-
-#endif
-
 QStringList TlsChecker::getFatalErrors(const QList<QSslError>& pErrors)
 {
-	static const QSet<QSslError::SslError> fatalErrors(
+	static const QSet fatalErrors(
 		{
 			QSslError::CertificateSignatureFailed, QSslError::CertificateNotYetValid, QSslError::CertificateExpired,
 			QSslError::InvalidNotBeforeField, QSslError::InvalidNotAfterField, QSslError::CertificateRevoked, QSslError::InvalidCaCertificate,
@@ -292,11 +190,7 @@ QString TlsChecker::sslErrorsToString(const QList<QSslError>& pErrors)
 void TlsChecker::logSslConfig(const QSslConfiguration& pCfg, const MessageLogger& pLogger)
 {
 	pLogger.info() << "Used session cipher" << pCfg.sessionCipher();
-#if (QT_VERSION < QT_VERSION_CHECK(6, 7, 0))
-	pLogger.info() << "Used session protocol:" << toString(pCfg.sessionProtocol());
-#else
 	pLogger.info() << "Used session protocol:" << pCfg.sessionProtocol();
-#endif
 
 	{
 		auto stream = pLogger.info();

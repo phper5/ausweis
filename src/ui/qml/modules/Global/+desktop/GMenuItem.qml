@@ -14,6 +14,7 @@ RowLayout {
 	property alias buttonTooltip: button.enabledTooltipText
 	property string description: ""
 	property alias iconSource: icon.source
+	property string linkToOpen
 	property alias tintIcon: icon.tintEnabled
 	required property string title
 
@@ -40,8 +41,19 @@ RowLayout {
 	GButton {
 		id: button
 
+		readonly property bool hasLink: root.linkToOpen !== ""
+
+		Accessible.description: hasLink ? Utils.platformAgnosticLinkOpenText(root.linkToOpen, Accessible.name) : ""
+		Accessible.name: (root.title && hasLink ? root.title + ", " : "") + text
+		Accessible.role: hasLink ? Accessible.Link : Accessible.Button
 		tintIcon: true
 
-		onClicked: root.clicked()
+		onClicked: {
+			if (hasLink) {
+				Qt.openUrlExternally(root.linkToOpen);
+			} else {
+				root.clicked();
+			}
+		}
 	}
 }

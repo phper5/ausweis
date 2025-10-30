@@ -5,22 +5,19 @@
 #pragma once
 
 #include "IfdMessageResponse.h"
+#include "IfdSlotHandle.h"
 
 
 namespace governikus
 {
 class IfdDestroyPaceChannelResponse
-	: public IfdMessageResponse
+	: public IfdSlotHandle<IfdMessageResponse>
 {
-	private:
-		QString mSlotHandle;
-
 	public:
 		explicit IfdDestroyPaceChannelResponse(const QString& pSlotHandle, ECardApiResult::Minor pResultMinor = ECardApiResult::Minor::null);
 		explicit IfdDestroyPaceChannelResponse(const QJsonObject& pMessageObject);
 		~IfdDestroyPaceChannelResponse() override = default;
 
-		[[nodiscard]] const QString& getSlotHandle() const;
 		[[nodiscard]] QByteArray toByteArray(IfdVersion::Version pIfdVersion, const QString& pContextHandle) const override;
 };
 

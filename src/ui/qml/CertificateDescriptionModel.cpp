@@ -66,28 +66,28 @@ void CertificateDescriptionModel::initModelData(const QSharedPointer<const Certi
 	const bool showDetailedProviderInfo = !(serviceProviderAddress.isEmpty() || purpose.isEmpty() || dataSecurityOfficer.isEmpty());
 
 	//: LABEL ALL_PLATFORMS
-	mData += QPair<QString, QString>(tr("Provider"), getSubjectName() + QLatin1Char('\n') + getSubjectUrl());
+	mData += std::make_pair(tr("Provider"), getSubjectName() + QLatin1Char('\n') + getSubjectUrl());
 	//: LABEL ALL_PLATFORMS
-	mData += QPair<QString, QString>(tr("Certificate issuer"), pCertDescription->getIssuerName() + QLatin1Char('\n') + pCertDescription->getIssuerUrl());
+	mData += std::make_pair(tr("Certificate issuer"), pCertDescription->getIssuerName() + QLatin1Char('\n') + pCertDescription->getIssuerUrl());
 	if (showDetailedProviderInfo)
 	{
 		//: LABEL ALL_PLATFORMS
-		mData += QPair<QString, QString>(tr("Name, address and mail address of the provider"), serviceProviderAddress);
+		mData += std::make_pair(tr("Name, address and mail address of the provider"), serviceProviderAddress);
 		//: LABEL ALL_PLATFORMS
-		mData += QPair<QString, QString>(tr("Purpose"), purpose);
+		mData += std::make_pair(tr("Purpose"), purpose);
 		//: LABEL ALL_PLATFORMS
-		mData += QPair<QString, QString>(tr("Indication of the bodies responsible for the provider, "
-											"that verify the compliance with data security regulations"), dataSecurityOfficer);
+		mData += std::make_pair(tr("Indication of the bodies responsible for the provider, "
+								   "that verify the compliance with data security regulations"), dataSecurityOfficer);
 	}
 	else if (!termsOfUsage.isEmpty())
 	{
 		//: LABEL ALL_PLATFORMS
-		mData += QPair<QString, QString>(tr("Provider Information"), termsOfUsage);
+		mData += std::make_pair(tr("Provider Information"), termsOfUsage);
 	}
 	if (!getValidity().isEmpty())
 	{
 		//: LABEL ALL_PLATFORMS
-		mData += QPair<QString, QString>(tr("Validity"), getValidity());
+		mData += std::make_pair(tr("Validity"), getValidity());
 	}
 }
 
@@ -153,7 +153,7 @@ int CertificateDescriptionModel::rowCount(const QModelIndex&) const
 
 QVariant CertificateDescriptionModel::data(const QModelIndex& pIndex, int pRole) const
 {
-	if (pIndex.isValid() && pIndex.row() < rowCount())
+	if (pIndex.isValid() && pIndex.row() < rowCount(pIndex))
 	{
 		const auto& [label, text] = mData[pIndex.row()];
 		if (pRole == LABEL)

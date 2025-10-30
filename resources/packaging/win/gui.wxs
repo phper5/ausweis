@@ -1,8 +1,6 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
 <?include "cpack_variables.wxi"?>
 
-<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs" xmlns:util="http://wixtoolset.org/schemas/v4/wxs/util">
     <!-- Customized WixUI_InstallDir Dialog: use CustomInstallDirDlg and CustomExitDialog-->
     <Fragment>
         <UI Id="CustomWixUI_InstallDir">
@@ -24,45 +22,45 @@
             <DialogRef Id="ResumeDlg" />
             <DialogRef Id="UserExit" />
 
-            <Publish Dialog="BrowseDlg" Control="OK" Event="DoAction" Value="WixUIValidatePath" Order="3">1</Publish>
-            <Publish Dialog="BrowseDlg" Control="OK" Event="SpawnDialog" Value="InvalidDirDlg" Order="4"><![CDATA[WIXUI_INSTALLDIR_VALID<>"1"]]></Publish>
+            <Publish Dialog="BrowseDlg" Control="OK" Event="DoAction" Value="WixUIValidatePath_$(sys.BUILDARCHSHORT)" Order="3" />
+            <Publish Dialog="BrowseDlg" Control="OK" Event="SpawnDialog" Value="InvalidDirDlg" Order="4" Condition="WIXUI_INSTALLDIR_VALID&lt;&gt;&quot;1&quot;" />
 
-            <Publish Dialog="CustomExitDialog" Control="Finish" Event="DoAction" Value="LaunchApplication" Order="1">AllowStartOnExit AND (LaunchGui = "true")</Publish>
-            <Publish Dialog="CustomExitDialog" Control="Finish" Event="EndDialog" Value="Return" Order="999">1</Publish>
+            <Publish Dialog="CustomExitDialog" Control="Finish" Event="DoAction" Value="LaunchApplication" Order="1" Condition="AllowStartOnExit AND (LaunchGui = &quot;true&quot;)" />
+            <Publish Dialog="CustomExitDialog" Control="Finish" Event="EndDialog" Value="Return" Order="999" />
 
-            <Publish Dialog="WelcomeDlg" Control="Next" Event="NewDialog" Value="LicenseAgreementDlg">NOT Installed</Publish>
-            <Publish Dialog="WelcomeDlg" Control="Next" Event="NewDialog" Value="VerifyReadyDlg">Installed AND PATCH</Publish>
-            <Publish Dialog="WelcomeDlg" Control="Next" Property="LAUNCH" Value="false" Order="1">1</Publish>
+            <Publish Dialog="WelcomeDlg" Control="Next" Event="NewDialog" Value="LicenseAgreementDlg" Condition="NOT Installed" />
+            <Publish Dialog="WelcomeDlg" Control="Next" Event="NewDialog" Value="VerifyReadyDlg" Condition="Installed AND PATCH" />
+            <Publish Dialog="WelcomeDlg" Control="Next" Property="LAUNCH" Value="false" Order="1" />
 
-            <Publish Dialog="LicenseAgreementDlg" Control="Back" Event="NewDialog" Value="WelcomeDlg">1</Publish>
-            <Publish Dialog="LicenseAgreementDlg" Control="Next" Event="NewDialog" Value="CustomInstallDirDlg">LicenseAccepted = "1"</Publish>
+            <Publish Dialog="LicenseAgreementDlg" Control="Back" Event="NewDialog" Value="WelcomeDlg" />
+            <Publish Dialog="LicenseAgreementDlg" Control="Next" Event="NewDialog" Value="CustomInstallDirDlg" Condition="LicenseAccepted = &quot;1&quot;" />
 
-            <Publish Dialog="CustomInstallDirDlg" Control="Back" Event="NewDialog" Value="LicenseAgreementDlg">1</Publish>
-            <Publish Dialog="CustomInstallDirDlg" Control="Next" Property="DESKTOPSHORTCUT" Value="false" Order="1">NOT (DesktopShortcutGui = "true")</Publish>
-            <Publish Dialog="CustomInstallDirDlg" Control="Next" Property="DESKTOPSHORTCUT" Value="true" Order="2">DesktopShortcutGui = "true"</Publish>
-            <Publish Dialog="CustomInstallDirDlg" Control="Next" Property="SYSTEMSETTINGS" Value="false" Order="3">NOT (SystemSettingsGui = "true")</Publish>
-            <Publish Dialog="CustomInstallDirDlg" Control="Next" Property="SYSTEMSETTINGS" Value="true" Order="4">SystemSettingsGui = "true"</Publish>
-            <Publish Dialog="CustomInstallDirDlg" Control="Next" Property="PROXYSERVICE" Value="false" Order="5">NOT (ProxyServiceGui = "true")</Publish>
-            <Publish Dialog="CustomInstallDirDlg" Control="Next" Property="PROXYSERVICE" Value="true" Order="6">ProxyServiceGui = "true"</Publish>
-            <Publish Dialog="CustomInstallDirDlg" Control="Next" Event="SetTargetPath" Value="[WIXUI_INSTALLDIR]" Order="7">1</Publish>
-            <Publish Dialog="CustomInstallDirDlg" Control="Next" Event="DoAction" Value="WixUIValidatePath" Order="8">NOT WIXUI_DONTVALIDATEPATH</Publish>
-            <Publish Dialog="CustomInstallDirDlg" Control="Next" Event="SpawnDialog" Value="InvalidDirDlg" Order="9"><![CDATA[NOT WIXUI_DONTVALIDATEPATH AND WIXUI_INSTALLDIR_VALID<>"1"]]></Publish>
-            <Publish Dialog="CustomInstallDirDlg" Control="Next" Event="NewDialog" Value="VerifyReadyDlg" Order="10">WIXUI_DONTVALIDATEPATH OR WIXUI_INSTALLDIR_VALID="1"</Publish>
-            <Publish Dialog="CustomInstallDirDlg" Control="ChangeFolder" Property="_BrowseProperty" Value="[WIXUI_INSTALLDIR]" Order="1">1</Publish>
-            <Publish Dialog="CustomInstallDirDlg" Control="ChangeFolder" Event="SpawnDialog" Value="BrowseDlg" Order="2">1</Publish>
+            <Publish Dialog="CustomInstallDirDlg" Control="Back" Event="NewDialog" Value="LicenseAgreementDlg" />
+            <Publish Dialog="CustomInstallDirDlg" Control="Next" Property="DESKTOPSHORTCUT" Value="false" Order="1" Condition="NOT (DesktopShortcutGui = &quot;true&quot;)" />
+            <Publish Dialog="CustomInstallDirDlg" Control="Next" Property="DESKTOPSHORTCUT" Value="true" Order="2" Condition="DesktopShortcutGui = &quot;true&quot;" />
+            <Publish Dialog="CustomInstallDirDlg" Control="Next" Property="SYSTEMSETTINGS" Value="false" Order="3" Condition="NOT (SystemSettingsGui = &quot;true&quot;)" />
+            <Publish Dialog="CustomInstallDirDlg" Control="Next" Property="SYSTEMSETTINGS" Value="true" Order="4" Condition="SystemSettingsGui = &quot;true&quot;" />
+            <Publish Dialog="CustomInstallDirDlg" Control="Next" Property="PROXYSERVICE" Value="false" Order="5" Condition="NOT (ProxyServiceGui = &quot;true&quot;)" />
+            <Publish Dialog="CustomInstallDirDlg" Control="Next" Property="PROXYSERVICE" Value="true" Order="6" Condition="ProxyServiceGui = &quot;true&quot;" />
+            <Publish Dialog="CustomInstallDirDlg" Control="Next" Event="SetTargetPath" Value="[WIXUI_INSTALLDIR]" Order="7" />
+            <Publish Dialog="CustomInstallDirDlg" Control="Next" Event="DoAction" Value="WixUIValidatePath_$(sys.BUILDARCHSHORT)" Order="8" Condition="NOT WIXUI_DONTVALIDATEPATH" />
+            <Publish Dialog="CustomInstallDirDlg" Control="Next" Event="SpawnDialog" Value="InvalidDirDlg" Order="9" Condition="NOT WIXUI_DONTVALIDATEPATH AND WIXUI_INSTALLDIR_VALID&lt;&gt;&quot;1&quot;" />
+            <Publish Dialog="CustomInstallDirDlg" Control="Next" Event="NewDialog" Value="VerifyReadyDlg" Order="10" Condition="WIXUI_DONTVALIDATEPATH OR WIXUI_INSTALLDIR_VALID=&quot;1&quot;" />
+            <Publish Dialog="CustomInstallDirDlg" Control="ChangeFolder" Property="_BrowseProperty" Value="[WIXUI_INSTALLDIR]" Order="1" />
+            <Publish Dialog="CustomInstallDirDlg" Control="ChangeFolder" Event="SpawnDialog" Value="BrowseDlg" Order="2" />
 
-            <Publish Dialog="VerifyReadyDlg" Control="Back" Event="NewDialog" Value="CustomInstallDirDlg" Order="1">NOT Installed</Publish>
-            <Publish Dialog="VerifyReadyDlg" Control="Back" Event="NewDialog" Value="MaintenanceTypeDlg" Order="2">Installed AND NOT PATCH</Publish>
-            <Publish Dialog="VerifyReadyDlg" Control="Back" Event="NewDialog" Value="WelcomeDlg" Order="2">Installed AND PATCH</Publish>
+            <Publish Dialog="VerifyReadyDlg" Control="Back" Event="NewDialog" Value="CustomInstallDirDlg" Order="1" Condition="NOT Installed" />
+            <Publish Dialog="VerifyReadyDlg" Control="Back" Event="NewDialog" Value="MaintenanceTypeDlg" Order="2" Condition="Installed AND NOT PATCH" />
+            <Publish Dialog="VerifyReadyDlg" Control="Back" Event="NewDialog" Value="WelcomeDlg" Order="2" Condition="Installed AND PATCH" />
 
-            <Publish Dialog="MaintenanceWelcomeDlg" Control="Next" Event="NewDialog" Value="MaintenanceTypeDlg">1</Publish>
+            <Publish Dialog="MaintenanceWelcomeDlg" Control="Next" Event="NewDialog" Value="MaintenanceTypeDlg" />
 
-            <Publish Dialog="MaintenanceTypeDlg" Control="RepairButton" Property="InstallAction" Value="!(loc.InstallActionRepair)" Order="1">1</Publish>
-            <Publish Dialog="MaintenanceTypeDlg" Control="RepairButton" Event="NewDialog" Value="VerifyReadyDlg" Order="2">1</Publish>
-            <Publish Dialog="MaintenanceTypeDlg" Control="RemoveButton" Property="InstallAction" Value="!(loc.InstallActionRemove)" Order="1">1</Publish>
-            <Publish Dialog="MaintenanceTypeDlg" Control="RemoveButton" Event="NewDialog" Value="VerifyReadyDlg" Order="2">1</Publish>
-            <Publish Dialog="MaintenanceTypeDlg" Control="RemoveButton" Property="AllowStartOnExit" Value="{}" Order="3">1</Publish>
-            <Publish Dialog="MaintenanceTypeDlg" Control="Back" Event="NewDialog" Value="MaintenanceWelcomeDlg">1</Publish>
+            <Publish Dialog="MaintenanceTypeDlg" Control="RepairButton" Property="InstallAction" Value="!(loc.InstallActionRepair)" Order="1" />
+            <Publish Dialog="MaintenanceTypeDlg" Control="RepairButton" Event="NewDialog" Value="VerifyReadyDlg" Order="2" />
+            <Publish Dialog="MaintenanceTypeDlg" Control="RemoveButton" Property="InstallAction" Value="!(loc.InstallActionRemove)" Order="1" />
+            <Publish Dialog="MaintenanceTypeDlg" Control="RemoveButton" Event="NewDialog" Value="VerifyReadyDlg" Order="2" />
+            <Publish Dialog="MaintenanceTypeDlg" Control="RemoveButton" Property="AllowStartOnExit" Value="{}" Order="3" />
+            <Publish Dialog="MaintenanceTypeDlg" Control="Back" Event="NewDialog" Value="MaintenanceWelcomeDlg" />
 
             <Property Id="ARPNOMODIFY" Value="1" />
         </UI>
@@ -72,15 +70,14 @@
 
     <!-- Custom InstallDirDlg Dialog -->
     <Fragment>
-        <PropertyRef Id="WIX_SUITE_TERMINAL" />
-        <PropertyRef Id="WIX_SUITE_SINGLEUSERTS" />
+        <util:QueryWindowsSuiteInfo />
 
         <UI>
             <Dialog Id="CustomInstallDirDlg" Width="370" Height="270" Title="!(loc.InstallDirDlg_Title)">
                 <Control Id="Next" Type="PushButton" X="236" Y="243" Width="56" Height="17" Default="yes" Text="!(loc.WixUINext)" />
                 <Control Id="Back" Type="PushButton" X="180" Y="243" Width="56" Height="17" Text="!(loc.WixUIBack)" />
                 <Control Id="Cancel" Type="PushButton" X="304" Y="243" Width="56" Height="17" Cancel="yes" Text="!(loc.WixUICancel)">
-                    <Publish Event="SpawnDialog" Value="CancelDlg">1</Publish>
+                    <Publish Event="SpawnDialog" Value="CancelDlg" />
                 </Control>
 
                 <Control Id="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Transparent="yes" NoPrefix="yes" Text="{\WixUI_Font_Title}!(loc.CustomInstallDirDlg_Title)" />
@@ -91,10 +88,7 @@
 
                 <Control Id="SystemSettingsCheckBox" Type="CheckBox" X="20" Y="70" Width="290" Height="17" Property="SystemSettingsGui" CheckBoxValue="true" Text="!(loc.CustomInstallDirDlg_SystemSettingsCheckBox)" ToolTip="!(loc.CustomInstallDirDlg_SystemSettingsTooltip)" />
                 <Control Id="DesktopShortcutCheckBox" Type="CheckBox" X="20" Y="100" Width="290" Height="17" Property="DesktopShortcutGui" CheckBoxValue="true" Text="!(loc.CustomInstallDirDlg_DesktopShortcutCheckBox)" />
-                <Control Id="ProxyServiceCheckBox" Type="CheckBox" X="20" Y="130" Width="290" Height="17" Property="ProxyServiceGui" CheckBoxValue="true" Text="!(loc.CustomInstallDirDlg_ProxyServiceCheckBox)">
-                    <Condition Action="hide">NOT((WIX_SUITE_TERMINAL="1") AND NOT (WIX_SUITE_SINGLEUSERTS))</Condition>
-                    <Condition Action="show">    (WIX_SUITE_TERMINAL="1") AND NOT (WIX_SUITE_SINGLEUSERTS) </Condition>
-                </Control>
+                <Control Id="ProxyServiceCheckBox" Type="CheckBox" X="20" Y="130" Width="290" Height="17" Property="ProxyServiceGui" CheckBoxValue="true" Text="!(loc.CustomInstallDirDlg_ProxyServiceCheckBox)" HideCondition="NOT((WIX_SUITE_TERMINAL=&quot;1&quot;) AND NOT (WIX_SUITE_SINGLEUSERTS))" ShowCondition="(WIX_SUITE_TERMINAL=&quot;1&quot;) AND NOT (WIX_SUITE_SINGLEUSERTS)" />
 
                 <Control Id="FolderLabel" Type="Text" X="22" Y="175" Width="290" Height="30" NoPrefix="yes" Text="!(loc.InstallDirDlgFolderLabel)" Transparent="yes" />
                 <Control Id="Folder" Type="PathEdit" X="20" Y="195" Width="272" Height="18" Property="WIXUI_INSTALLDIR" Indirect="yes" />
@@ -113,9 +107,7 @@
                 <Control Id="BottomLine" Type="Line" X="0" Y="234" Width="370" Height="0" />
                 <Control Id="Description" Type="Text" X="135" Y="70" Width="220" Height="40" Transparent="yes" NoPrefix="yes" Text="!(loc.ExitDialogDescription)" />
                 <Control Id="Title" Type="Text" X="135" Y="20" Width="220" Height="60" Transparent="yes" NoPrefix="yes" Text="!(loc.ExitDialogTitle)" />
-                <Control Id="LaunchCheckBox" Type="CheckBox" X="10" Y="243" Width="150" Height="17" Hidden="yes" Property="LaunchGui" CheckBoxValue="true" Text="!(loc.CustomExitDialog_LaunchCheckBox)">
-                        <Condition Action="show">AllowStartOnExit</Condition>
-                </Control>
+                <Control Id="LaunchCheckBox" Type="CheckBox" X="10" Y="243" Width="150" Height="17" Hidden="yes" Property="LaunchGui" CheckBoxValue="true" Text="!(loc.CustomExitDialog_LaunchCheckBox)" ShowCondition="AllowStartOnExit" />
             </Dialog>
 
             <InstallUISequence>

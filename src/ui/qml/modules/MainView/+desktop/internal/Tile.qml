@@ -2,14 +2,13 @@
  * Copyright (c) 2018-2025 Governikus GmbH & Co. KG, Germany
  */
 import QtQuick
-import QtQuick.Controls
 import QtQuick.Layouts
 import Governikus.Global
 import Governikus.Style
 import Governikus.View
 import Governikus.Type
 
-AbstractButton {
+GAbstractButton {
 	id: root
 
 	Accessible.name: ApplicationModel.stripHtmlTags(text)
@@ -41,7 +40,6 @@ AbstractButton {
 		}
 		GText {
 			Accessible.ignored: true
-			activeFocusOnTab: false
 			color: root.activeFocus && UiPluginModel.showFocusIndicator ? Style.color.textTitle.checked : Style.color.textTitle.basic
 			horizontalAlignment: Text.AlignLeft
 			text: root.text

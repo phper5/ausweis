@@ -33,10 +33,8 @@ FlickableSectionPage {
 			required property int module
 			required property string titleText
 
-			Accessible.ignored: tileView.allItemsVisible ? false : index !== tileView.currentIndex
 			Accessible.name: titleText + ". " + qsTr("Item %1 of %2").arg(index + 1).arg(tileView.count) + (tileView.allItemsVisible ? "" : " . " + tileView.scrollHint)
-			activeFocusOnTab: false
-			focusPolicy: ApplicationModel.isScreenReaderRunning ? Qt.StrongFocus : Qt.TabFocus
+			focusPolicy: ApplicationModel.screenReaderRunning ? Qt.StrongFocus : Qt.TabFocus
 			height: ListView.view.height
 			image: imagePath
 			title: titleText
@@ -46,14 +44,11 @@ FlickableSectionPage {
 				tileView.decrementCurrentIndex()
 			Accessible.onScrollRightAction: if (tileView.isIos)
 				tileView.incrementCurrentIndex()
-			Component.onCompleted: tileDelegate.DelegateModel.inItems = module !== UiModule.SMART_EID || ApplicationModel.isSmartSupported
+			Component.onCompleted: tileDelegate.DelegateModel.inItems = module !== UiModule.SMART_EID || ApplicationModel.smartSupported
 			onClicked: root.show(module)
+			onFocusChanged: if (focus && (!tileView.moving || ApplicationModel.screenReaderRunning))
+				tileView.positionViewAtIndex(index, ListView.SnapPosition)
 
-			PointHandler {
-				enabled: !ApplicationModel.isScreenReaderRunning
-
-				onGrabChanged: tileView.focus = false
-			}
 			FocusFrame {
 				marginFactor: -2
 			}
@@ -126,10 +121,8 @@ FlickableSectionPage {
 		Layout.maximumWidth: allItemsVisible ? allItemsWidth : Number.POSITIVE_INFINITY
 		Layout.minimumHeight: minItemHeight
 		Layout.minimumWidth: Math.ceil(minItemWidth / overlapFactor)
-		activeFocusOnTab: true
 		boundsBehavior: Flickable.DragAndOvershootBounds
 		cacheBuffer: Number.POSITIVE_INFINITY
-		clip: true
 		highlightMoveDuration: 250
 		highlightRangeMode: allItemsVisible ? ListView.NoHighlightRange : ListView.StrictlyEnforceRange
 		interactive: !allItemsVisible || UiPluginModel.isChromeOS
@@ -138,6 +131,7 @@ FlickableSectionPage {
 		orientation: Qt.Horizontal
 		preferredHighlightBegin: width / 2 - itemWidth / 2
 		preferredHighlightEnd: width / 2 + itemWidth / 2
+		reuseItems: true
 		snapMode: ListView.SnapOneItem
 
 		onCountChanged: {

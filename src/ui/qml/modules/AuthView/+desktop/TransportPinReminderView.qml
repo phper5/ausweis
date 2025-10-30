@@ -14,7 +14,7 @@ BaseTransportPinReminderView {
 	id: root
 
 	titleBarSettings: TitleBarSettings {
-		navigationAction: NavigationAction.Cancel
+		navigationAction: NavigationAction.Action.Cancel
 
 		onNavigationActionClicked: root.cancel()
 	}
@@ -37,7 +37,7 @@ BaseTransportPinReminderView {
 
 		MultiInfoView {
 			titleBarSettings: TitleBarSettings {
-				navigationAction: NavigationAction.Back
+				navigationAction: NavigationAction.Action.Back
 
 				onNavigationActionClicked: root.pop()
 			}
@@ -50,7 +50,7 @@ BaseTransportPinReminderView {
 			title: root.title
 
 			titleBarSettings: TitleBarSettings {
-				navigationAction: NavigationAction.Back
+				navigationAction: NavigationAction.Action.Back
 
 				onNavigationActionClicked: root.pop()
 			}

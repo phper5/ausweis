@@ -116,14 +116,14 @@ class test_ReaderModel
 			mMockReaderConfiguration->clearReaderConfiguration();
 
 			ReaderModel readerModel;
-			QCOMPARE(readerModel.rowCount(), 0);
+			QCOMPARE(readerModel.rowCount(QModelIndex()), 0);
 		}
 
 
 		void test_settings()
 		{
 			ReaderModel readerModel;
-			QCOMPARE(readerModel.rowCount(), 0);
+			QCOMPARE(readerModel.rowCount(QModelIndex()), 0);
 		}
 
 
@@ -136,7 +136,7 @@ class test_ReaderModel
 			mUsbIds += UsbId(0x0C4B, 0x0501);    // REINER SCT cyberJack RFID komfort
 
 			ReaderModel readerModel;
-			QCOMPARE(readerModel.rowCount(), 1);
+			QCOMPARE(readerModel.rowCount(QModelIndex()), 1);
 			const auto& index = readerModel.index(0, 0, QModelIndex());
 			const auto& htmlDescription = readerModel.data(index, ReaderModel::UserRoles::READER_HTML_DESCRIPTION).toString();
 			QVERIFY(htmlDescription.startsWith(tr("The smartcard service of your system is not reachable.")));
@@ -148,7 +148,7 @@ class test_ReaderModel
 			mUsbIds += UsbId(0x1, 0x2);    // Unknown
 
 			ReaderModel readerModel;
-			QCOMPARE(readerModel.rowCount(), 0);
+			QCOMPARE(readerModel.rowCount(QModelIndex()), 0);
 		}
 
 
@@ -163,7 +163,7 @@ class test_ReaderModel
 
 			QModelIndex index;
 			ReaderModel readerModel;
-			QCOMPARE(readerModel.rowCount(), 2);
+			QCOMPARE(readerModel.rowCount(QModelIndex()), 2);
 			index = readerModel.index(0, 0, QModelIndex());
 			QCOMPARE(readerModel.data(index, ReaderModel::UserRoles::READER_HTML_DESCRIPTION).toString(), tr("The smartcard service of your system is not reachable."));
 			index = readerModel.index(1, 0, QModelIndex());
@@ -185,7 +185,7 @@ class test_ReaderModel
 
 			QModelIndex index;
 			ReaderModel readerModel;
-			QCOMPARE(readerModel.rowCount(), 2);
+			QCOMPARE(readerModel.rowCount(QModelIndex()), 2);
 			index = readerModel.index(0, 0, QModelIndex());
 			QCOMPARE(readerModel.data(index, ReaderModel::UserRoles::READER_HTML_DESCRIPTION).toString(), tr("Driver installed"));
 			index = readerModel.index(1, 0, QModelIndex());
@@ -200,7 +200,7 @@ class test_ReaderModel
 			mReaderInfos += ReaderInfo("Governikus Special Reader"_L1, ReaderManagerPluginType::PCSC);
 
 			ReaderModel readerModel;
-			QCOMPARE(readerModel.rowCount(), 1);
+			QCOMPARE(readerModel.rowCount(QModelIndex()), 1);
 		}
 
 

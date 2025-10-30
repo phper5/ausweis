@@ -18,7 +18,7 @@ Controller {
 
 	Connections {
 		function onActivate() {
-			if (ApplicationModel.isScreenReaderRunning) {
+			if (ApplicationModel.screenReaderRunning) {
 				root.updateFocus();
 			}
 		}

@@ -1,28 +1,20 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
 <?include "cpack_variables.wxi"?>
 
-<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi" xmlns:fw="http://schemas.microsoft.com/wix/FirewallExtension">
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs" xmlns:fw="http://wixtoolset.org/schemas/v4/wxs/firewall">
     <Fragment>
         <Property Id="SYSTEMSETTINGS" Secure="yes" />
         <Property Id="SYSTEMSETTINGS_FOUND" Secure="yes">
-            <RegistrySearch Id="SystemSettingsRegistry" Root="HKLM" Key="SYSTEM\CurrentControlSet\Services\SharedAccess\Parameters\FirewallPolicy\FirewallRules" Name="AusweisApp-Firewall-Rule" Type="raw" />
+            <RegistrySearch Id="SystemSettingsRegistry" Root="HKLM" Key="!(wix.CompanyRootKey)" Name="FirewallRules" Type="raw" />
         </Property>
         <Property Id="SYSTEMSETTINGS_OLD_FOUND" Secure="yes">
-            <RegistrySearch Id="SystemSettingsOldRegistry" Root="HKLM" Key="SYSTEM\CurrentControlSet\Services\SharedAccess\Parameters\FirewallPolicy\FirewallRules" Name="AusweisApp2-Firewall-Rule" Type="raw" />
+            <RegistrySearch Id="SystemSettingsOldRegistry" Root="HKLM" Key="SYSTEM\CurrentControlSet\Services\SharedAccess\Parameters\FirewallPolicy\FirewallRules" Name="AusweisApp-Firewall-Rule" Type="raw" />
         </Property>
-        <SetProperty Before="CostFinalize" Id="SYSTEMSETTINGS" Value="true" Sequence="first">
-            (NOT SYSTEMSETTINGS) AND (
-                ((WIX_UPGRADE_DETECTED OR REINSTALL) AND (SYSTEMSETTINGS_FOUND OR SYSTEMSETTINGS_OLD_FOUND))
-                OR (NOT (WIX_UPGRADE_DETECTED OR REINSTALL))
-            )
-        </SetProperty>
-        <SetProperty Action="SetSystemSettingsGui1" Before="CostFinalize" Id="SystemSettingsGui" Value="true" Sequence="ui">
-            SYSTEMSETTINGS = "true"
-        </SetProperty>
-        <SetProperty Action="SetSystemSettingsGui2" Before="CostFinalize" Id="SystemSettingsGui" Value="{}" Sequence="ui">
-            NOT (SYSTEMSETTINGS = "true")
-        </SetProperty>
+        <Property Id="SYSTEMSETTINGS_OLD2_FOUND" Secure="yes">
+            <RegistrySearch Id="SystemSettingsOld2Registry" Root="HKLM" Key="SYSTEM\CurrentControlSet\Services\SharedAccess\Parameters\FirewallPolicy\FirewallRules" Name="AusweisApp2-Firewall-Rule" Type="raw" />
+        </Property>
+        <SetProperty Before="CostFinalize" Id="SYSTEMSETTINGS" Value="true" Sequence="first" Condition="(NOT SYSTEMSETTINGS) AND (((WIX_UPGRADE_DETECTED OR REINSTALL) AND (SYSTEMSETTINGS_FOUND OR SYSTEMSETTINGS_OLD_FOUND OR SYSTEMSETTINGS_OLD2_FOUND)) OR (NOT (WIX_UPGRADE_DETECTED OR REINSTALL)))" />
+        <SetProperty Action="SetSystemSettingsGui1" Before="CostFinalize" Id="SystemSettingsGui" Value="true" Sequence="ui" Condition="SYSTEMSETTINGS = &quot;true&quot;" />
+        <SetProperty Action="SetSystemSettingsGui2" Before="CostFinalize" Id="SystemSettingsGui" Value="{}" Sequence="ui" Condition="NOT (SYSTEMSETTINGS = &quot;true&quot;)" />
 
 
 
@@ -33,18 +25,9 @@
         <Property Id="DESKTOPSHORTCUT_MIGRATION" Secure="yes">
             <RegistrySearch Id="DesktopShortcutRegistryMigration" Root="HKCU" Key="!(wix.CompanyRootKey)" Name="SC_Desktop" Type="raw" />
         </Property>
-        <SetProperty Before="CostFinalize" Id="DESKTOPSHORTCUT" Value="true" Sequence="first">
-            (NOT DESKTOPSHORTCUT) AND (
-                ((WIX_UPGRADE_DETECTED OR REINSTALL) AND (DESKTOPSHORTCUT_FOUND OR DESKTOPSHORTCUT_MIGRATION))
-                OR (NOT (WIX_UPGRADE_DETECTED OR REINSTALL))
-            )
-        </SetProperty>
-        <SetProperty Action="SetDesktopShortcutGui1" Before="CostFinalize" Id="DesktopShortcutGui" Value="true" Sequence="ui">
-            DESKTOPSHORTCUT = "true"
-        </SetProperty>
-        <SetProperty Action="SetDesktopShortcutGui2" Before="CostFinalize" Id="DesktopShortcutGui" Value="{}" Sequence="ui">
-            NOT (DESKTOPSHORTCUT = "true")
-        </SetProperty>
+        <SetProperty Before="CostFinalize" Id="DESKTOPSHORTCUT" Value="true" Sequence="first" Condition="(NOT DESKTOPSHORTCUT) AND (((WIX_UPGRADE_DETECTED OR REINSTALL) AND (DESKTOPSHORTCUT_FOUND OR DESKTOPSHORTCUT_MIGRATION))OR (NOT (WIX_UPGRADE_DETECTED OR REINSTALL)))" />
+        <SetProperty Action="SetDesktopShortcutGui1" Before="CostFinalize" Id="DesktopShortcutGui" Value="true" Sequence="ui" Condition="DESKTOPSHORTCUT = &quot;true&quot;" />
+        <SetProperty Action="SetDesktopShortcutGui2" Before="CostFinalize" Id="DesktopShortcutGui" Value="{}" Sequence="ui" Condition="NOT (DESKTOPSHORTCUT = &quot;true&quot;)" />
 
 
 
@@ -55,27 +38,17 @@
         <Property Id="STARTMENUSHORTCUT_MIGRATION" Secure="yes">
             <RegistrySearch Id="StartmenueShortcutRegistryMigration" Root="HKCU" Key="!(wix.CompanyRootKey)" Name="SC_Startmenu" Type="raw" />
         </Property>
-        <SetProperty Before="CostFinalize" Id="STARTMENUSHORTCUT" Value="true" Sequence="first">
-            (NOT STARTMENUSHORTCUT) AND (
-                ((WIX_UPGRADE_DETECTED OR REINSTALL) AND (STARTMENUSHORTCUT_FOUND OR STARTMENUSHORTCUT_MIGRATION))
-                OR (NOT (WIX_UPGRADE_DETECTED OR REINSTALL))
-            )
-        </SetProperty>
+        <SetProperty Before="CostFinalize" Id="STARTMENUSHORTCUT" Value="true" Sequence="first" Condition="(NOT STARTMENUSHORTCUT) AND (((WIX_UPGRADE_DETECTED OR REINSTALL) AND (STARTMENUSHORTCUT_FOUND OR STARTMENUSHORTCUT_MIGRATION))OR (NOT (WIX_UPGRADE_DETECTED OR REINSTALL)))" />
+
 
 
         <Property Id="LAUNCH" Secure="yes" />
-        <SetProperty Action="SetLaunchGui1" Before="CostFinalize" Id="LaunchGui" Value="true" Sequence="ui">
-            (NOT LAUNCH) OR LAUNCH = "true"
-        </SetProperty>
-        <SetProperty Action="SetLaunchGui2" Before="CostFinalize" Id="LaunchGui" Value="{}" Sequence="ui">
-            (LAUNCH) AND NOT (LAUNCH = "true")
-        </SetProperty>
+        <SetProperty Action="SetLaunchGui1" Before="CostFinalize" Id="LaunchGui" Value="true" Sequence="ui" Condition="(NOT LAUNCH) OR LAUNCH = &quot;true&quot;" />
+        <SetProperty Action="SetLaunchGui2" Before="CostFinalize" Id="LaunchGui" Value="{}" Sequence="ui" Condition="(LAUNCH) AND NOT (LAUNCH = &quot;true&quot;)" />
         <Property Id="WixShellExecTarget" Value="[INSTALL_ROOT][ProductName].exe" />
-        <CustomAction Id="LaunchApplication" BinaryKey="WixCA" DllEntry="WixShellExec" Impersonate="yes" />
+        <CustomAction Id="LaunchApplication" DllEntry="WixShellExec" Impersonate="yes" BinaryRef="Wix4UtilCA_X86" />
         <InstallExecuteSequence>
-            <Custom Action='LaunchApplication' After='InstallFinalize'>
-                LAUNCH = "true"
-            </Custom>
+            <Custom Action="LaunchApplication" After="InstallFinalize" Condition="LAUNCH = &quot;true&quot;" />
         </InstallExecuteSequence>
 
 
@@ -88,54 +61,40 @@
 
 
 
-        <DirectoryRef Id="TARGETDIR">
-            <Component Id="WindowsFirewallRule" Guid="{391CF345-5AA2-45CD-D001-C24861C9AB8D}">
-                <Condition>SYSTEMSETTINGS = "true"</Condition>
+        <Component Id="WindowsFirewallRule" Guid="{391CF345-5AA2-45CD-D001-C24861C9AB8D}" Directory="TARGETDIR" Condition="SYSTEMSETTINGS = &quot;true&quot;">
+            <RegistryKey Root="HKLM" Key="!(wix.CompanyRootKey)">
+                <RegistryValue Name="FirewallRules" Type="integer" Value="1" />
+            </RegistryKey>
 
-                <!-- Add/remove outgoing data port to/from Windows Firewall -->
-                <RegistryKey Root="HKLM" Key="SYSTEM\CurrentControlSet\Services\SharedAccess\Parameters\FirewallPolicy\FirewallRules">
-                    <RegistryValue Type="string" Name="AusweisApp-Firewall-Rule" Value="v2.20|Action=Allow|Active=TRUE|Dir=Out|App=[INSTALL_ROOT][ProductName].exe|Name=AusweisApp|Desc=AusweisApp firewall rule|" />
+            <!-- Add/remove outgoing data port to/from Windows Firewall -->
+            <fw:FirewallException Id="AddOutboundWindowsFirewall"
+                                Program="[INSTALL_ROOT][ProductName].exe"
+                                Scope="any"
+                                Outbound="yes"
+                                Name="AusweisApp"
+                                Description="AusweisApp firewall rule" />
+
+            <!-- Add/remove SaC listening port to/from Windows Firewall -->
+            <fw:FirewallException Id="AddListeningPortWindowsFirewallSaC" Program="[INSTALL_ROOT][ProductName].exe" Port="24727" Protocol="udp" Profile="all" Scope="localSubnet" Name="AusweisApp-SaC" Description="Allow inbound udp connections for Smartphone as card reader." />
+        </Component>
+
+        <StandardDirectory Id="DesktopFolder">
+            <Component Id="DesktopShortcut" Guid="{391CF345-5AA2-45CD-D002-C24861C9AB8D}" Condition="DESKTOPSHORTCUT = &quot;true&quot;">
+                <RegistryKey Root="HKLM" Key="!(wix.CompanyRootKey)">
+                    <RegistryValue Name="SC_Desktop" Type="integer" Value="1" />
                 </RegistryKey>
-
-                <!-- Add/remove SaC listening port to/from Windows Firewall -->
-                <fw:FirewallException Id="AddListeningPortWindowsFirewallSaC"
-                                    Program="[INSTALL_ROOT][ProductName].exe"
-                                    Port="24727"
-                                    Protocol="udp"
-                                    Profile="all"
-                                    Scope="localSubnet"
-                                    Name="AusweisApp-SaC"
-                                    Description="Allow inbound udp connections for Smartphone as card reader." />
+                <Shortcut Id="DesktopExec" Name="$(var.CPACK_PACKAGE_NAME)" Description="!(loc.ProgramDescription)" Target="[INSTALL_ROOT][ProductName].exe" WorkingDirectory="INSTALL_ROOT" />
             </Component>
+        </StandardDirectory>
 
-            <Directory Id="DesktopFolder" Name="Desktop" >
-                <Component Id="DesktopShortcut" Guid="{391CF345-5AA2-45CD-D002-C24861C9AB8D}">
-                    <Condition>DESKTOPSHORTCUT = "true"</Condition>
-                    <RegistryKey Root="HKLM" Key="!(wix.CompanyRootKey)">
-                        <RegistryValue Name="SC_Desktop" Type="integer" Value="1" />
-                    </RegistryKey>
-                    <Shortcut Id="DesktopExec"
-                        Name="$(var.CPACK_PACKAGE_NAME)"
-                        Description="!(loc.ProgramDescription)"
-                        Target="[INSTALL_ROOT][ProductName].exe"
-                        WorkingDirectory="INSTALL_ROOT" />
-                </Component>
-            </Directory>
-
-            <Directory Id="ProgramMenuFolder">
-                <Component Id="StartmenuShortcut" Guid="*">
-                    <Condition>STARTMENUSHORTCUT = "true"</Condition>
-                    <RegistryKey Root="HKLM" Key="!(wix.CompanyRootKey)">
-                        <RegistryValue Name="SC_Startmenu" Type="integer" Value="1" />
-                    </RegistryKey>
-                    <Shortcut Id="StartmenuExec"
-                        Name="$(var.CPACK_PACKAGE_NAME)"
-                        Description="!(loc.ProgramDescription)"
-                        Target="[INSTALL_ROOT][ProductName].exe"
-                        WorkingDirectory="INSTALL_ROOT" />
-                </Component>
-            </Directory>
-        </DirectoryRef>
+        <StandardDirectory Id="ProgramMenuFolder">
+            <Component Id="StartmenuShortcut" Condition="STARTMENUSHORTCUT = &quot;true&quot;">
+                <RegistryKey Root="HKLM" Key="!(wix.CompanyRootKey)">
+                    <RegistryValue Name="SC_Startmenu" Type="integer" Value="1" />
+                </RegistryKey>
+                <Shortcut Id="StartmenuExec" Name="$(var.CPACK_PACKAGE_NAME)" Description="!(loc.ProgramDescription)" Target="[INSTALL_ROOT][ProductName].exe" WorkingDirectory="INSTALL_ROOT" />
+            </Component>
+        </StandardDirectory>
 
 
 
@@ -148,19 +107,13 @@
             <RegistrySearch Id="InstallRootRegistry" Root="HKLM" Key="!(wix.CompanyRootKey)" Name="lastInstallRoot" Type="raw" />
         </Property>
 
-        <SetProperty Action="SetINSTALL_ROOT_REGISTRY_OVERWRITE" Before="CostFinalize" Id="INSTALL_ROOT" Value="[INSTALLDIR_REGISTRY]" Sequence="first">
-            INSTALLDIR_REGISTRY
-        </SetProperty>
-        <SetProperty Action="SetINSTALL_ROOT_CMDLINE_OVERWRITE" After="SetINSTALL_ROOT_REGISTRY_OVERWRITE" Id="INSTALL_ROOT" Value="[INSTALLDIR]" Sequence="first">
-            INSTALLDIR
-        </SetProperty>
+        <SetProperty Action="SetINSTALL_ROOT_REGISTRY_OVERWRITE" Before="CostFinalize" Id="INSTALL_ROOT" Value="[INSTALLDIR_REGISTRY]" Sequence="first" Condition="INSTALLDIR_REGISTRY" />
+        <SetProperty Action="SetINSTALL_ROOT_CMDLINE_OVERWRITE" After="SetINSTALL_ROOT_REGISTRY_OVERWRITE" Id="INSTALL_ROOT" Value="[INSTALLDIR]" Sequence="first" Condition="INSTALLDIR" />
 
-        <DirectoryRef Id="TARGETDIR">
-            <Component Id="RememberInstallRoot" Guid="*">
-                <RegistryKey Root="HKLM" Key="!(wix.CompanyRootKey)">
-                    <RegistryValue Name="lastInstallRoot" Type="string" Value="[INSTALL_ROOT]" KeyPath="yes" />
-                </RegistryKey>
-            </Component>
-        </DirectoryRef>
+        <Component Id="RememberInstallRoot" Directory="TARGETDIR">
+            <RegistryKey Root="HKLM" Key="!(wix.CompanyRootKey)">
+                <RegistryValue Name="lastInstallRoot" Type="string" Value="[INSTALL_ROOT]" KeyPath="yes" />
+            </RegistryKey>
+        </Component>
     </Fragment>
 </Wix>

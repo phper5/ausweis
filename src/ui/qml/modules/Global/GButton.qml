@@ -10,7 +10,7 @@ import Governikus.Global
 import Governikus.Style
 import Governikus.View
 
-AbstractButton {
+GAbstractButton {
 	id: root
 
 	property int borderWidth: Style.dimens.border_width
@@ -66,7 +66,7 @@ AbstractButton {
 				sourceSize.height: 1.2 * buttonText.effectiveFirstLineHeight
 				tintColor: colors.controlContent
 				tintEnabled: root.tintIcon
-				visible: source != ""
+				visible: source.toString() !== ""
 			}
 			GText {
 				id: buttonText
@@ -74,7 +74,6 @@ AbstractButton {
 				Accessible.ignored: true
 				Layout.alignment: Qt.AlignHCenter
 				Layout.maximumWidth: Number.POSITIVE_INFINITY
-				activeFocusOnTab: false
 				color: colors.controlContent
 				elide: Text.ElideRight
 				font: root.font
@@ -94,8 +93,6 @@ AbstractButton {
 
 	onActiveFocusOnTabChanged: if (!activeFocusOnTab)
 		focus = false
-	onFocusChanged: if (focus)
-		Utils.positionViewAtItem(this)
 
 	HoverHandler {
 		id: hoverHandler

@@ -19,7 +19,7 @@ namespace governikus
 {
 template<> IfdDispatcherClient* createNewObject<IfdDispatcherClient*, IfdVersion::Version&&, const QSharedPointer<DataChannel>&>(IfdVersion::Version&& pVersion, const QSharedPointer<DataChannel>& pChannel)
 {
-	return new IfdDispatcherClient(pVersion, pChannel);
+	return new IfdDispatcherClient(std::move(pVersion), pChannel);
 }
 
 

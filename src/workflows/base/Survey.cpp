@@ -66,15 +66,15 @@ Survey::Survey()
 void Survey::buildDataObject()
 {
 	mData.clear();
-	mData += qMakePair(tr("Vendor"), mVendor);
-	mData += qMakePair(tr("Model Name"), mModelName);
-	mData += qMakePair(tr("Model Number"), mModelNumber);
-	mData += qMakePair(tr("Build Number"), mBuildNumber);
-	mData += qMakePair(tr("OS version"), mOsVersion);
-	mData += qMakePair(tr("Kernel version"), mKernelVersion);
-	mData += qMakePair(tr("Max. NFC Packet Length"), QString::number(mMaximumNfcPacketLength));
-	mData += qMakePair(tr("%1 Version").arg(QCoreApplication::applicationName()), mAusweisAppVersionNumber);
-	mData += qMakePair(tr("NFC Tag Type"), mNfcTagType);
+	mData += std::make_pair(tr("Vendor"), mVendor);
+	mData += std::make_pair(tr("Model Name"), mModelName);
+	mData += std::make_pair(tr("Model Number"), mModelNumber);
+	mData += std::make_pair(tr("Build Number"), mBuildNumber);
+	mData += std::make_pair(tr("OS version"), mOsVersion);
+	mData += std::make_pair(tr("Kernel version"), mKernelVersion);
+	mData += std::make_pair(tr("Max. NFC Packet Length"), QString::number(mMaximumNfcPacketLength));
+	mData += std::make_pair(tr("%1 Version").arg(QCoreApplication::applicationName()), mAusweisAppVersionNumber);
+	mData += std::make_pair(tr("NFC Tag Type"), mNfcTagType);
 	Q_EMIT fireSurveyDataChanged();
 }
 

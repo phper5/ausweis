@@ -11,11 +11,6 @@ def j = new Release
 
 j.with
 {
-	parameters
-	{
-		booleanParam("LATEST", false, "Use latest tag")
-	}
-
 	steps
 	{
 		shell('cmake -P source/ci.cmake')

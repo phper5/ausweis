@@ -1,3 +1,5 @@
+include(Helper)
+
 macro(FIND_DVCS _dest)
 	if(EXISTS "${_dest}/.hg")
 		FIND_HOST_PACKAGE(Hg)
@@ -20,7 +22,7 @@ endmacro()
 
 function(DVCS_EXECUTE _out)
 	execute_process(COMMAND ${DVCS_EXECUTABLE} ${ARGN}
-		WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 		OUTPUT_VARIABLE _output
 		RESULT_VARIABLE _result
 		ERROR_QUIET
@@ -99,7 +101,7 @@ macro(GET_DVCS_INFO)
 endmacro()
 
 set(VERSION_DVCS ${PROJECT_VERSION})
-FIND_DVCS(${PROJECT_SOURCE_DIR})
+FIND_DVCS(${CMAKE_SOURCE_DIR})
 if(DVCS_FOUND)
 	option(ENABLE_DVCS "Check consistency of version/tag and get additional revision data" true)
 	if(ENABLE_DVCS)

@@ -23,8 +23,6 @@ AppUpdateData::AppUpdateData(const GlobalStatus& pParsingResult)
 	, mUrl()
 	, mSize(-1)
 	, mChecksumUrl()
-	, mNotesUrl()
-	, mNotes()
 	, mChecksumAlgorithm(QCryptographicHash::Sha256)
 	, mChecksum()
 	, mChecksumValid(false)
@@ -69,7 +67,6 @@ AppUpdateData::AppUpdateData(const QByteArray& pData)
 				mMinOsVersion = QVersionNumber::fromString(jsonObject[QLatin1String("minimum_platform")].toString());
 				mVersion = jsonObject[QLatin1String("version")].toString();
 				mUrl = QUrl(jsonObject[QLatin1String("url")].toString());
-				mNotesUrl = QUrl(jsonObject[QLatin1String("notes")].toString());
 				mDate = QDateTime::fromString(jsonObject[QLatin1String("date")].toString(), Qt::ISODate);
 				mChecksumUrl = QUrl(jsonObject[QLatin1String("checksum")].toString());
 				mSize = std::max(-1, jsonObject[QLatin1String("size")].toInt(-1));
@@ -96,8 +93,7 @@ bool AppUpdateData::isValid() const
 		   mUrl.isValid() &&
 		   !mUrl.fileName().isEmpty() &&
 		   mChecksumUrl.isValid() &&
-		   !mChecksumUrl.fileName().isEmpty() &&
-		   mNotesUrl.isValid();
+		   !mChecksumUrl.fileName().isEmpty();
 }
 
 
@@ -146,24 +142,6 @@ int AppUpdateData::getSize() const
 const QUrl& AppUpdateData::getChecksumUrl() const
 {
 	return mChecksumUrl;
-}
-
-
-const QUrl& AppUpdateData::getNotesUrl() const
-{
-	return mNotesUrl;
-}
-
-
-void AppUpdateData::setNotes(const QString& pNotes)
-{
-	mNotes = pNotes;
-}
-
-
-const QString& AppUpdateData::getNotes() const
-{
-	return mNotes;
 }
 
 

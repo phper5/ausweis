@@ -6,8 +6,6 @@
 
 #include "ReaderConfigurationInfo.h"
 
-#include <QMutableListIterator>
-
 using namespace governikus;
 
 ReaderFilter::ReaderFilter()
@@ -37,34 +35,24 @@ QList<ReaderInfo> ReaderFilter::apply(const QList<ReaderInfo>& pInputList) const
 
 	if (mFilterType & PluginTypeFilter)
 	{
-		QMutableListIterator<ReaderInfo> iter(filtered);
-		while (iter.hasNext())
-		{
-			const ReaderInfo entry = iter.next();
-			if (!mPluginTypes.contains(entry.getPluginType()))
-			{
-				iter.remove();
-			}
-		}
+		erase_if(filtered, [this](const ReaderInfo& pEntry) {
+					return !mPluginTypes.contains(pEntry.getPluginType());
+				});
 	}
 
 	if (mFilterType & UniqueReaderTypes)
 	{
 		QList<ReaderConfigurationInfo> alreadyContained;
 
-		QMutableListIterator<ReaderInfo> iter(filtered);
-		while (iter.hasNext())
-		{
-			const ReaderConfigurationInfo configurationInfo = iter.next().getReaderConfigurationInfo();
-			if (alreadyContained.contains(configurationInfo))
-			{
-				iter.remove();
-			}
-			else
-			{
-				alreadyContained += configurationInfo;
-			}
-		}
+		erase_if(filtered, [&alreadyContained](const ReaderInfo& pEntry) {
+					const auto configurationInfo = pEntry.getReaderConfigurationInfo();
+					if (alreadyContained.contains(configurationInfo))
+					{
+						return true;
+					}
+					alreadyContained += configurationInfo;
+					return false;
+				});
 	}
 
 	return filtered;

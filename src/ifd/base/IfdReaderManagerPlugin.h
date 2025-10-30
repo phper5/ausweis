@@ -6,6 +6,7 @@
 
 #include "IfdClient.h"
 #include "IfdDispatcherClient.h"
+#include "IfdReader.h"
 #include "ReaderManagerPlugin.h"
 #include "messages/IfdStatus.h"
 
@@ -29,7 +30,7 @@ class IfdReaderManagerPlugin
 	private:
 		QMultiMap<QByteArray, QString> mReadersForDispatcher;
 		QMap<QByteArray, QSharedPointer<IfdDispatcherClient>> mDispatcherList;
-		QMap<QString, Reader*> mReaderList;
+		QMap<QString, QSharedPointer<IfdReader>> mReaders;
 
 		void processConnectedReader(const QString& pReaderName, const IfdStatus& pIfdStatus, const QSharedPointer<IfdDispatcherClient>& pDispatcher, const QByteArray& pId);
 		void handleIFDStatus(const QJsonObject& pJsonObject, const QByteArray& pId);
@@ -48,17 +49,19 @@ class IfdReaderManagerPlugin
 		virtual IfdClient* getIfdClient() const = 0;
 
 	public:
-		IfdReaderManagerPlugin(ReaderManagerPluginType pPluginType, bool pAvailable = false, bool pPluginEnabled = false);
+		explicit IfdReaderManagerPlugin(ReaderManagerPluginType pPluginType, bool pAvailable = false, bool pPluginEnabled = false);
 		~IfdReaderManagerPlugin() override;
 
 		void init() override;
-		[[nodiscard]] QList<Reader*> getReaders() const override;
+
+		[[nodiscard]] QPointer<Reader> getReader(const QString& pReaderName) const override;
 
 		void insert(const QString& pReaderName, const QVariant& pData) override;
 
 		void startScan(bool pAutoConnect) override;
 		void stopScan(const QString& pError = QString()) override;
 
+		void shelveAll() const override;
 };
 
 } // namespace governikus

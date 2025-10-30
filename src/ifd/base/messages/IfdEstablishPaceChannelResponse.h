@@ -5,16 +5,16 @@
 #pragma once
 
 #include "IfdMessageResponse.h"
+#include "IfdSlotHandle.h"
 #include "pinpad/EstablishPaceChannelOutput.h"
 
 
 namespace governikus
 {
 class IfdEstablishPaceChannelResponse
-	: public IfdMessageResponse
+	: public IfdSlotHandle<IfdMessageResponse>
 {
 	private:
-		QString mSlotHandle;
 		EstablishPaceChannelOutput mOutputData;
 
 		void parseOutputData(const QJsonObject& pMessageObject);
@@ -24,7 +24,6 @@ class IfdEstablishPaceChannelResponse
 		explicit IfdEstablishPaceChannelResponse(const QJsonObject& pMessageObject);
 		~IfdEstablishPaceChannelResponse() override = default;
 
-		[[nodiscard]] const QString& getSlotHandle() const;
 		[[nodiscard]] const EstablishPaceChannelOutput& getOutputData() const;
 		[[nodiscard]] CardReturnCode getReturnCode() const;
 		[[nodiscard]] QByteArray toByteArray(IfdVersion::Version pIfdVersion, const QString& pContextHandle) const override;

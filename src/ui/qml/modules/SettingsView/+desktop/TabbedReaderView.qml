@@ -19,21 +19,21 @@ SectionPage {
 	id: root
 
 	//: LABEL DESKTOP
-	title: qsTr("Card Readers")
+	title: qsTr("Card readers")
 
 	titleBarSettings: TitleBarSettings {
-		navigationAction: NavigationAction.Back
+		navigationAction: NavigationAction.Action.Back
 
 		onNavigationActionClicked: root.leaveView()
 	}
 
 	Keys.onPressed: event => {
-		tabbedPane.handleKeyPress(event.key);
+		tabbedPane.handleKeyPress(event);
 	}
 
 	ReaderDetection {
 		onNewPcscReaderDetected: {
-			if (ApplicationModel.isScreenReaderRunning) {
+			if (ApplicationModel.screenReaderRunning) {
 				root.push(readerFoundConfirmation, {
 					type: ReaderFoundConfirmation.ReaderType.PCSC
 				});
@@ -42,7 +42,7 @@ SectionPage {
 			}
 		}
 		onNewRemoteReaderDetected: {
-			if (ApplicationModel.isScreenReaderRunning) {
+			if (ApplicationModel.screenReaderRunning) {
 				root.push(readerFoundConfirmation, {
 					type: ReaderFoundConfirmation.ReaderType.REMOTE
 				});
@@ -71,9 +71,6 @@ SectionPage {
 		contentObjectModel: ObjectModel {
 			Component {
 				RemoteReaderView {
-					height: Math.max(implicitHeight, tabbedPane.availableHeight)
-					width: parent.width
-
 					onPairDevice: pDeviceId => {
 						if (RemoteServiceModel.rememberServer(pDeviceId)) {
 							root.push(connectSacView);
@@ -88,10 +85,10 @@ SectionPage {
 							progress: root.progress
 
 							infoContent: MultiInfoData {
-								contentType: MultiInfoData.NO_SAC_FOUND
+								contentType: MultiInfoData.Type.NO_SAC_FOUND
 							}
 							titleBarSettings: TitleBarSettings {
-								navigationAction: NavigationAction.Back
+								navigationAction: NavigationAction.Action.Back
 
 								onNavigationActionClicked: root.pop()
 							}
@@ -112,8 +109,6 @@ SectionPage {
 			}
 			Component {
 				CardReaderView {
-					height: Math.max(implicitHeight, tabbedPane.availableHeight)
-					width: parent.width
 				}
 			}
 		}

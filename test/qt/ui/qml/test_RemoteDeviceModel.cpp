@@ -2,10 +2,13 @@
  * Copyright (c) 2018-2025 Governikus GmbH & Co. KG, Germany
  */
 
-#include "AppSettings.h"
-#include "IfdDescriptor.h"
 #include "RemoteDeviceModel.h"
+
+#include "AppSettings.h"
+#include "PortFile.h"
 #include "RemoteIfdClient.h"
+
+#include "HttpServer.h"
 
 #include <QtTest>
 
@@ -32,9 +35,8 @@ QList<QSharedPointer<IfdListEntry>> MockRemoteIfdClient::getAnnouncingRemoteDevi
 	const auto dId = QByteArrayLiteral("myDeviceId");
 	Discovery disco(dName, dId, 12345, {IfdVersion::Version::latest}, false);
 	disco.setAddresses({QHostAddress(QStringLiteral("127.0.0.1"))});
-	const auto ifdDesc = IfdDescriptor(disco);
-	const QSharedPointer<IfdListEntry> remoteDeviceListEntry(new IfdListEntry(ifdDesc));
-	remoteDeviceListEntry->setIfdDescriptor(ifdDesc);
+	const QSharedPointer<IfdListEntry> remoteDeviceListEntry(new IfdListEntry(disco));
+	remoteDeviceListEntry->setDiscovery(disco);
 	return {remoteDeviceListEntry};
 }
 
@@ -48,6 +50,12 @@ class test_RemoteDeviceModel
 	QString mName;
 
 	private Q_SLOTS:
+		void initTestCase()
+		{
+			HttpServer::cPort = 0;
+		}
+
+
 		void init()
 		{
 			mName = QStringLiteral("name&lt;");
@@ -111,8 +119,8 @@ class test_RemoteDeviceModel
 			const QByteArray id = QByteArrayLiteral("id");
 			const QDateTime time(QDateTime::currentDateTime());
 			RemoteDeviceModelEntry entry1(name);
-			const IfdDescriptor descriptor = IfdDescriptor();
-			QSharedPointer<IfdListEntry> pointer(new IfdListEntry(descriptor));
+			const Discovery disco((QJsonObject()));
+			QSharedPointer<IfdListEntry> pointer(new IfdListEntry(disco));
 			RemoteDeviceModelEntry entry2(name, id, true, true, true, true, time, pointer);
 
 			QVERIFY(!entry1.isSupported());
@@ -127,15 +135,14 @@ class test_RemoteDeviceModel
 			RemoteDeviceModelEntry entry1(name);
 			QCOMPARE(entry1.getRemoteDeviceListEntry(), nullptr);
 
-			const IfdDescriptor defaultDescriptor = IfdDescriptor();
-			QSharedPointer<IfdListEntry> listEntry1(new IfdListEntry(defaultDescriptor));
+			const Discovery defaultDisco((QJsonObject()));
+			QSharedPointer<IfdListEntry> listEntry1(new IfdListEntry(defaultDisco));
 			RemoteDeviceModelEntry entry2(listEntry1);
 			QCOMPARE(entry2.getRemoteDeviceListEntry(), listEntry1);
 
-			Discovery discovery(name, id, 11111, {IfdVersion::supported()}, true);
+			Discovery discovery(name, id, PortFile::cDefaultPort, {IfdVersion::supported()}, true);
 			discovery.setAddresses({QHostAddress(QHostAddress::LocalHost)});
-			const IfdDescriptor descriptor = IfdDescriptor(discovery, true);
-			QSharedPointer<IfdListEntry> listEntry2(new IfdListEntry(descriptor));
+			QSharedPointer<IfdListEntry> listEntry2(new IfdListEntry(discovery));
 			RemoteDeviceModelEntry entry3(listEntry2);
 			QCOMPARE(entry3.getRemoteDeviceListEntry(), listEntry2);
 			QCOMPARE(entry3.getId(), id);
@@ -207,7 +214,7 @@ class test_RemoteDeviceModel
 			entry.mSupported = true;
 			entry.mIsPairing = true;
 #if defined(Q_OS_ANDROID) || defined(Q_OS_IOS)
-			QCOMPARE(mModel->getStatus(entry), "Click to pair"_L1);
+			QCOMPARE(mModel->getStatus(entry), "Tap to pair"_L1);
 #else
 			QCOMPARE(mModel->getStatus(entry), "Available"_L1);
 
@@ -235,10 +242,9 @@ class test_RemoteDeviceModel
 
 		void test_GetRemoteDeviceListEntryModelIndex()
 		{
-			Discovery discovery(QStringLiteral("entry 1"), QByteArrayLiteral("01"), 11111, {IfdVersion::supported()}, true);
+			Discovery discovery(QStringLiteral("entry 1"), QByteArrayLiteral("01"), PortFile::cDefaultPort, {IfdVersion::supported()}, true);
 			discovery.setAddresses({QHostAddress(QHostAddress::LocalHost)});
-			const IfdDescriptor descriptor = IfdDescriptor(discovery, true);
-			QSharedPointer<IfdListEntry> listEntry(new IfdListEntry(descriptor));
+			QSharedPointer<IfdListEntry> listEntry(new IfdListEntry(discovery));
 			RemoteDeviceModelEntry entry1(listEntry);
 
 			RemoteDeviceModelEntry entry2("entry 2"_L1);
@@ -280,7 +286,7 @@ class test_RemoteDeviceModel
 			QFETCH(QVariant, output);
 
 			QList<RemoteDeviceModelEntry> readers;
-			QSharedPointer<IfdListEntry> listEntry(new IfdListEntry(IfdDescriptor()));
+			QSharedPointer<IfdListEntry> listEntry(new IfdListEntry(Discovery(QJsonObject())));
 			const RemoteDeviceModelEntry entry1("reader 1"_L1, "test id"_ba, true, false, true, false, QDateTime(QDate(2019, 5, 14), QTime(0, 0)), listEntry);
 			const RemoteDeviceModelEntry entry2("reader 2"_L1);
 			readers << entry1 << entry2;
@@ -301,8 +307,7 @@ class test_RemoteDeviceModel
 			const auto dId = QByteArrayLiteral("myDeviceId");
 			Discovery disco(dName, dId, 12345, {IfdVersion::Version::latest}, false);
 			disco.setAddresses({QHostAddress(QStringLiteral("127.0.0.1"))});
-			const auto ifdDesc = IfdDescriptor(disco);
-			const QSharedPointer<IfdListEntry> remoteDeviceListEntry(new IfdListEntry(ifdDesc));
+			const QSharedPointer<IfdListEntry> remoteDeviceListEntry(new IfdListEntry(disco));
 
 			mModel->addOrUpdateReader(RemoteDeviceModelEntry(remoteDeviceListEntry));
 
@@ -327,8 +332,7 @@ class test_RemoteDeviceModel
 			const auto dId = QByteArrayLiteral("myDeviceId");
 			Discovery disco(dName, dId, 12345, {IfdVersion::Version::latest}, false);
 			disco.setAddresses({QHostAddress(QStringLiteral("127.0.0.1"))});
-			const auto ifdDesc = IfdDescriptor(disco);
-			const QSharedPointer<IfdListEntry> remoteDeviceListEntry(new IfdListEntry(ifdDesc));
+			const QSharedPointer<IfdListEntry> remoteDeviceListEntry(new IfdListEntry(disco));
 
 			model.mAllRemoteReaders.clear();
 			model.addOrUpdateReader(RemoteDeviceModelEntry(remoteDeviceListEntry));
@@ -336,8 +340,7 @@ class test_RemoteDeviceModel
 			const auto newName = QStringLiteral("new_name");
 			Discovery newDisco(newName, dId, 12345, {IfdVersion::Version::latest}, false);
 			newDisco.setAddresses({QHostAddress(QStringLiteral("127.0.0.1"))});
-			const auto newIfdDesc = IfdDescriptor(newDisco);
-			remoteDeviceListEntry->setIfdDescriptor(newIfdDesc);
+			remoteDeviceListEntry->setDiscovery(newDisco);
 
 			const auto name = model.data(mModel->index(0), RemoteDeviceModel::SettingsRemoteRoles::REMOTE_DEVICE_NAME).toString();
 			QCOMPARE(name, QStringLiteral("new_name (was old_name)"));
@@ -350,7 +353,7 @@ class test_RemoteDeviceModel
 		{
 			QVERIFY(!Env::getSingleton<RemoteIfdClient>()->isDetecting());
 			QTest::ignoreMessage(QtDebugMsg, "Starting Remote Device Detection");
-			QTest::ignoreMessage(QtDebugMsg, "Bound on port: 24727");
+			QTest::ignoreMessage(QtDebugMsg, QRegularExpression(QStringLiteral("Bound on port: ")));
 			mModel->startDetection();
 			QVERIFY(Env::getSingleton<RemoteIfdClient>()->isDetecting());
 			mModel->startDetection();

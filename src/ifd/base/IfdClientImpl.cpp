@@ -8,9 +8,14 @@
 
 #include <QLoggingCategory>
 
+#include <algorithm>
+
+
 using namespace governikus;
 
+
 Q_DECLARE_LOGGING_CATEGORY(ifd)
+
 
 IfdClientImpl::IfdClientImpl()
 	: IfdClient()
@@ -62,36 +67,37 @@ void IfdClientImpl::shutdownConnectorThread()
 }
 
 
-QSharedPointer<IfdListEntry> IfdClientImpl::mapToAndTakeConnectorPending(const IfdDescriptor& pIfdDescriptor)
+QSharedPointer<IfdListEntry> IfdClientImpl::mapToAndTakeConnectorPending(const QByteArray& pIfdId)
 {
-	QMutableListIterator<QSharedPointer<IfdListEntry>> i(mIfdConnectorPending);
-	while (i.hasNext())
+	const auto& iter = std::find_if(mIfdConnectorPending.begin(), mIfdConnectorPending.end(),
+			[&pIfdId](const auto& pEntry){
+				return pEntry->containsIfdId(pIfdId);
+			});
+
+	if (iter == mIfdConnectorPending.end())
 	{
-		QSharedPointer<IfdListEntry> entry = i.next();
-		if (entry->containsEquivalent(pIfdDescriptor))
-		{
-			i.remove();
-			return entry;
-		}
+		Q_ASSERT(false);
+		return QSharedPointer<IfdListEntry>();
 	}
 
-	Q_ASSERT(false);
-	return QSharedPointer<IfdListEntry>();
+	const auto entry = *iter;
+	mIfdConnectorPending.erase(iter);
+	return entry;
 }
 
 
-void IfdClientImpl::onDispatcherCreated(const IfdDescriptor& pIfdDescriptor, const QSharedPointer<IfdDispatcherClient>& pDispatcher)
+void IfdClientImpl::onDispatcherCreated(const QByteArray& pIfdId, const QSharedPointer<IfdDispatcherClient>& pDispatcher)
 {
-	mErrorCounter[pIfdDescriptor.getIfdId()] = 0;
-	const QSharedPointer<IfdListEntry>& entry = mapToAndTakeConnectorPending(pIfdDescriptor);
+	mErrorCounter[pIfdId] = 0;
+	const QSharedPointer<IfdListEntry>& entry = mapToAndTakeConnectorPending(pIfdId);
 	if (entry.isNull())
 	{
-		qCDebug(ifd) << "Failed to map IfdConnector response:" << pIfdDescriptor;
+		qCDebug(ifd) << "Failed to map IfdConnector response:" << pIfdId;
 		Q_ASSERT(false);
 		return;
 	}
 
-	mConnectedDeviceIds.append(entry->getIfdDescriptor().getIfdId());
+	mConnectedDeviceIds.append(entry->getDiscovery().getIfdId());
 	connect(pDispatcher.data(), &IfdDispatcherClient::fireClosed, this, &IfdClientImpl::onDispatcherDestroyed);
 
 	Q_EMIT fireEstablishConnectionDone(entry, GlobalStatus::Code::No_Error);
@@ -99,27 +105,26 @@ void IfdClientImpl::onDispatcherCreated(const IfdDescriptor& pIfdDescriptor, con
 }
 
 
-void IfdClientImpl::onDispatcherError(const IfdDescriptor& pIfdDescriptor, IfdErrorCode pErrorCode)
+void IfdClientImpl::onDispatcherError(const QByteArray& pIfdId, IfdErrorCode pErrorCode)
 {
-	const QSharedPointer<IfdListEntry>& entry = mapToAndTakeConnectorPending(pIfdDescriptor);
+	const QSharedPointer<IfdListEntry>& entry = mapToAndTakeConnectorPending(pIfdId);
 	if (entry.isNull())
 	{
-		qCDebug(ifd) << "Failed to map IfdConnector response:" << pIfdDescriptor;
+		qCDebug(ifd) << "Failed to map IfdConnector response:" << pIfdId;
 		Q_ASSERT(false);
 		return;
 	}
 
-	const auto& ifdId = pIfdDescriptor.getIfdId();
 	if (pErrorCode == IfdErrorCode::REMOTE_HOST_REFUSED_CONNECTION || pErrorCode == IfdErrorCode::NO_SUPPORTED_API_LEVEL)
 	{
-		mErrorCounter[ifdId] += 1;
-		if (mErrorCounter.value(ifdId) >= 7)
+		mErrorCounter[pIfdId] += 1;
+		if (mErrorCounter.value(pIfdId) >= 7)
 		{
-			qCCritical(ifd) << "Remote device refused connection seven times, removing certificate with fingerprint:" << ifdId;
+			qCCritical(ifd) << "Remote device refused connection seven times, removing certificate with fingerprint:" << pIfdId;
 			RemoteServiceSettings& settings = Env::getSingleton<AppSettings>()->getRemoteServiceSettings();
-			const QString& deviceNameEscaped = settings.getRemoteInfo(ifdId).getNameEscaped();
-			settings.removeTrustedCertificate(ifdId);
-			mErrorCounter[ifdId] = 0;
+			const QString& deviceNameEscaped = settings.getRemoteInfo(pIfdId).getNameEscaped();
+			settings.removeTrustedCertificate(pIfdId);
+			mErrorCounter[pIfdId] = 0;
 			if (!deviceNameEscaped.isEmpty())
 			{
 				Q_EMIT fireCertificateRemoved(deviceNameEscaped);
@@ -128,7 +133,7 @@ void IfdClientImpl::onDispatcherError(const IfdDescriptor& pIfdDescriptor, IfdEr
 	}
 	else
 	{
-		mErrorCounter[ifdId] = 0;
+		mErrorCounter[pIfdId] = 0;
 	}
 
 	Q_EMIT fireEstablishConnectionDone(entry, IfdConnector::errorToGlobalStatus(pErrorCode));
@@ -155,7 +160,7 @@ void IfdClientImpl::establishConnection(const QSharedPointer<IfdListEntry>& pEnt
 	qCDebug(ifd) << "Establishing connection to remote device.";
 	const auto& localCopy = mIfdConnector;
 	QMetaObject::invokeMethod(localCopy.data(), [localCopy, pEntry, pPsk] {
-				localCopy->onConnectRequest(pEntry->getIfdDescriptor(), pPsk);
+				localCopy->onConnectRequest(pEntry->getDiscovery(), pPsk);
 			}, Qt::QueuedConnection);
 }
 

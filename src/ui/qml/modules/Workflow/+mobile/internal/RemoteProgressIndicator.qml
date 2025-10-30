@@ -20,6 +20,6 @@ Item {
 	AnimationLoader {
 		anchors.centerIn: parent
 		animated: root.foundSelectedReader
-		type: root.foundSelectedReader ? AnimationLoader.WAIT_FOR_CARD_SAC : AnimationLoader.WAIT_FOR_SAC
+		type: root.foundSelectedReader ? AnimationLoader.Type.WAIT_FOR_CARD_SAC : AnimationLoader.Type.WAIT_FOR_SAC
 	}
 }

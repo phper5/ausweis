@@ -25,6 +25,7 @@
 
 class test_LogHandler;
 class test_LogModel;
+class test_LogFilesModel;
 
 
 namespace governikus
@@ -71,6 +72,7 @@ class LogHandler
 	friend class Env;
 	friend class ::test_LogHandler;
 	friend class ::test_LogModel;
+	friend class ::test_LogFilesModel;
 	friend QDebug operator<<(QDebug, const LogHandler&);
 
 	private:

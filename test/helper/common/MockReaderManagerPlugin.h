@@ -8,6 +8,7 @@
 #include "ReaderManagerPlugin.h"
 
 #include <QMap>
+#include <QSharedPointer>
 #include <QString>
 
 
@@ -23,7 +24,7 @@ class MockReaderManagerPlugin
 
 	private:
 		static MockReaderManagerPlugin* mInstance;
-		QMap<QString, MockReader*> mReaders;
+		QMap<QString, QSharedPointer<MockReader>> mReaders;
 
 	public:
 		MockReaderManagerPlugin();
@@ -32,11 +33,13 @@ class MockReaderManagerPlugin
 		static MockReaderManagerPlugin& getInstance();
 
 		void insert(const QString& pReaderName, const QVariant& pData) override;
-		[[nodiscard]] QList<Reader*> getReaders() const override;
+		[[nodiscard]] QPointer<Reader> getReader(const QString& pReaderName) const override;
 		void startScan(bool pAutoConnect) override;
-		MockReader* addReader(const QString& pReaderName = QStringLiteral("MockReader"), ReaderManagerPluginType pType = MockReader::cMOCKED_READERMANAGER_TYPE);
+		QPointer<MockReader> addReader(const QString& pReaderName = QStringLiteral("MockReader"), ReaderManagerPluginType pType = MockReader::cMOCKED_READERMANAGER_TYPE);
 		void removeReader(const QString& pReaderName);
 		void removeAllReader();
+
+		void shelveAll() const override;
 
 		using ReaderManagerPlugin::setPluginAvailable;
 };

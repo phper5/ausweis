@@ -48,7 +48,7 @@ class VolatileSettings
 			QString mSessionInProgress;
 
 			public:
-				Messages(const QString& pSessionStarted = QString(), const QString& pSessionFailed = QString(),
+				explicit Messages(const QString& pSessionStarted = QString(), const QString& pSessionFailed = QString(),
 						const QString& mSessionSucceeded = QString(), const QString& pSessionInProgress = QString());
 
 				[[nodiscard]] QString getSessionStarted() const;

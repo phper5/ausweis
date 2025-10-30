@@ -11,7 +11,6 @@
 #include <QByteArray>
 #include <QCoreApplication>
 #include <QLoggingCategory>
-#include <QPair>
 
 using namespace governikus;
 

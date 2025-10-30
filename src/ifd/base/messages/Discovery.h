@@ -10,6 +10,7 @@
 #include <QByteArray>
 #include <QHostAddress>
 #include <QList>
+#include <QSet>
 #include <QUrl>
 
 
@@ -22,7 +23,7 @@ class Discovery
 		QString mIfdName;
 		QByteArray mIfdId;
 		quint16 mPort;
-		QList<QUrl> mAddresses;
+		QSet<QUrl> mAddresses;
 		QList<IfdVersion::Version> mSupportedApis;
 		bool mPairing;
 
@@ -36,6 +37,7 @@ class Discovery
 		explicit Discovery(const QJsonObject& pMessageObject);
 		~Discovery() override = default;
 
+		[[nodiscard]] bool isSupported() const;
 		[[nodiscard]] const QString& getIfdName() const;
 		[[nodiscard]] const QByteArray& getIfdId() const;
 		[[nodiscard]] quint16 getPort() const;
@@ -44,8 +46,10 @@ class Discovery
 		void setPairing(bool pEnabled);
 		[[nodiscard]] bool isPairing() const;
 
-		void setAddresses(const QList<QHostAddress>& pAddresses);
-		[[nodiscard]] const QList<QUrl>& getAddresses() const;
+		void setAddresses(const QSet<QHostAddress>& pAddresses);
+		[[nodiscard]] bool addressesMissing() const;
+		[[nodiscard]] const QSet<QUrl>& getAddresses() const;
+		[[nodiscard]] bool isLocalIfd() const;
 
 		[[nodiscard]] QByteArray toByteArray(IfdVersion::Version pIfdVersion, const QString& pContextHandle = QString()) const override;
 };

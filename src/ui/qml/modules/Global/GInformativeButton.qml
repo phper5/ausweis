@@ -2,12 +2,11 @@
  * Copyright (c) 2022-2025 Governikus GmbH & Co. KG, Germany
  */
 import QtQuick
-import QtQuick.Controls
 import QtQuick.Layouts
 import Governikus.Style
 import Governikus.View
 
-AbstractButton {
+GAbstractButton {
 	id: root
 
 	property alias description: descriptionText.text
@@ -47,7 +46,6 @@ AbstractButton {
 				id: title
 
 				Accessible.ignored: true
-				activeFocusOnTab: false
 				color: root.isPane ? colors.textSubline : colors.controlContent
 				elide: Text.ElideRight
 				text: root.text
@@ -57,7 +55,6 @@ AbstractButton {
 				id: descriptionText
 
 				Accessible.ignored: true
-				activeFocusOnTab: false
 				color: root.isPane ? colors.textNormal : colors.controlContent
 				elide: Text.ElideRight
 				visible: text !== ""
@@ -69,9 +66,6 @@ AbstractButton {
 			tintColor: descriptionText.color
 		}
 	}
-
-	onFocusChanged: if (focus)
-		Utils.positionViewAtItem(this)
 
 	HoverHandler {
 		id: hoverHandler

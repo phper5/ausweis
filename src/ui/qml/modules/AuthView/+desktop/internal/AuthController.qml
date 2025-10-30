@@ -83,7 +83,7 @@ ProgressView {
 			}
 			break;
 		case "StateCertificateDescriptionCheck":
-			if (ApplicationModel.isScreenReaderRunning && SettingsModel.autoRedirectAfterAuthentication && SettingsModel.remindUserOfAutoRedirect) {
+			if (ApplicationModel.screenReaderRunning && SettingsModel.autoRedirectAfterAuthentication && SettingsModel.remindUserOfAutoRedirect) {
 				push(a11yAutoRedirectDecision);
 			} else {
 				AuthModel.continueWorkflow();
@@ -153,12 +153,6 @@ ProgressView {
 			}
 			setAuthWorkflowStateAndContinue(AuthController.WorkflowStates.Processing);
 			break;
-		case "StateActivateStoreFeedbackDialog":
-			if (root.isSelfAuth) {
-				showRemoveCardFeedback(AuthModel, true);
-			}
-			AuthModel.continueWorkflow();
-			break;
 		case "StateRedirectBrowser":
 			if (!AuthModel.error) {
 				push(redirectToProvider);
@@ -181,7 +175,6 @@ ProgressView {
 				} else if (userCancelAndManualRedirect) {
 					userCancelledAndBackToStart(true);
 				} else {
-					showRemoveCardFeedback(AuthModel, false);
 					push(authResult);
 				}
 			} else if (root.isSelfAuth) {
@@ -223,6 +216,8 @@ ProgressView {
 		isInitialState ? qsTr("Acquiring provider certificate") :
 		//: INFO DESKTOP Header of the progress status message during the authentication process.
 		qsTr("Authentication in progress"))
+	//: LABEL DESKTOP Name of an progress indicator during an authentication read by screen readers
+	progressBarA11yText: qsTr("Authentication progress")
 	progressBarVisible: workflowProgressVisible
 	progressText: AuthModel.progressMessage
 	progressValue: AuthModel.progressValue
@@ -348,7 +343,7 @@ ProgressView {
 			}
 
 			titleBarSettings: TitleBarSettings {
-				navigationAction: NavigationAction.Cancel
+				navigationAction: NavigationAction.Action.Cancel
 				navigationEnabled: AuthModel.isBasicReader
 				showSettings: true
 
@@ -431,7 +426,7 @@ ProgressView {
 
 		ResultView {
 			animationSymbol: Symbol.Type.ERROR
-			animationType: AnimationLoader.NFC_RESULT
+			animationType: AnimationLoader.Type.NFC_RESULT
 			text: AuthModel.isRemoteReader ?
 			//: INFO DESKTOP The NFC signal is weak or unstable, the user is asked to change the card's position to (hopefully) reduce the distance to the NFC chip.
 			qsTr("Weak NFC signal. Please\n change the card position\n remove the mobile phone case (if present)\n connect the smartphone with a charging cable") :
@@ -453,7 +448,6 @@ ProgressView {
 
 			//: INFO DESKTOP The user aborted the authentication process, according to TR we need to inform the service provider
 			headline: qsTr("Aborting process and informing the service provider")
-			progressBarVisible: false
 			text: {
 				if (connectivityManager.networkInterfaceActive) {
 					//: INFO DESKTOP Information message about cancellation process with present network connectivity
@@ -474,7 +468,7 @@ ProgressView {
 			title: root.title
 
 			titleBarSettings: TitleBarSettings {
-				navigationAction: !root.isSelfAuth ? NavigationAction.Cancel : root.startedByOnboarding ? NavigationAction.Back : NavigationAction.Close
+				navigationAction: !root.isSelfAuth ? NavigationAction.Action.Cancel : root.startedByOnboarding ? NavigationAction.Action.Back : NavigationAction.Action.Close
 				navigationEnabled: root.isSelfAuth
 
 				onNavigationActionClicked: AuthModel.continueWorkflow()
@@ -495,12 +489,12 @@ ProgressView {
 			title: root.title
 
 			titleBarSettings: TitleBarSettings {
-				navigationAction: root.startedByOnboarding ? NavigationAction.Back : NavigationAction.Close
+				navigationAction: root.startedByOnboarding ? NavigationAction.Action.Back : NavigationAction.Action.Close
 
 				onNavigationActionClicked: {
 					root.pop();
 					AuthModel.continueWorkflow();
-					if (navigationAction === NavigationAction.Back)
+					if (navigationAction === NavigationAction.Action.Back)
 						root.backToSelfAuthView();
 					else
 						root.backToStartPage(true);
@@ -542,6 +536,7 @@ ProgressView {
 			hintButtonText: AuthModel.statusHintActionText
 			hintText: AuthModel.statusHintText
 			hintTitle: AuthModel.statusHintTitle
+			linkToOpen: AuthModel.resultViewButtonLink
 			mailButtonVisible: AuthModel.errorIsMasked
 			popupText: AuthModel.errorText
 			popupTitle: AuthModel.statusCodeDisplayString
@@ -569,13 +564,13 @@ ProgressView {
 	TitleBarSettings {
 		id: disabledCancelNavigation
 
-		navigationAction: NavigationAction.Cancel
+		navigationAction: NavigationAction.Action.Cancel
 		navigationEnabled: false
 	}
 	TitleBarSettings {
 		id: cancelNavigation
 
-		navigationAction: NavigationAction.Cancel
+		navigationAction: NavigationAction.Action.Cancel
 		navigationEnabled: AuthModel.isBasicReader
 
 		onNavigationActionClicked: AuthModel.cancelWorkflow()
@@ -583,7 +578,7 @@ ProgressView {
 	TitleBarSettings {
 		id: backNavigation
 
-		navigationAction: NavigationAction.Back
+		navigationAction: NavigationAction.Action.Back
 
 		onNavigationActionClicked: root.pop()
 	}

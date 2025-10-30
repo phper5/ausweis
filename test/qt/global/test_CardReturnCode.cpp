@@ -5,7 +5,6 @@
 #include "CardReturnCode.h"
 #include "ECardApiResult.h"
 
-#include <QPair>
 #include <QString>
 #include <QtTest>
 

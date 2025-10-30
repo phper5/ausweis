@@ -35,14 +35,13 @@ class LanguageLoader
 
 		bool loadTranslationFiles(const QLocale& pLocale);
 		QSharedPointer<QTranslator> createTranslator(const QLocale& pLocale, const QString& pComponent);
+		[[nodiscard]] static const QLocale& getDefaultLanguage();
 
 	protected:
 		LanguageLoader();
 		~LanguageLoader() = default;
 
 	public:
-		[[nodiscard]] static const QLocale& getDefaultLanguage();
-		static void setDefaultLanguage(const QLocale& pLocale);
 		static LanguageLoader& getInstance();
 		static QString getLocaleCode(const QLocale& pLocale = getInstance().getUsedLocale());
 

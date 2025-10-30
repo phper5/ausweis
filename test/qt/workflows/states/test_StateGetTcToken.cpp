@@ -4,6 +4,8 @@
 
 #include "states/StateGetTcToken.h"
 
+#include "HttpServer.h"
+#include "HttpServerRequestor.h"
 #include "ResourceLoader.h"
 
 #include "MockNetworkReply.h"
@@ -20,10 +22,18 @@ class test_StateGetTcToken
 {
 	Q_OBJECT
 
+	private:
+		QUrl getUrl(const QString& pUrl)
+		{
+			const auto& port = QString::number(Env::getShared<HttpServer>()->getServerPort());
+			return QUrl(QStringLiteral("http://localhost:%1%2").arg(port, pUrl));
+		}
+
 	private Q_SLOTS:
 		void initTestCase()
 		{
 			ResourceLoader::getInstance().init();
+			HttpServer::cPort = 0;
 		}
 
 
@@ -77,6 +87,55 @@ class test_StateGetTcToken
 
 			QTRY_COMPARE(spyAbort.count(), 1); // clazy:exclude=qstring-allocations
 			QCOMPARE(context->getFailureCode(), FailureCode::Reason::Get_TcToken_Network_Error);
+		}
+
+
+		void test_HttpError_FailureCode_data()
+		{
+			QTest::addColumn<http_status>("httpStatusCode");
+			QTest::addColumn<FailureCode>("failureCode");
+
+			QTest::newRow("see other") << HTTP_STATUS_SEE_OTHER << FailureCode(FailureCode::Reason::Get_TcToken_Invalid_Redirect_Url);
+			QTest::newRow("found") << HTTP_STATUS_FOUND << FailureCode(FailureCode::Reason::Get_TcToken_Invalid_Redirect_Url);
+			QTest::newRow("temp redirect") << HTTP_STATUS_TEMPORARY_REDIRECT << FailureCode(FailureCode::Reason::Get_TcToken_Invalid_Redirect_Url);
+
+			QTest::newRow("perm redirect") << HTTP_STATUS_PERMANENT_REDIRECT << FailureCode(FailureCode::Reason::Get_TcToken_Invalid_Server_Reply);
+			QTest::newRow("no content") << HTTP_STATUS_NO_CONTENT << FailureCode(FailureCode::Reason::Get_TcToken_Invalid_Server_Reply);
+
+			QTest::newRow("bad request") << HTTP_STATUS_BAD_REQUEST << FailureCode(FailureCode::Reason::Get_TcToken_Client_Error);
+			QTest::newRow("not found") << HTTP_STATUS_NOT_FOUND << FailureCode(FailureCode::Reason::Get_TcToken_Client_Error);
+
+			QTest::newRow("service unavailable") << HTTP_STATUS_SERVICE_UNAVAILABLE << FailureCode(FailureCode::Reason::Get_TcToken_ServiceUnavailable);
+			QTest::newRow("gateway timeout") << HTTP_STATUS_GATEWAY_TIMEOUT << FailureCode(FailureCode::Reason::Get_TcToken_Server_Error);
+			QTest::newRow("bad gateway") << HTTP_STATUS_BAD_GATEWAY << FailureCode(FailureCode::Reason::Get_TcToken_Server_Error);
+			QTest::newRow("server error") << HTTP_STATUS_INTERNAL_SERVER_ERROR << FailureCode(FailureCode::Reason::Get_TcToken_Server_Error);
+		}
+
+
+		void test_HttpError_FailureCode()
+		{
+			QFETCH(http_status, httpStatusCode);
+			QFETCH(FailureCode, failureCode);
+
+			const auto& server = Env::getShared<HttpServer>();
+			QVERIFY(server->isListening());
+			connect(server.data(), &HttpServer::fireNewHttpRequest, this, [httpStatusCode](const QSharedPointer<HttpRequest>& pRequest){
+						pRequest->send(HttpResponse(httpStatusCode));
+					});
+
+			HttpServerRequestor requestor;
+			const auto& reply = requestor.getRequest(getUrl(QStringLiteral("/dummy")));
+			QVERIFY(reply->isFinished());
+			QCOMPARE(reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt(), httpStatusCode);
+
+			const QSharedPointer<AuthContext> context(new AuthContext());
+			StateGetTcToken state(context);
+			QSignalSpy spyAbort(&state, &StateGetTcToken::fireAbort);
+
+			state.mReply = reply;
+			state.onNetworkReply();
+			QTRY_COMPARE(spyAbort.count(), 1); // clazy:exclude=qstring-allocations
+			QCOMPARE(context->getFailureCode().value(), failureCode);
 		}
 
 

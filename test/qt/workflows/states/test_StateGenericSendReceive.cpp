@@ -8,16 +8,19 @@
 
 #include "MockNetworkManager.h"
 #include "TestAuthContext.h"
+#include "VolatileSettings.h"
 
 #include <QList>
-#include <QPair>
 #include <QtTest>
+
+#include <utility>
+
 
 using namespace Qt::Literals::StringLiterals;
 using namespace governikus;
 
 Q_DECLARE_METATYPE(QSharedPointer<PaosMessage>)
-using Pair = QPair<QByteArray, QByteArray>;
+using Pair = std::pair<QByteArray, QByteArray>;
 Q_DECLARE_METATYPE(QList<Pair>)
 
 class test_StateGenericSendReceive
@@ -388,6 +391,78 @@ class test_StateGenericSendReceive
 			QCOMPARE(mAuthContext->getStatus().getStatusCode(), globalStatus);
 			QVERIFY(mAuthContext->getFailureCode().has_value());
 			QCOMPARE(mAuthContext->getFailureCode().value().getReason(), failureCode);
+		}
+
+
+		void checkAndSaveSessionResumptionPsk_data()
+		{
+			QTest::addColumn<QByteArray>("sessionTicket");
+			QTest::addColumn<QByteArray>("resumptionSessionTicket");
+
+			QTest::addRow("Empty tickets") << QByteArray() << QByteArray();
+			QTest::addRow("Matching tickets") << QByteArray("1234") << QByteArray("1234");
+			QTest::addRow("Mismatching tickets") << QByteArray("1234") << QByteArray();
+		}
+
+
+		void checkAndSaveSessionResumptionPsk()
+		{
+			QFETCH(QByteArray, sessionTicket);
+			QFETCH(QByteArray, resumptionSessionTicket);
+
+			mState->mReply = QSharedPointer<MockNetworkReply>::create();
+
+			mAuthContext->setSslSessionPsk(sessionTicket);
+			QSslConfiguration sslConfig;
+			sslConfig.setSessionTicket(resumptionSessionTicket);
+
+			QCOMPARE(mState->checkAndSaveSessionResumption(sslConfig).has_value(), false);
+		}
+
+
+		void checkAndSaveSessionResumptionAttachedEid_data()
+		{
+			QTest::addColumn<QByteArray>("tcTokenSessionTicket");
+			QTest::addColumn<QByteArray>("resumptionSessionTicket");
+			QTest::addColumn<bool>("developerMode");
+			QTest::addColumn<std::optional<FailureCode>>("failureCode");
+
+			QTest::addRow("Empty tickets") << QByteArray() << QByteArray() << false << std::optional<FailureCode>(FailureCode(FailureCode::Reason::Generic_Send_Receive_Session_Resumption_Failed));
+			QTest::addRow("Matching tickets") << QByteArray("1234") << QByteArray("1234") << false << std::optional<FailureCode>();
+			QTest::addRow("Mismatching tickets") << QByteArray("1234") << QByteArray() << false << std::optional<FailureCode>(FailureCode(FailureCode::Reason::Generic_Send_Receive_Session_Resumption_Failed));
+			QTest::addRow("Empty tickets - Developer Mode") << QByteArray() << QByteArray() << true << std::optional<FailureCode>();
+			QTest::addRow("Matching tickets - Developer Mode") << QByteArray("1234") << QByteArray("1234") << true << std::optional<FailureCode>();
+			QTest::addRow("Mismatching tickets - Developer Mode") << QByteArray("1234") << QByteArray() << true << std::optional<FailureCode>();
+		}
+
+
+		void checkAndSaveSessionResumptionAttachedEid()
+		{
+			QFETCH(QByteArray, tcTokenSessionTicket);
+			QFETCH(QByteArray, resumptionSessionTicket);
+			QFETCH(bool, developerMode);
+			QFETCH(std::optional<FailureCode>, failureCode);
+
+			const QByteArray data("<?xml version=\"1.0\"?>"
+								  "<TCTokenType>"
+								  "  <ServerAddress>https://eid-server.example.de/entrypoint</ServerAddress>"
+								  "  <SessionIdentifier>1A2BB129</SessionIdentifier>"
+								  "  <RefreshAddress>https://service.example.de/loggedin?7eb39f62</RefreshAddress>"
+								  "  <Binding> urn:liberty:paos:2006-08 </Binding>"
+								  "  <PathSecurity-Protocol> urn:ietf:rfc:4279 </PathSecurity-Protocol>"
+								  "</TCTokenType>");
+			const QSharedPointer<TcToken> token(new TcToken(data));
+			mAuthContext->setTcToken(token);
+
+			mState->mReply = QSharedPointer<MockNetworkReply>::create();
+
+			mAuthContext->setSslSession(tcTokenSessionTicket);
+			QSslConfiguration sslConfig;
+			sslConfig.setSessionTicket(resumptionSessionTicket);
+
+			Env::getSingleton<VolatileSettings>()->setDeveloperMode(developerMode);
+
+			QCOMPARE(mState->checkAndSaveSessionResumption(sslConfig), failureCode);
 		}
 
 

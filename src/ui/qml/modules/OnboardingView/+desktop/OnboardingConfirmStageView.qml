@@ -11,7 +11,7 @@ BaseOnboardingView {
 	required property int stage
 
 	titleBarSettings: TitleBarSettings {
-		navigationAction: NavigationAction.Back
+		navigationAction: NavigationAction.Action.Back
 		startEnabled: false
 
 		onNavigationActionClicked: root.leaveView()

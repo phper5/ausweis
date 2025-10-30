@@ -162,6 +162,23 @@ class test_UiPluginQml
 		}
 
 
+		void test_setFontWeightAdjustment()
+		{
+			UiPluginQml plugin;
+			QSignalSpy spy(&plugin, &UiPluginQml::fireFontWeightAdjustmentChanged);
+
+			const auto initialValue = plugin.getFontWeightAdjustment();
+
+			plugin.setFontWeightAdjustment(initialValue);
+			QTRY_COMPARE(spy.count(), 0);
+
+			const auto newValue = 42;
+			plugin.setFontWeightAdjustment(newValue);
+			QTRY_COMPARE(spy.count(), 1);
+			QCOMPARE(plugin.getFontWeightAdjustment(), newValue);
+		}
+
+
 		void test_darkModeEnabled_data()
 		{
 			QTest::addColumn<SettingsModel::ModeOption>("userDarkMode");
@@ -214,9 +231,7 @@ class test_UiPluginQml
 
 			QQmlEngine engine;
 			QCOMPARE(UiPluginQml::adjustQmlImportPath(&engine), primaryPrefix);
-#if (QT_VERSION >= QT_VERSION_CHECK(6, 5, 0))
 			QVERIFY(engine.importPathList().contains(primaryPrefix));
-#endif
 
 			qputenv("OVERRIDE_PLATFORM", "platform"_ba);
 			QTest::ignoreMessage(QtDebugMsg, "Override platform: \"platform\"");
@@ -243,6 +258,48 @@ class test_UiPluginQml
 
 			plugin.setUpdatePending(false);
 			QVERIFY(!plugin.isUpdatePending());
+			QCOMPARE(spy.count(), 2);
+		}
+
+
+		void test_a11yButtonShape()
+		{
+			UiPluginQml plugin;
+			QSignalSpy spy(&plugin, &UiPluginModel::fireA11yButtonShapeActiveChanged);
+
+			QVERIFY(!plugin.isA11yButtonShapeActive());
+
+			plugin.setA11yButtonShapeActive(false);
+			QVERIFY(!plugin.isA11yButtonShapeActive());
+			QCOMPARE(spy.count(), 0);
+
+			plugin.setA11yButtonShapeActive(true);
+			QVERIFY(plugin.isA11yButtonShapeActive());
+			QCOMPARE(spy.count(), 1);
+
+			plugin.setA11yButtonShapeActive(false);
+			QVERIFY(!plugin.isA11yButtonShapeActive());
+			QCOMPARE(spy.count(), 2);
+		}
+
+
+		void test_a11yOnOffSwitchLabel()
+		{
+			UiPluginQml plugin;
+			QSignalSpy spy(&plugin, &UiPluginModel::fireA11yOnOffSwitchLabelActiveChanged);
+
+			QVERIFY(!plugin.isA11yOnOffSwitchLabelActive());
+
+			plugin.setA11yOnOffSwitchLabelActive(false);
+			QVERIFY(!plugin.isA11yOnOffSwitchLabelActive());
+			QCOMPARE(spy.count(), 0);
+
+			plugin.setA11yOnOffSwitchLabelActive(true);
+			QVERIFY(plugin.isA11yOnOffSwitchLabelActive());
+			QCOMPARE(spy.count(), 1);
+
+			plugin.setA11yOnOffSwitchLabelActive(false);
+			QVERIFY(!plugin.isA11yOnOffSwitchLabelActive());
 			QCOMPARE(spy.count(), 2);
 		}
 

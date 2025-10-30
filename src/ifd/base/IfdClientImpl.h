@@ -28,11 +28,11 @@ class IfdClientImpl
 
 		void bootstrapConnectorThread();
 		void shutdownConnectorThread();
-		QSharedPointer<IfdListEntry> mapToAndTakeConnectorPending(const IfdDescriptor& pIfdDescriptor);
+		QSharedPointer<IfdListEntry> mapToAndTakeConnectorPending(const QByteArray& pIfdId);
 
 	protected Q_SLOTS:
-		void onDispatcherCreated(const IfdDescriptor& pIfdDescriptor, const QSharedPointer<IfdDispatcherClient>& pDispatcher);
-		void onDispatcherError(const IfdDescriptor& pIfdDescriptor, IfdErrorCode pErrorCode);
+		void onDispatcherCreated(const QByteArray& pIfdId, const QSharedPointer<IfdDispatcherClient>& pDispatcher);
+		void onDispatcherError(const QByteArray& pIfdId, IfdErrorCode pErrorCode);
 		void onDispatcherDestroyed(GlobalStatus::Code pCloseCode, const QByteArray& pId);
 
 	public:

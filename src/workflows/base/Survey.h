@@ -4,13 +4,17 @@
 
 #pragma once
 
-#include <QNetworkReply>
-#include <QPair>
-#include <QString>
-
+#include "Env.h"
 #include "ReaderInfo.h"
 
+#include <QNetworkReply>
+#include <QString>
+
+#include <utility>
+
+
 class test_Survey;
+
 
 namespace governikus
 {
@@ -23,7 +27,7 @@ class Survey
 	friend class ::test_Survey;
 
 	public:
-		using SurveyData = QList<QPair<QString, QString>>;
+		using SurveyData = QList<std::pair<QString, QString>>;
 
 	private:
 		const QString mBuildNumber;
@@ -72,5 +76,6 @@ class Survey
 	Q_SIGNALS:
 		void fireSurveyDataChanged();
 };
+
 
 } // namespace governikus

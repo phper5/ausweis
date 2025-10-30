@@ -31,15 +31,15 @@ QUrl PinResetInformationModel::getAdministrativeSearchUrl() const
 {
 	if (LanguageLoader::getLocaleCode() == QLatin1String("de"))
 	{
-		return QStringLiteral("https://servicesuche.bund.de");
+		return QUrl(QStringLiteral("https://servicesuche.bund.de"));
 	}
-	return QStringLiteral("https://servicesuche.bund.de/#/en");
+	return QUrl(QStringLiteral("https://servicesuche.bund.de/#/en"));
 }
 
 
 QUrl PinResetInformationModel::getPinResetActivationUrl() const
 {
-	return QStringLiteral("https://www.pin-ruecksetzbrief-bestellen.de/aktivierung");
+	return QUrl(QStringLiteral("https://www.pin-ruecksetzbrief-bestellen.de/aktivierung"));
 }
 
 
@@ -56,10 +56,10 @@ QUrl PinResetInformationModel::getPinResetUrl() const
 
 	if (LanguageLoader::getLocaleCode() != QLatin1String("de"))
 	{
-		return homepage + QStringLiteral("/en");
+		return QUrl(homepage + QStringLiteral("/en"));
 	}
 
-	return homepage;
+	return QUrl(homepage);
 }
 
 
@@ -157,7 +157,7 @@ QString PinResetInformationModel::authorityFinderSuffix() const
 		serviceSearchPage += QStringLiteral("/#/en");
 	}
 	//: LABEL ALL_PLATFORMS %1 will be replaced with a link to a website.
-	return QStringLiteral("<br/><br/>") + tr("To find your competent authority you may visit %1 .").arg(QStringLiteral("<a href=\"%1\">servicesuche.bund.de</a>").arg(serviceSearchPage));
+	return QStringLiteral("<br/> <br/>") + tr("To find your competent authority you may visit %1 .").arg(QStringLiteral("<a href=\"%1\">servicesuche.bund.de</a>").arg(serviceSearchPage));
 }
 
 

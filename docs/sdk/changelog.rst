@@ -1,6 +1,14 @@
 Changelog
 =========
 
+Version 2.4.0
+^^^^^^^^^^^^^
+* Updated Android NDK to r28c (28.2.13676358).
+* Removed parameter **private** of the Simulator's :ref:`filesystem`.
+* Removed parameter ``pIsSecureSessionId`` from ``sessionIdGenerated`` on Android.
+* Gradle: useLegacyPackaging is no longer required and needs to be removed to support 16 KB page sizes on Android.
+
+
 Version 2.3.0
 ^^^^^^^^^^^^^
 * Removed support for iOS 14 and 15.

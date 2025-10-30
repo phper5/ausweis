@@ -13,6 +13,7 @@ FlickableSectionPage {
 
 	property alias headline: headline.text
 	property alias icon: statusIcon.source
+	property string progressBarA11yText: ""
 	property alias progressBarVisible: progressBar.visible
 	property alias progressText: progressText.text
 	property alias progressValue: progressBar.value
@@ -30,13 +31,10 @@ FlickableSectionPage {
 		tintColor: Style.color.image
 		visible: source.toString() !== ""
 	}
-	GText {
+	Heading {
 		id: headline
 
-		Layout.alignment: Qt.AlignHCenter
 		Layout.topMargin: Style.dimens.pane_spacing
-		horizontalAlignment: Text.AlignHCenter
-		textStyle: Style.text.headline
 		visible: text !== ""
 	}
 	GText {
@@ -53,6 +51,7 @@ FlickableSectionPage {
 	GProgressBar {
 		id: progressBar
 
+		Accessible.name: root.progressBarA11yText
 		Layout.alignment: Qt.AlignHCenter
 		Layout.fillWidth: true
 		Layout.topMargin: 2 * Style.dimens.pane_spacing

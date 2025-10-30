@@ -65,12 +65,12 @@ void StateCertificateDescriptionCheck::run()
 
 	// check same origin policy for TCToken URL and subject URL
 	const QString& subjectUrlString = getContext()->getDidAuthenticateEac1()->getCertificateDescription()->getSubjectUrl();
-	const QUrl& tcTockenUrl = getContext()->getTcTokenUrl();
+	const QUrl& tcTokenUrl = getContext()->getTcTokenUrl();
 
 	qDebug() << "Subject URL from AT CVC (eService certificate) description:" << subjectUrlString;
-	qDebug() << "TCToken URL:" << tcTockenUrl;
+	qDebug() << "TCToken URL:" << tcTokenUrl;
 
-	if (UrlUtil::isMatchingSameOriginPolicy(QUrl(subjectUrlString), tcTockenUrl))
+	if (UrlUtil::isMatchingSameOriginPolicy(QUrl(subjectUrlString), tcTokenUrl))
 	{
 		qDebug() << "SOP-Check succeeded.";
 	}

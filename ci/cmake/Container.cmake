@@ -1,7 +1,7 @@
 if("VNC" IN_LIST NAMES)
 	set(VNC ON)
 	set(TARGET vnc)
-	set(Dockerfile -f ${CMAKE_SOURCE_DIR}/resources/jenkins/docker/Dockerfile)
+	set(Dockerfile -f ${CMAKE_SOURCE_DIR}/Dockerfile.vnc)
 else()
 	set(TARGET sdk)
 endif()
@@ -46,7 +46,6 @@ if(DAILY AND NOT VNC AND NOT DEFINED ENV{GITLAB_CI})
 endif()
 
 set(IMAGE $ENV{CI_REGISTRY_IMAGE}/${TARGET}:${TAG})
-set(IMAGE_LATEST ${REPO}/${TARGET}:latest)
 
 step(${CMD} login -u $ENV{CI_REGISTRY_USER} -p $ENV{CI_REGISTRY_PASSWORD} $ENV{CI_REGISTRY})
 
@@ -84,14 +83,6 @@ step(${CMD} inspect ${IMAGE})
 if(RELEASE OR DAILY)
 	step(${CMD} push ${IMAGE})
 endif()
-
-if(RELEASE AND DEFINED ENV{LATEST})
-	if($ENV{LATEST})
-		step(${CMD} tag ${IMAGE} ${IMAGE_LATEST})
-		step(${CMD} push ${IMAGE_LATEST})
-	endif()
-endif()
-
 
 
 if(NOT DEFINED ENV{GITLAB_CI})

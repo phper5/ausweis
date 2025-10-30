@@ -5,6 +5,7 @@
 #include "messages/Discovery.h"
 
 #include "LogHandler.h"
+#include "PortFile.h"
 #include "TestFileHelper.h"
 
 #include <QtTest>
@@ -41,6 +42,7 @@ class test_Discovery
 			QVERIFY(msg.isIncomplete());
 			QCOMPARE(msg.getType(), IfdMessageType::UNDEFINED);
 			QCOMPARE(msg.getContextHandle(), QString());
+			QVERIFY(!msg.isSupported());
 			QCOMPARE(msg.getIfdName(), QString());
 			QCOMPARE(msg.getIfdId(), QByteArray());
 			QVERIFY(msg.getPort() == 0);
@@ -70,6 +72,7 @@ class test_Discovery
 			QVERIFY(!discovery.isIncomplete());
 			QCOMPARE(discovery.getType(), IfdMessageType::UNDEFINED);
 			QCOMPARE(discovery.getContextHandle(), QString());
+			QVERIFY(discovery.isSupported());
 			QCOMPARE(discovery.getIfdName(), QStringLiteral("Sony Xperia Z5 compact"));
 			QCOMPARE(discovery.getIfdId(), QByteArrayLiteral("0123456789ABCDEF"));
 			QVERIFY(discovery.getPort() == static_cast<quint16>(24728));
@@ -84,19 +87,20 @@ class test_Discovery
 
 		void toJson_data()
 		{
-			QList<QHostAddress> ipv4({QHostAddress("192.168.1.42"_L1)});
-			QList<QHostAddress> ipv6({QHostAddress("::ffff:192.168.1.42"_L1)});
-			QList<QHostAddress> ipv46({QHostAddress("192.168.1.42"_L1), QHostAddress("::ffff:192.168.1.42"_L1)});
+			QSet<QHostAddress> ipv4({QHostAddress("192.168.1.42"_L1)});
+			QSet<QHostAddress> ipv6({QHostAddress("::ffff:192.168.1.42"_L1)});
+			QSet<QHostAddress> ipv46({QHostAddress("192.168.1.42"_L1), QHostAddress("::ffff:192.168.1.42"_L1)});
 
-			QByteArray ipv4_plain("wss://192.168.1.42:24728");
-			QByteArray ipv6_plain("wss://[::ffff:192.168.1.42]:24728");
-			QByteArray ipv46_plain("wss://192.168.1.42:24728\",\n        \"wss://[::ffff:192.168.1.42]:24728");
+			QByteArrayList ipv4_plain({"wss://192.168.1.42:24728"});
+			QByteArrayList ipv6_plain({"wss://[::ffff:192.168.1.42]:24728"});
+			QByteArrayList ipv46_plain({"wss://[::ffff:192.168.1.42]:24728\",\n        \"wss://192.168.1.42:24728",
+										"wss://192.168.1.42:24728\",\n        \"wss://[::ffff:192.168.1.42]:24728"});
 
 			QTest::addColumn<IfdVersion::Version>("version");
 			QTest::addColumn<bool>("pairing");
 			QTest::addColumn<QByteArray>("json_pairing");
-			QTest::addColumn<QList<QHostAddress>>("hostAddresses");
-			QTest::addColumn<QByteArray>("json_address");
+			QTest::addColumn<QSet<QHostAddress>>("hostAddresses");
+			QTest::addColumn<QByteArrayList>("json_address");
 			QTest::newRow("Unknown - Pairing enabled - IPv4") << IfdVersion::Version::Unknown
 															  << true << QByteArray()
 															  << ipv4 << ipv4_plain;
@@ -132,8 +136,8 @@ class test_Discovery
 			QFETCH(IfdVersion::Version, version);
 			QFETCH(bool, pairing);
 			QFETCH(QByteArray, json_pairing);
-			QFETCH(QList<QHostAddress>, hostAddresses);
-			QFETCH(QByteArray, json_address);
+			QFETCH(QSet<QHostAddress>, hostAddresses);
+			QFETCH(QByteArrayList, json_address);
 
 			Discovery discovery(
 				QStringLiteral("Sony Xperia Z5 compact"),
@@ -145,21 +149,28 @@ class test_Discovery
 			discovery.setAddresses(hostAddresses);
 
 			const QByteArray& byteArray = discovery.toByteArray(version);
-			QCOMPARE(byteArray,
-					QByteArray("{\n"
-							   "    \"IFDID\": \"0123456789abcdef\",\n"
-							   "    \"IFDName\": \"Sony Xperia Z5 compact\",\n"
-							   "    \"SupportedAPI\": [\n"
-							   "        \"IFDInterface_WebSocket_v0\",\n"
-							   "        \"IFDInterface_WebSocket_v2\"\n"
-							   "    ],\n"
-							   "    \"addresses\": [\n"
-							   "        \"[ADDRESS]\"\n"
-							   "    ],\n"
-							   "    \"msg\": \"REMOTE_IFD\",\n"
-							   "[PAIRING]"
-							   "    \"port\": 24728\n"
-							   "}\n").replace("[ADDRESS]", json_address).replace("[PAIRING]", json_pairing));
+			int matches = 0;
+			for (const auto& address : json_address)
+			{
+				if (byteArray == QByteArray("{\n"
+											"    \"IFDID\": \"0123456789abcdef\",\n"
+											"    \"IFDName\": \"Sony Xperia Z5 compact\",\n"
+											"    \"SupportedAPI\": [\n"
+											"        \"IFDInterface_WebSocket_v0\",\n"
+											"        \"IFDInterface_WebSocket_v2\"\n"
+											"    ],\n"
+											"    \"addresses\": [\n"
+											"        \"[ADDRESS]\"\n"
+											"    ],\n"
+											"    \"msg\": \"REMOTE_IFD\",\n"
+											"[PAIRING]"
+											"    \"port\": 24728\n"
+											"}\n").replace("[ADDRESS]", address).replace("[PAIRING]", json_pairing))
+				{
+					matches++;
+				}
+			}
+			QCOMPARE(matches, 1);
 
 			const QJsonObject obj = QJsonDocument::fromJson(byteArray).object();
 			QCOMPARE(obj.size(), version >= IfdVersion::Version::v2 ? 7 : 6);
@@ -184,13 +195,13 @@ class test_Discovery
 			QTest::addColumn<QByteArray>("json_pairing");
 			QTest::addColumn<bool>("pairing");
 			QTest::addColumn<QByteArray>("json_address");
-			QTest::addColumn<QList<QUrl>>("addresses");
+			QTest::addColumn<QSet<QUrl>>("addresses");
 			QTest::newRow("Pairing enabled - IPv4") << "\"pairing\": true,"_ba << true
-													<< "\"wss://192.168.1.42:24728\""_ba << QList<QUrl>({QUrl("wss://192.168.1.42:24728"_L1)});
+													<< "\"wss://192.168.1.42:24728\""_ba << QSet<QUrl>({QUrl("wss://192.168.1.42:24728"_L1)});
 			QTest::newRow("Pairing disabled - IPv6") << "\"pairing\": false,"_ba << false
-													 << "\"wss://[::ffff:192.168.1.42]:24728\""_ba << QList<QUrl>({QUrl("wss://[::ffff:192.168.1.42]:24728"_L1)});
+													 << "\"wss://[::ffff:192.168.1.42]:24728\""_ba << QSet<QUrl>({QUrl("wss://[::ffff:192.168.1.42]:24728"_L1)});
 			QTest::newRow("Pairing disabled - IPv4/6") << "\"pairing\": false,"_ba << false
-													   << "\"wss://192.168.1.42:24728\", \"wss://[::ffff:192.168.1.42]:24728\""_ba << QList<QUrl>({QUrl("wss://192.168.1.42:24728"_L1), QUrl("wss://[::ffff:192.168.1.42]:24728"_L1)});
+													   << "\"wss://192.168.1.42:24728\", \"wss://[::ffff:192.168.1.42]:24728\""_ba << QSet<QUrl>({QUrl("wss://192.168.1.42:24728"_L1), QUrl("wss://[::ffff:192.168.1.42]:24728"_L1)});
 		}
 
 
@@ -199,13 +210,13 @@ class test_Discovery
 			QFETCH(QByteArray, json_pairing);
 			QFETCH(bool, pairing);
 			QFETCH(QByteArray, json_address);
-			QFETCH(QList<QUrl>, addresses);
+			QFETCH(QSet<QUrl>, addresses);
 
 			QByteArray message(R"({
 									"IFDID": "0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF",
 									"IFDName": "Sony Xperia Z5 compact",
 									"SupportedAPI": [
-										"IFDInterface_WebSocket_v0"
+										"IFDInterface_WebSocket_v2"
 									],
 									"addresses": [
 										[ADDRESS]
@@ -221,11 +232,13 @@ class test_Discovery
 			QVERIFY(!discovery.isIncomplete());
 			QCOMPARE(discovery.getType(), IfdMessageType::UNDEFINED);
 			QCOMPARE(discovery.getContextHandle(), QString());
+			QVERIFY(discovery.isSupported());
 			QCOMPARE(discovery.getIfdName(), QStringLiteral("Sony Xperia Z5 compact"));
 			QCOMPARE(discovery.getIfdId(), QByteArray::fromHex(QByteArrayLiteral("0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF")));
 			QVERIFY(discovery.getPort() == static_cast<quint16>(24728));
 			QCOMPARE(discovery.getAddresses(), addresses);
-			QCOMPARE(discovery.getSupportedApis(), QList<IfdVersion::Version>({IfdVersion::Version::v0}));
+			QCOMPARE(discovery.addressesMissing(), addresses.isEmpty());
+			QCOMPARE(discovery.getSupportedApis(), QList<IfdVersion::Version>({IfdVersion::Version::v2}));
 			QCOMPARE(discovery.isPairing(), pairing);
 		}
 
@@ -393,6 +406,7 @@ class test_Discovery
 			const QJsonObject& obj = QJsonDocument::fromJson(message).object();
 			const Discovery discovery(obj);
 			QVERIFY(discovery.isIncomplete());
+			QVERIFY(!discovery.isSupported());
 			QCOMPARE(discovery.getIfdName(), QString());
 			QCOMPARE(discovery.getIfdId(), QByteArray());
 			QVERIFY(discovery.getPort() == 0);
@@ -620,11 +634,15 @@ class test_Discovery
 			QVERIFY(!discovery.isIncomplete());
 
 			discovery.setAddresses({QHostAddress()});
-			QVERIFY(discovery.getAddresses().isEmpty());
+			QVERIFY(discovery.addressesMissing());
 
 			discovery.setAddresses({QHostAddress("192.168.1.10"_L1)});
 			QCOMPARE(discovery.getAddresses().size(), 1);
-			QCOMPARE(discovery.getAddresses().at(0), QUrl("wss://192.168.1.10:24728"_L1));
+			QCOMPARE(*discovery.getAddresses().constBegin(), QUrl("wss://192.168.1.10:24728"_L1));
+
+			discovery.setAddresses({QHostAddress("192.168.1.10"_L1), QHostAddress("192.168.1.10"_L1)});
+			QCOMPARE(discovery.getAddresses().size(), 1);
+			QCOMPARE(*discovery.getAddresses().constBegin(), QUrl("wss://192.168.1.10:24728"_L1));
 		}
 
 
@@ -637,7 +655,42 @@ class test_Discovery
 			QVERIFY(discovery.getAddresses().isEmpty());
 
 			discovery.setAddresses({QHostAddress("192.168.1.10"_L1)});
-			QVERIFY(discovery.getAddresses().isEmpty());
+			QVERIFY(discovery.addressesMissing());
+		}
+
+
+		void test_localIfd_data()
+		{
+			QTest::addColumn<QHostAddress>("address");
+			QTest::addColumn<quint16>("port");
+			QTest::addColumn<bool>("isLocalIfd");
+
+			QTest::newRow("Defined localhost IPv4") << QHostAddress(QHostAddress::LocalHost) << PortFile::cDefaultPort << true;
+			QTest::newRow("Defined localhost IPv4 wrong port") << QHostAddress(QHostAddress::LocalHost) << quint16(11111) << false;
+			QTest::newRow("Defined localhost IPv6") << QHostAddress(QHostAddress::LocalHostIPv6) << PortFile::cDefaultPort << true;
+			QTest::newRow("Defined localhost IPv6 wrong port") << QHostAddress(QHostAddress::LocalHostIPv6) << quint16(11111) << false;
+			QTest::newRow("Local Address IPv4") << QHostAddress("127.0.0.1"_L1) << PortFile::cDefaultPort << true;
+			QTest::newRow("Local Address IPv4 wrong port") << QHostAddress("127.0.0.1"_L1) << quint16(11111) << false;
+			QTest::newRow("Local Address IPv6") << QHostAddress("::1"_L1) << PortFile::cDefaultPort << true;
+			QTest::newRow("Local Address IPv6 wrong port") << QHostAddress("::1"_L1) << quint16(11111) << false;
+			QTest::newRow("Any IPv4") << QHostAddress("192.168.1.42"_L1) << PortFile::cDefaultPort << false;
+			QTest::newRow("Any IPv4 wrong port") << QHostAddress("192.168.1.42"_L1) << quint16(11111) << false;
+			QTest::newRow("Any IPv6") << QHostAddress("::ffff:192.168.1.42"_L1) << PortFile::cDefaultPort << false;
+			QTest::newRow("Any IPv6 wrong port") << QHostAddress("::ffff:192.168.1.42"_L1) << quint16(11111) << false;
+			QTest::newRow("Any name") << QHostAddress("localhost"_L1) << PortFile::cDefaultPort << false;
+			QTest::newRow("Any name wrong port") << QHostAddress("localhost"_L1) << quint16(11111) << false;
+		}
+
+
+		void test_localIfd()
+		{
+			QFETCH(QHostAddress, address);
+			QFETCH(quint16, port);
+			QFETCH(bool, isLocalIfd);
+
+			Discovery discovery("entry 1"_L1, "01"_ba, port, {IfdVersion::supported()});
+			discovery.setAddresses({address});
+			QCOMPARE(discovery.isLocalIfd(), isLocalIfd);
 		}
 
 

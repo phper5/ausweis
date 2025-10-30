@@ -51,7 +51,7 @@ QtObject {
 
 			contentList: [
 				MultiInfoContentBlock {
-					blockHeaderAnimation: AnimationLoader.PIN
+					blockHeaderAnimation: AnimationLoader.Type.PIN
 					//: LABEL ALL_PLATFORMS
 					blockTitle: qsTr("What is the card PIN?")
 					paragraphList: [
@@ -62,7 +62,7 @@ QtObject {
 					//: LABEL ALL_PLATFORMS
 					blockTitle: qsTr("Where can I find the card PIN?")
 					paragraphList: {
-						if (ApplicationModel.isSmartSupported) {
+						if (ApplicationModel.smartSupported) {
 							//: INFO ALL_PLATFORMS Answer to the question 'Where can I find the card PIN?' (%1 is replaced with the application name)
 							return [qsTr("You set the card PIN either directly when you picked up your ID card at the citizens' office (Bürgeramt) or later in %1 using the 5-digit Transport PIN. Only when you have set a 6-digit PIN of your own choice can you use the eID function and set up a Smart-eID.").arg(Qt.application.name)];
 						}
@@ -125,7 +125,7 @@ QtObject {
 
 			contentList: [
 				MultiInfoContentBlock {
-					blockHeaderAnimation: AnimationLoader.NEW_PIN
+					blockHeaderAnimation: AnimationLoader.Type.NEW_PIN
 					//: LABEL ALL_PLATFORMS
 					blockTitle: qsTr("How do I choose a secure PIN?")
 					paragraphList: [
@@ -183,7 +183,7 @@ QtObject {
 
 			contentList: [
 				MultiInfoContentBlock {
-					blockHeaderAnimation: AnimationLoader.TRANSPORT_PIN
+					blockHeaderAnimation: AnimationLoader.Type.TRANSPORT_PIN
 					//: LABEL ALL_PLATFORMS
 					paragraphList: [
 						//: INFO ALL_PLATFORMS Answer to the question 'What is the Transport PIN?'
@@ -225,7 +225,7 @@ QtObject {
 						"  • %1".arg(qsTr("You applied for PIN Reset Letter (letter containing a 6-digit PIN and corresponding Activation Code)."))]
 				},
 				MultiInfoContentBlock {
-					blockHeaderAnimation: AnimationLoader.TRANSPORT_PIN
+					blockHeaderAnimation: AnimationLoader.Type.TRANSPORT_PIN
 					paragraphList: [
 						//: INFO ALL_PLATFORMS Information that the Transport PIN is void once a 6-digit PIN was set.
 						qsTr("Once you set a 6-digit PIN, the Transport PIN is no longer valid. You may then only use the 6-digit PIN to authenticate yourself.")]
@@ -247,7 +247,7 @@ QtObject {
 
 			contentList: [
 				MultiInfoContentBlock {
-					blockHeaderAnimation: AnimationLoader.PUK
+					blockHeaderAnimation: AnimationLoader.Type.PUK
 					//: LABEL ALL_PLATFORMS
 					paragraphList: [
 						//: INFO ALL_PLATFORMS Answer to the question 'Where do I find the PUK?'
@@ -281,7 +281,7 @@ QtObject {
 
 			contentList: [
 				MultiInfoContentBlock {
-					blockHeaderAnimation: AnimationLoader.CAN
+					blockHeaderAnimation: AnimationLoader.Type.CAN
 					paragraphList: [
 						//: INFO ALL_PLATFORMS Answer to the question 'When is the card access number (CAN) required?'
 						qsTr("The card access number (CAN) is required when the %1card PIN has been entered incorrectly 2 times%2.").arg("<b>").arg("</b>")]
@@ -313,7 +313,7 @@ QtObject {
 
 			contentList: [
 				MultiInfoContentBlock {
-					blockHeaderAnimation: AnimationLoader.CAN
+					blockHeaderAnimation: AnimationLoader.Type.CAN
 
 					//: LABEL ALL_PLATFORMS
 					blockTitle: qsTr("Why is the CAN required?")
@@ -344,7 +344,7 @@ QtObject {
 						qsTr("Your ID card comes with a 5-digit %1Transport PIN%2 which you need to %1replace with%2 a 6-digit %1card PIN%2 that you choose yourself.").arg("<b>").arg("</b>")]
 				},
 				MultiInfoContentBlock {
-					blockHeaderAnimation: AnimationLoader.TRANSPORT_PIN
+					blockHeaderAnimation: AnimationLoader.Type.TRANSPORT_PIN
 					//: LABEL ALL_PLATFORMS
 					blockTitle: qsTr("5-digit Transport PIN")
 					paragraphList: [
@@ -354,10 +354,10 @@ QtObject {
 						qsTr("When you set up your ID card, you will %1replace%2 this 5-digit %1Transport PIN with%2 a 6-digit, %1self chosen card PIN%2.").arg("<b>").arg("</b>")]
 				},
 				MultiInfoContentBlock {
-					blockHeaderAnimation: AnimationLoader.PIN
+					blockHeaderAnimation: AnimationLoader.Type.PIN
 					//: LABEL ALL_PLATFORMS
 					blockTitle: qsTr("6-digit PIN")
-					paragraphList: ApplicationModel.isSmartSupported ? [
+					paragraphList: ApplicationModel.smartSupported ? [
 
 						//: INFO ALL_PLATFORMS Description text explaining the PINs 4/7
 						qsTr("The 6-digit card PIN is a %1number that you choose yourself%2 when you set up the eID function for the first time. It %1replaces%2 your%1 5-digit Transport PIN%2.").arg("<b>").arg("</b>"),
@@ -408,7 +408,7 @@ QtObject {
 
 			contentList: [
 				MultiInfoContentBlock {
-					blockHeaderAnimation: AnimationLoader.PIN_UNKNOWN
+					blockHeaderAnimation: AnimationLoader.Type.PIN_UNKNOWN
 
 					//: LABEL ALL_PLATFORMS
 					blockTitle: qsTr("You do not know your PIN?")

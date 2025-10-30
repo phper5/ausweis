@@ -12,13 +12,16 @@ GPane {
 	property alias buttonIconSource: hintButton.icon.source
 	property alias buttonText: hintButton.text
 	property alias buttonTooltip: hintButton.enabledTooltipText
+	property string linkToOpen
 	property alias text: hintText.text
 
 	signal clicked
+	signal linkAboutToOpen
 
+	Accessible.ignored: true
 	color: Style.color.paneSublevel.background.basic
+	contentSpacing: 0
 	drawShadow: false
-	spacing: 0
 
 	GText {
 		id: hintText
@@ -29,12 +32,23 @@ GPane {
 	GButton {
 		id: hintButton
 
+		readonly property bool hasLink: root.linkToOpen !== ""
+
+		Accessible.description: hasLink ? Utils.platformAgnosticLinkOpenText(root.linkToOpen, Accessible.name) : ""
+		Accessible.role: hasLink ? Accessible.Link : Accessible.Button
 		Layout.alignment: Qt.AlignHCenter
 		Layout.topMargin: Style.dimens.pane_spacing
 		icon.source: "qrc:///images/open_website.svg"
 		tintIcon: true
 		visible: text !== ""
 
-		onClicked: root.clicked()
+		onClicked: {
+			if (hasLink) {
+				root.linkAboutToOpen();
+				Qt.openUrlExternally(root.linkToOpen);
+			} else {
+				root.clicked();
+			}
+		}
 	}
 }

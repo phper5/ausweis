@@ -17,7 +17,7 @@ class IfdConnect
 		bool mExclusive;
 
 	public:
-		IfdConnect(const QString& pSlotName, bool pExclusive = true);
+		explicit IfdConnect(const QString& pSlotName, bool pExclusive = true);
 		explicit IfdConnect(const QJsonObject& pMessageObject);
 		~IfdConnect() override = default;
 

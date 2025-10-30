@@ -15,10 +15,11 @@
 #include <QCoreApplication>
 #include <QJsonObject>
 #include <QMap>
-#include <QPair>
 #include <QSharedData>
 #include <QString>
+
 #include <optional>
+#include <utility>
 
 
 class test_ECardApiResult;

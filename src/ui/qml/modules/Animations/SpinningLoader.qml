@@ -12,8 +12,8 @@ import Governikus.Type
 Item {
 	id: root
 
-	implicitHeight: Style.dimens.progress_bar_height
-	implicitWidth: Style.dimens.progress_bar_height
+	implicitHeight: 2 * Style.dimens.text
+	implicitWidth: implicitHeight
 
 	Repeater {
 		id: repeater

@@ -15,12 +15,23 @@ ResultView {
 	//: LABEL ALL_PLATFORMS
 	readonly property string leaveText: qsTr("If you have any questions or encounter any errors during the process, please contact the corresponding provider.")
 	readonly property string redirectText: {
-		if (SettingsModel.autoRedirectAfterAuthentication) {
-			//: INFO ALL_PLATFORMS Redirect information when automatic redirect is enabled
-			return qsTr("You will be automatically redirected to the provider in a few seconds. If you are not automatically redirected, click on the \"%1\" button.").arg(buttonText);
+		if (Style.is_layout_desktop) {
+			if (SettingsModel.autoRedirectAfterAuthentication) {
+				//: INFO DESKTOP Redirect information when automatic redirect is enabled
+				return qsTr("You will be automatically redirected to the provider in a few seconds. If you are not automatically redirected, click the \"%1\" button.").arg(buttonText);
+			}
+
+			//: INFO DESKTOP Redirect information when automatic redirect is disabled
+			return qsTr("Click the button to complete the authentication and return to the provider.");
 		}
-		//: INFO ALL_PLATFORMS Redirect information when automatic redirect is disabled
-		return qsTr("Press the button to complete the authentication and return to the provider.");
+
+		if (SettingsModel.autoRedirectAfterAuthentication) {
+			//: INFO ANDROID IOS Redirect information when automatic redirect is enabled
+			return qsTr("You will be automatically redirected to the provider in a few seconds. If you are not automatically redirected, tap the \"%1\" button.").arg(buttonText);
+		}
+
+		//: INFO ANDROID IOS Redirect information when automatic redirect is disabled
+		return qsTr("Tap the button to complete the authentication and return to the provider.");
 	}
 
 	animationSymbol: Symbol.Type.CHECK
@@ -30,6 +41,7 @@ ResultView {
 	buttonText: qsTr("Return to provider")
 	//: LABEL ALL_PLATFORMS
 	header: qsTr("Authentication successful")
+	linkToOpen: AuthModel.refreshUrl
 	subheader: {
 		if (Style.is_layout_desktop) {
 			//: INFO DESKTOP Hint to user that the ID card should be removed

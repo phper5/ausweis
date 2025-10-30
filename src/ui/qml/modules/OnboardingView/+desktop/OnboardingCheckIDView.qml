@@ -30,7 +30,7 @@ BaseOnboardingView {
 	spacing: Style.dimens.pane_spacing
 
 	titleBarSettings: TitleBarSettings {
-		navigationAction: NavigationAction.Back
+		navigationAction: NavigationAction.Action.Back
 		startEnabled: false
 
 		onNavigationActionClicked: root.stopScanAndLeaveView()
@@ -83,7 +83,7 @@ BaseOnboardingView {
 				steps: 3
 			}
 			titleBarSettings: TitleBarSettings {
-				navigationAction: NavigationAction.Back
+				navigationAction: NavigationAction.Action.Back
 				startEnabled: false
 
 				onNavigationActionClicked: {
@@ -122,7 +122,7 @@ BaseOnboardingView {
 				steps: 3
 			}
 			titleBarSettings: TitleBarSettings {
-				navigationAction: NavigationAction.Back
+				navigationAction: NavigationAction.Action.Back
 				startEnabled: false
 
 				onNavigationActionClicked: root.pop()
@@ -143,7 +143,7 @@ BaseOnboardingView {
 				steps: 3
 			}
 			titleBarSettings: TitleBarSettings {
-				navigationAction: NavigationAction.Back
+				navigationAction: NavigationAction.Action.Back
 				startEnabled: false
 
 				onNavigationActionClicked: root.pop()
@@ -156,17 +156,15 @@ BaseOnboardingView {
 			}
 		}
 	}
-	GText {
-		Layout.alignment: Text.AlignHCenter
+	Heading {
 		//: INFO DESKTOP
 		text: qsTr("Read ID card")
-		textStyle: Style.text.headline
 	}
 	AnimationLoader {
 		Layout.alignment: Qt.AlignHCenter
 		animated: false
 		symbol: Symbol.Type.QUESTION
-		type: root.isPcsc ? AnimationLoader.WAIT_FOR_CARD_USB : AnimationLoader.WAIT_FOR_CARD_SAC
+		type: root.isPcsc ? AnimationLoader.Type.WAIT_FOR_CARD_USB : AnimationLoader.Type.WAIT_FOR_CARD_SAC
 	}
 	GText {
 		id: subText

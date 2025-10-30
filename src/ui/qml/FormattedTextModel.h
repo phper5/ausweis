@@ -6,10 +6,11 @@
 
 #include <QAbstractListModel>
 #include <QList>
-#include <QPair>
 #include <QString>
 #include <QStringList>
 #include <QtQml/qqmlregistration.h>
+
+#include <utility>
 
 class test_FormattedTextModel;
 
@@ -45,7 +46,7 @@ class FormattedTextModel
 
 		explicit FormattedTextModel(QObject* pParent, const QStringList& pLines = QStringList());
 
-		[[nodiscard]] int rowCount(const QModelIndex& pIndex = QModelIndex()) const override;
+		[[nodiscard]] int rowCount(const QModelIndex& pIndex) const override;
 		[[nodiscard]] QVariant data(const QModelIndex& pIndex, int pRole = Qt::DisplayRole) const override;
 		[[nodiscard]] QHash<int, QByteArray> roleNames() const override;
 
@@ -65,7 +66,7 @@ class FormattedTextModel
 		static ReadLinesResult readLines(const QString& pFilepath);
 
 	private:
-		QList<QPair<QString, LineType>> mLines;
+		QList<std::pair<QString, LineType>> mLines;
 
 		void processLines(const QStringList& pLines);
 		void processLine(const QString& pLine);

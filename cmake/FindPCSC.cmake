@@ -1,6 +1,11 @@
 if(UNIX AND NOT APPLE AND NOT CYGWIN)
-	find_package(PkgConfig REQUIRED)
-	pkg_check_modules(PCSC REQUIRED IMPORTED_TARGET libpcsclite)
+	if(CMAKE_VERSION VERSION_LESS "4.1.1")
+		find_package(PkgConfig REQUIRED)
+		pkg_check_modules(PCSC REQUIRED IMPORTED_TARGET libpcsclite)
+	else()
+		cmake_pkg_config(IMPORT libpcsclite REQUIRED NAME PCSC)
+		get_target_property(PCSC_LIBRARIES PkgConfig::PCSC INTERFACE_LINK_LIBRARIES)
+	endif()
 
 else()
 	add_library(PkgConfig::PCSC INTERFACE IMPORTED)

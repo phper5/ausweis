@@ -9,8 +9,6 @@
 
 using namespace governikus;
 
-const quint16 PortFile::cDefaultPort = 24727;
-
 QString PortFile::getPortFilename(const QString& pUsage, qint64 pPid, const QString& pApp)
 {
 	const QLatin1Char sep('.');

@@ -13,6 +13,14 @@ import requests
 
 log = logging.getLogger('gitlab')
 logging.basicConfig(format='%(levelname)s: %(message)s', level='INFO')
+
+stdout_handler = logging.StreamHandler(sys.stdout)
+stdout_handler.setFormatter(logging.Formatter('%(message)s'))
+log_stdout = logging.getLogger('gitlab.stdout')
+log_stdout.setLevel(logging.INFO)
+log_stdout.addHandler(stdout_handler)
+log_stdout.propagate = False
+
 parser = None
 
 
@@ -21,7 +29,50 @@ class CommandLineParser(argparse.ArgumentParser):
         self.regex = '.*'
         self.api_path = '/api/v4/projects/'
 
-        super().__init__()
+        prog = os.path.basename(sys.argv[0])
+        description = f"""\
+Trigger a GitLab CI/CD pipeline with optional patches, revisions
+and environment variables. It supports submitting Mercurial patches,
+triggering release pipelines and selecting specific jobs via regex.
+
+
+# Typical workflows
+
+- Specific jobs for current draft changesets:
+  {prog} -p -a Android
+
+- Pipeline with current draft changesets as single patch:
+  {prog} -p -s
+
+- Run only selected jobs using a regex:
+  {prog} -a SonarQube -r default
+
+- Pipeline using a branch as revision:
+  {prog} -r default
+
+- Pipeline with a specific patch changeset on specific branch:
+  {prog} -p tip -r default
+
+- Release pipeline (requires --rev):
+  {prog} --release -r 1.0
+
+
+# Helper functionality (does not trigger a pipeline)
+
+- Show secure files of the GitLab project:
+  {prog} --files
+"""
+
+        epilog = """\
+notes:
+ - The token can be provided via the CI_PIPELINE_TOKEN environment variable.
+"""
+
+        super().__init__(
+            description=description,
+            epilog=epilog,
+            formatter_class=argparse.RawDescriptionHelpFormatter,
+        )
         self.add_argument(
             '--release', help='Create release pipeline', action='store_true'
         )
@@ -41,15 +92,19 @@ class CommandLineParser(argparse.ArgumentParser):
         )
         self.add_argument(
             '-a',
-            '--all',
-            help='Use all jobs or a regex to select jobs for the pipeline.',
-            nargs='?',
-            const=self.regex,
+            '--apply',
+            help='Apply regex to select jobs for the pipeline',
+        )
+        self.add_argument(
+            '-m',
+            '--manual',
+            help='Enable "manual" builds of non-matching jobs',
+            action='store_true',
         )
         self.add_argument(
             '-e',
             '--env',
-            help='Add environment variable to the pipeline.',
+            help='Add environment variable to the pipeline',
             action='append',
         )
         self.add_argument(
@@ -57,10 +112,24 @@ class CommandLineParser(argparse.ArgumentParser):
             help='Dry-run instead of creating a pipeline',
             action='store_true',
         )
+        self.add_argument('--repository', help='Use local repository')
         self.add_argument(
             '--files',
-            help='Show list of secure files and exit',
-            action='store_true',
+            help='Show list or download of secure files and exit',
+            nargs='?',
+            const=' ',
+        )
+        self.add_argument(
+            '--packages',
+            help='Show list of packages and exit',
+            nargs='?',
+            const=' ',
+        )
+        self.add_argument(
+            '--show',
+            help='Show list of pipelines and exit',
+            nargs='?',
+            const='running',
         )
         self.add_argument(
             '--token',
@@ -82,6 +151,10 @@ class CommandLineParser(argparse.ArgumentParser):
 
         if self.args.files and (self.args.rev or self.args.patch):
             self.error('Cannot combine --files')
+        if self.args.show and (self.args.rev or self.args.patch):
+            self.error('Cannot combine --show')
+        if self.args.files and self.args.show:
+            self.error('Cannot combine --files and --show')
         if self.args.release and self.args.patch:
             self.error('Cannot combine --release and --patch')
         if self.args.release and not self.args.rev:
@@ -91,6 +164,8 @@ class CommandLineParser(argparse.ArgumentParser):
             and not self.args.patch
             and not self.args.rev
             and not self.args.files
+            and not self.args.show
+            and not self.args.packages
         ):
             self.error('Provide revision for the pipeline')
         if not self.args.token:
@@ -105,9 +180,34 @@ class CommandLineParser(argparse.ArgumentParser):
         return {'PRIVATE-TOKEN': self.token}
 
 
+def get_url():
+    return parser.gitlab + parser.api_path + parser.project
+
+
+def load_hgrc():
+    hgrc = {}
+    if output := run(['hg', 'showconfig']):
+        for line in output.stdout.strip().splitlines():
+            line = line.split('=', 1)
+            if len(line) == 2:
+                key, value = line
+            else:
+                key = line[0]
+                value = ''
+            hgrc[key] = value.strip()
+    return hgrc
+
+
 def run(cmd):
     try:
-        return subprocess.run(cmd, capture_output=True, text=True, check=True)
+        return subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            check=True,
+            cwd=parser.repository,
+            encoding='utf-8',
+        )
     except subprocess.CalledProcessError as e:
         log.error(e.stderr.strip())
         return None
@@ -121,6 +221,11 @@ def export():
 
 
 def patch():
+    if not parser.repository:
+        parser.repository = load_hgrc().get(
+            'bundle.mainreporoot'
+        ) or os.path.dirname(os.path.realpath(__file__))
+    log.debug('Use working directory: %s', parser.repository)
     result = export()
 
     if not result or not result.stdout.strip():
@@ -139,11 +244,7 @@ def patch():
 
 def upload(content):
     file = hashlib.md5(content.encode('utf-8')).hexdigest()
-    url = (
-        parser.gitlab
-        + parser.api_path
-        + f'{parser.project}/packages/generic/patches/drafts/{file}.patch'
-    )
+    url = get_url() + f'/packages/generic/patches/drafts/{file}.patch'
     if parser.dry_run:
         log.info(content)
         log.info(f'Upload patch: {url}')
@@ -186,44 +287,127 @@ def pipeline(variables, inputs):
         log.error(f'Cannot start pipeline: {e}')
 
 
-def secure_files():
-    url = parser.gitlab + parser.api_path + f'{parser.project}/secure_files/'
+def api(url, stdout=True):
+    log.debug(url)
     try:
         response = requests.get(url, headers=parser.headers())
-        log.info(json.dumps(response.json(), indent=2))
+        log.debug(f'HTTP Code: {response.status_code}')
+        log.debug(json.dumps(dict(response.headers), indent=2))
+        if 'application/json' in response.headers.get('Content-Type'):
+            content = json.dumps(response.json(), indent=2)
+        else:
+            content = response.text
+        if stdout:
+            log_stdout.info(content)
+
+        if response.status_code > 400:
+            raise requests.HTTPError(f'HTTP Error {response.status_code}')
+
+        return (response.headers, content)
     except Exception as e:
-        log.error(f'Cannot fetch secure files: {e}')
-        return None
+        log.error(f'Cannot fetch api {url}: {e}')
+        return (None, None)
+
+
+def secure_files():
+    url = get_url() + '/secure_files/'
+    if parser.files.strip():
+        url += parser.files + '/download'
+    headers, _ = api(url)
+    return headers is not None
+
+
+def show():
+    url = get_url()
+    if parser.show.isdigit():
+        url += f'/pipelines/{parser.show}/'
+    else:
+        url += f'/pipelines?status={parser.show}'
+    headers, _ = api(url)
+    return headers is not None
+
+
+def packages():
+    from datetime import datetime, timezone, timedelta
+
+    now = datetime.now(timezone.utc)
+    page = '1'
+    while page:
+        url = get_url() + f'/packages?page={page}'
+        (headers, content) = api(url, False)
+        if not headers:
+            return 1
+        page = headers['X-Next-Page']
+
+        if content:
+            for entry in json.loads(content):
+                tsp = datetime.fromisoformat(
+                    entry.get('last_downloaded_at') or entry.get('created_at')
+                )
+                diff = now - tsp
+                if diff > timedelta(days=7):
+                    log.info(
+                        f'Package obsolete: {entry["id"]} '
+                        f'| {entry["version"]} '
+                        f'| {entry["name"]}'
+                    )
+                    if parser.packages == 'delete':
+                        log.info('Delete outdated package')
+                        response = requests.delete(
+                            entry['_links']['delete_api_path'],
+                            headers=parser.headers(),
+                        )
+                        if response.status_code != 204:
+                            log.error(
+                                'Deletion of package failed: '
+                                f'{response.status_code} {response.text}'
+                            )
+                else:
+                    log.info(
+                        f'Package relevant: {entry["id"]} '
+                        f'| {entry["version"]} '
+                        f'| {entry["name"]}'
+                    )
 
 
 def main():
     global parser
     parser = CommandLineParser()
 
+    if parser.verbose:
+        log.setLevel('DEBUG')
+
     if parser.files:
-        secure_files()
-        return 0
+        return secure_files()
+
+    if parser.show:
+        return show()
+
+    if parser.packages:
+        return packages()
 
     variables = []
     inputs = {}
-    regex = f'/{parser.regex}/i'
 
     if parser.patch:
         v = patch()
         if not v:
             return 1
         variables += v
-        regex = ''
 
     inputs['revision'] = parser.rev
     if parser.release:
         inputs['release'] = True
 
-    regex = f'/{parser.all}/i' if parser.all else regex
-    variables += [{'key': 'SELECT_JOB_REGEX', 'value': regex}]
-
+    if parser.apply:
+        variables += [
+            {'key': 'SELECT_JOB_REGEX', 'value': f'/{parser.apply}/i'}
+        ]
     if parser.squash:
         variables += [{'key': 'SPLIT', 'value': 'OFF'}]
+
+    if parser.manual:
+        variables += [{'key': 'SELECT_JOB_MANUAL', 'value': ''}]
 
     if parser.env:
         for entry in parser.env:

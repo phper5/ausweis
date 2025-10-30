@@ -99,14 +99,8 @@ ApplicationModel::ApplicationModel()
 
 void ApplicationModel::resetContext(const QSharedPointer<WorkflowContext>& pContext)
 {
-	if (mContext)
-	{
-		disconnect(mContext.data(), &WorkflowContext::fireReaderPluginTypesChanged, this, &ApplicationModel::fireAvailableReaderChanged);
-	}
-
 	if ((mContext = pContext))
 	{
-		connect(mContext.data(), &WorkflowContext::fireReaderPluginTypesChanged, this, &ApplicationModel::fireAvailableReaderChanged);
 		connect(mContext.data(), &WorkflowContext::fireReaderNameChanged, this, &ApplicationModel::fireAvailableReaderChanged);
 		connect(mContext.data(), &WorkflowContext::fireReaderNameChanged, this, &ApplicationModel::fireReaderPropertiesUpdated);
 		connect(mContext.data(), &WorkflowContext::fireReaderInfoChanged, this, &ApplicationModel::fireReaderPropertiesUpdated);
@@ -117,8 +111,8 @@ void ApplicationModel::resetContext(const QSharedPointer<WorkflowContext>& pCont
 
 int ApplicationModel::randomInt(int pLowerBound, int pUpperBound) const
 {
-	std::uniform_int_distribution<int> distribution(pLowerBound, pUpperBound);
-	return distribution(Randomizer::getInstance().getGenerator());
+	std::uniform_int_distribution distribution(pLowerBound, pUpperBound);
+	return distribution(*Randomizer::getInstance().getGenerator());
 }
 
 
@@ -140,14 +134,6 @@ QString ApplicationModel::getStoreUrl() const
 	return QString();
 
 #endif
-}
-
-
-QUrl ApplicationModel::getReleaseNotesUrl() const
-{
-	const auto* storage = Env::getSingleton<SecureStorage>();
-	const auto& url = VersionNumber::getApplicationVersion().isBetaVersion() ? storage->getAppcastBetaUpdateUrl() : storage->getAppcastUpdateUrl();
-	return url.adjusted(QUrl::RemoveFilename).toString() + QStringLiteral("ReleaseNotes.html");
 }
 
 
@@ -267,19 +253,20 @@ qsizetype ApplicationModel::getAvailableRemoteReader() const
 }
 
 
-bool ApplicationModel::isReaderTypeAvailable(ReaderManagerPluginType pPluginType) const
+ReaderManagerPluginType ApplicationModel::getUsedPluginType() const
 {
 	if (!mContext)
 	{
-		return false;
+		return ReaderManagerPluginType::UNKNOWN;
 	}
 
-	if (!mContext->getReaderName().isEmpty())
+	const auto& readerName = mContext->getReaderName();
+	if (readerName.isEmpty())
 	{
-		return Env::getSingleton<ReaderManager>()->getReaderInfo(mContext->getReaderName()).getPluginType() == pPluginType;
+		return ReaderManagerPluginType::UNKNOWN;
 	}
 
-	return !Env::getSingleton<ReaderManager>()->getReaderInfos(ReaderFilter({pPluginType})).isEmpty();
+	return Env::getSingleton<ReaderManager>()->getReaderInfo(readerName).getPluginType();
 }
 
 
@@ -369,7 +356,7 @@ QStringList ApplicationModel::getLicenseText() const
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
 QUrl ApplicationModel::getCustomConfigPath() const
 {
-	return Env::getSingleton<SecureStorage>()->getCustomConfigPath();
+	return QUrl(Env::getSingleton<SecureStorage>()->getCustomConfigPath());
 }
 
 

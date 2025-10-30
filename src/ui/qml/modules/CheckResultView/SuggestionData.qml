@@ -13,10 +13,12 @@ QtObject {
 	//: LABEL ALL_PLATFORMS
 	property string continueButtonText: qsTr("Continue")
 	property string header
+	property string hintButtonLink
 	property string hintButtonText
 	property string hintText
 	//: LABEL ALL_PLATFORMS
 	property string hintTitle: qsTr("Hint")
+	property string linkToOpen
 	property string text
 	property int textFormat: Text.AutoText
 	property string title

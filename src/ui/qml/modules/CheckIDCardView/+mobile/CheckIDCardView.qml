@@ -152,10 +152,9 @@ FlickableSectionPage {
 			sourceSize.height: Style.dimens.header_icon_size
 			tintColor: Style.color.image
 		}
-		GText {
+		Subheading {
 			//: LABEL ANDROID IOS
 			text: qsTr("Check if your device & ID card are ready for use")
-			textStyle: Style.text.subline
 		}
 		GText {
 			//: LABEL ANDROID IOS

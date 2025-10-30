@@ -34,53 +34,53 @@ Loader {
 
 	property bool animated: true
 	property int symbol: Symbol.Type.STAR
-	property int type: AnimationLoader.NONE
+	property int type: AnimationLoader.Type.NONE
 
 	sourceComponent: {
 		switch (type) {
-		case AnimationLoader.REMOTE_PIN:
+		case AnimationLoader.Type.REMOTE_PIN:
 			return remotePin;
-		case AnimationLoader.TRANSPORT_PIN:
+		case AnimationLoader.Type.TRANSPORT_PIN:
 			return transportPin;
-		case AnimationLoader.PIN:
+		case AnimationLoader.Type.PIN:
 			return pin;
-		case AnimationLoader.PIN_UNKNOWN:
+		case AnimationLoader.Type.PIN_UNKNOWN:
 			return pinUnknown;
-		case AnimationLoader.NEW_PIN:
+		case AnimationLoader.Type.NEW_PIN:
 			return newPin;
-		case AnimationLoader.CAN:
+		case AnimationLoader.Type.CAN:
 			return can;
-		case AnimationLoader.PUK:
+		case AnimationLoader.Type.PUK:
 			return puk;
-		case AnimationLoader.WAIT_FOR_CARD_SAC:
+		case AnimationLoader.Type.WAIT_FOR_CARD_SAC:
 			return waitForCardSac;
-		case AnimationLoader.WAIT_FOR_CARD_USB:
+		case AnimationLoader.Type.WAIT_FOR_CARD_USB:
 			return waitForCardUsb;
-		case AnimationLoader.WAIT_FOR_READER:
+		case AnimationLoader.Type.WAIT_FOR_READER:
 			return waitForReader;
-		case AnimationLoader.WAIT_FOR_SAC:
+		case AnimationLoader.Type.WAIT_FOR_SAC:
 			return waitForSac;
-		case AnimationLoader.NFC_RESULT:
+		case AnimationLoader.Type.NFC_RESULT:
 			return nfcResult;
-		case AnimationLoader.SAC_RESULT:
+		case AnimationLoader.Type.SAC_RESULT:
 			return sacResult;
-		case AnimationLoader.CHANGEPIN_SUCCESS:
+		case AnimationLoader.Type.CHANGEPIN_SUCCESS:
 			return changePinSuccess;
-		case AnimationLoader.SAC_CONNECTION:
+		case AnimationLoader.Type.SAC_CONNECTION:
 			return sacConnection;
-		case AnimationLoader.CARD_RESULT:
+		case AnimationLoader.Type.CARD_RESULT:
 			return cardResult;
-		case AnimationLoader.NETWORK_ERROR:
+		case AnimationLoader.Type.NETWORK_ERROR:
 			return networkError;
-		case AnimationLoader.STATUS:
+		case AnimationLoader.Type.STATUS:
 			return statusAnimation;
-		case AnimationLoader.HOURGLASS:
+		case AnimationLoader.Type.HOURGLASS:
 			return hourglassAnimation;
 		default:
 			return undefined;
 		}
 	}
-	visible: (status === Loader.Ready || status === Loader.Loading) && type !== AnimationLoader.NONE
+	visible: (status === Loader.Ready || status === Loader.Loading) && type !== AnimationLoader.Type.NONE
 
 	Component {
 		id: remotePin

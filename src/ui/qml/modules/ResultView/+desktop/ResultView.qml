@@ -23,9 +23,11 @@ FlickableSectionPage {
 	property alias buttonText: button.text
 	default property alias data: resultContent.data
 	property alias header: resultHeader.text
+	property string hintButtonLink
 	property alias hintButtonText: hintItem.buttonText
 	property alias hintText: hintItem.text
 	property alias hintTitle: hintItem.title
+	property string linkToOpen
 	property alias mailButtonVisible: mailButton.visible
 	property string popupText
 	property string popupTitle
@@ -46,16 +48,9 @@ FlickableSectionPage {
 
 	spacing: Style.dimens.pane_spacing
 
-	Keys.onEnterPressed: button.clicked()
-	Keys.onEscapePressed: button.clicked()
-	Keys.onReturnPressed: button.clicked()
-
-	GText {
+	Heading {
 		id: resultHeader
 
-		Layout.alignment: Qt.AlignHCenter
-		horizontalAlignment: Text.AlignHCenter
-		textStyle: Style.text.headline
 		visible: text !== ""
 	}
 	WorkflowAnimationLoader {
@@ -64,12 +59,11 @@ FlickableSectionPage {
 		Layout.alignment: Qt.AlignHCenter
 		animated: false
 	}
-	GText {
+	Subheading {
 		id: subheader
 
 		Layout.alignment: Qt.AlignHCenter
 		horizontalAlignment: Text.AlignHCenter
-		textStyle: Style.text.subline
 		visible: text !== ""
 	}
 	GText {
@@ -110,8 +104,7 @@ FlickableSectionPage {
 			tintIcon: true
 
 			onClicked: {
-				LogModel.setLogFile(0);
-				let filenameSuggestion = LogModel.createLogFileName(LogModel.getCurrentLogFileDate());
+				let filenameSuggestion = logModel.createLogFileName();
 				fileDialog.selectFile(filenameSuggestion);
 			}
 
@@ -125,7 +118,11 @@ FlickableSectionPage {
 				//: LABEL DESKTOP
 				title: qsTr("Save log")
 
-				onAccepted: LogModel.saveCurrentLogFile(file)
+				onAccepted: logModel.saveLogFile(selectedFile, true)
+			}
+			LogModel {
+				id: logModel
+
 			}
 		}
 		GButton {
@@ -164,6 +161,7 @@ FlickableSectionPage {
 		id: hintItem
 
 		Layout.fillWidth: true
+		linkToOpen: root.hintButtonLink
 		//: LABEL DESKTOP
 		title: qsTr("Hint")
 		visible: text !== ""
@@ -173,9 +171,14 @@ FlickableSectionPage {
 	GButton {
 		id: button
 
+		readonly property bool hasLink: root.linkToOpen !== ""
+
+		Accessible.description: hasLink ? Utils.platformAgnosticLinkOpenText(root.linkToOpen, Accessible.name) : ""
+		Accessible.role: hasLink ? Accessible.Link : Accessible.Button
 		Layout.alignment: Qt.AlignHCenter
 		Layout.preferredHeight: height
 		Layout.preferredWidth: width
+		enabledTooltipText: hasLink ? root.linkToOpen : ""
 		text: qsTr("OK")
 		tintIcon: true
 		visible: text !== ""

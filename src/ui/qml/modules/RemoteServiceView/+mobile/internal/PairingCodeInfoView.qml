@@ -32,12 +32,9 @@ FlickableSectionPage {
 		onClicked: root.navActionClicked()
 	}
 
-	GText {
+	Heading {
 		id: headline
 
-		Layout.alignment: Qt.AlignHCenter
-		horizontalAlignment: Text.AlignHCenter
-		textStyle: Style.text.headline
 	}
 	TintableIcon {
 		Layout.alignment: Qt.AlignHCenter
@@ -47,10 +44,9 @@ FlickableSectionPage {
 		sourceSize.height: Style.dimens.medium_icon_size
 		tintColor: Style.color.image
 	}
-	GText {
+	Subheading {
 		//: LABEL ANDROID IOS
 		text: qsTr("Please follow these steps:")
-		textStyle: Style.text.subline
 	}
 	Repeater {
 		model: [

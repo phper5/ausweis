@@ -154,55 +154,67 @@ QSharedPointer<QNetworkReply> NetworkManager::processUpdaterRequest(QNetworkRequ
 			});
 
 	connect(response.data(), &QNetworkReply::sslErrors, this, [response, this](const QList<QSslError>& pErrors){
-				QList<QSslError> ignoredErrors;
-
-				for (const auto& error : pErrors)
-				{
-					if (error.error() == QSslError::OcspNoResponseFound && mUpdaterSessions.contains(response->sslConfiguration().sessionTicket()))
-					{
-						ignoredErrors << error; // QTBUG-99241
-						continue;
-					}
-
-					qCCritical(network) << "Fatal SSL error:" << error;
-					if (!error.certificate().isNull())
-					{
-						qCCritical(network) << error.certificate();
-					}
-				}
-
-				if (ignoredErrors.isEmpty())
-				{
-					response->abort();
-				}
-				else
-				{
-					response->ignoreSslErrors(ignoredErrors);
-				}
+				onSslErrors(response, pErrors);
 			});
 
 	connect(response.data(), &QNetworkReply::encrypted, this, [response, this]{
-				const auto& cfg = response->sslConfiguration();
-				TlsChecker::logSslConfig(cfg, spawnMessageLogger(network));
-
-				const auto& trustedCertificates = Env::getSingleton<SecureStorage>()->getUpdateCertificates();
-				const auto& cert = cfg.peerCertificate();
-				if (cert.isNull() || !trustedCertificates.contains(cert))
-				{
-					const QString& textForLog = response->request().url().fileName();
-					qCCritical(network).nospace() << "Untrusted certificate found [" << textForLog << "]: " << cert;
-					response->abort();
-					return;
-				}
-
-				const auto& ticket = cfg.sessionTicket();
-				if (!ticket.isEmpty())
-				{
-					mUpdaterSessions << ticket;
-				}
+				onEncryptedResponse(response);
 			});
 
 	return response;
+}
+
+
+void NetworkManager::onSslErrors(QSharedPointer<QNetworkReply> response, const QList<QSslError>& pErrors) const
+{
+	QList<QSslError> ignoredErrors;
+
+	for (const auto& error : pErrors)
+	{
+		if (error.error() == QSslError::OcspNoResponseFound && mUpdaterSessions.contains(response->sslConfiguration().sessionTicket()))
+		{
+			ignoredErrors << error; // QTBUG-99241
+			continue;
+		}
+
+		qCCritical(network) << "Fatal SSL error:" << error;
+		if (!error.certificate().isNull())
+		{
+			qCCritical(network) << error.certificate();
+		}
+	}
+
+	if (ignoredErrors.isEmpty())
+	{
+		response->abort();
+	}
+	else
+	{
+		response->ignoreSslErrors(ignoredErrors);
+	}
+}
+
+
+void NetworkManager::onEncryptedResponse(QSharedPointer<QNetworkReply> response)
+{
+	const auto& cfg = response->sslConfiguration();
+	TlsChecker::logSslConfig(cfg, spawnMessageLogger(network));
+
+	const auto& trustedCertificates = Env::getSingleton<SecureStorage>()->getUpdateCertificates();
+	const auto& cert = cfg.peerCertificate();
+	if (cert.isNull() || !trustedCertificates.contains(cert))
+	{
+		const QString& textForLog = response->request().url().fileName();
+		qCCritical(network).nospace() << "Untrusted certificate found [" << textForLog << "]: " << cert;
+		response->abort();
+		return;
+	}
+
+	const auto& ticket = cfg.sessionTicket();
+	if (!ticket.isEmpty())
+	{
+		mUpdaterSessions << ticket;
+	}
 }
 
 
@@ -452,7 +464,7 @@ class NoProxyFactory
 		}
 
 
-		QList<QNetworkProxy> queryProxy(const QNetworkProxyQuery& pInputQuery = QNetworkProxyQuery()) override
+		QList<QNetworkProxy> queryProxy(const QNetworkProxyQuery& pInputQuery) override
 		{
 			qCDebug(network) << pInputQuery;
 			qCDebug(network) << "Found proxies" << mProxies;
@@ -467,7 +479,7 @@ class SystemProxyFactory
 	: public QNetworkProxyFactory
 {
 	public:
-		QList<QNetworkProxy> queryProxy(const QNetworkProxyQuery& pInputQuery = QNetworkProxyQuery()) override
+		QList<QNetworkProxy> queryProxy(const QNetworkProxyQuery& pInputQuery) override
 		{
 			qCDebug(network) << pInputQuery;
 			QList<QNetworkProxy> proxies = systemProxyForQuery(pInputQuery);
@@ -482,7 +494,7 @@ class CustomProxyFactory
 	: public QNetworkProxyFactory
 {
 	public:
-		QList<QNetworkProxy> queryProxy(const QNetworkProxyQuery& pInputQuery = QNetworkProxyQuery()) override
+		QList<QNetworkProxy> queryProxy(const QNetworkProxyQuery& pInputQuery) override
 		{
 			qCDebug(network) << pInputQuery;
 			const auto& settings = Env::getSingleton<AppSettings>()->getGeneralSettings();

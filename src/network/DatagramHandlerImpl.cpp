@@ -22,7 +22,7 @@ Q_DECLARE_LOGGING_CATEGORY(network)
 namespace governikus
 {
 
-constexpr QLatin1StringView ipv6MulticastAddress("ff02::1");
+constexpr QLatin1StringView ipv6MulticastAddress("ff02::178");
 
 template<> DatagramHandler* createNewObject<DatagramHandler*>()
 {
@@ -88,14 +88,14 @@ void DatagramHandlerImpl::resetSocket()
 	else if (mSocket->bind(mUsedPort))
 	{
 #ifndef Q_OS_MACOS
-		if (!mSocket->joinMulticastGroup(QHostAddress(ipv6MulticastAddress)))
+		if (!mSocket->joinMulticastGroup(QHostAddress(QStringLiteral("ff02::1"))))
 		{
 	#ifdef Q_OS_WIN
 			qCDebug(network) << "Could not join multicast group:" << mSocket->errorString();
 	#endif
 		}
 #endif
-		if (!mSocket->joinMulticastGroup(QHostAddress(QStringLiteral("ff02::178"))))
+		if (!mSocket->joinMulticastGroup(QHostAddress(ipv6MulticastAddress)))
 		{
 			qCDebug(network) << "Could not join multicast group:" << mSocket->errorString();
 		}

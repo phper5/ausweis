@@ -58,7 +58,7 @@ ResultErrorView {
 			visible: PersonalizationModel.blockingCode !== ""
 		}
 		GText {
-			font.weight: Font.Bold
+			font.weight: Style.font.bold
 			//: INFO ANDROID IOS Placeholder (error) text if the Smart-eID setup finished successfully but for some reason no blocking code was retrieved
 			text: qsTr("The Smart-eID setup finished successfully but no blocking code was retrieved. For security reasons, you should delete your Smart-eID and restart the setup.")
 			visible: PersonalizationModel.blockingCode === ""

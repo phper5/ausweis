@@ -33,12 +33,9 @@ FlickableSectionPage {
 
 		readonly property real buttonWidth: Math.max(agreeButton.implicitWidth, disagreeButton.implicitWidth)
 	}
-	GText {
+	Heading {
 		id: headline
 
-		Layout.alignment: Qt.AlignHCenter
-		horizontalAlignment: Text.AlignHCenter
-		textStyle: Style.text.headline
 		visible: headline.text !== ""
 		wrapMode: Text.WordWrap
 	}
@@ -48,11 +45,10 @@ FlickableSectionPage {
 		Layout.alignment: Qt.AlignHCenter
 		Layout.topMargin: Style.dimens.pane_spacing
 	}
-	GText {
+	Subheading {
 		id: subtitle
 
 		Layout.topMargin: Style.dimens.pane_spacing
-		textStyle: Style.text.subline
 	}
 	Repeater {
 		id: descriptionTexts
