@@ -48,6 +48,7 @@ jobs:
           host: 'linux'
           target: 'desktop'
           arch: 'gcc_64'
+          dir: '${{ github.workspace }}/qt-install'
           setup-python: 'false'
           cache: true
 
@@ -59,6 +60,7 @@ jobs:
           host: 'linux'
           target: 'android'
           arch: 'android_arm64_v8a'
+          dir: '${{ github.workspace }}/qt-install'
           setup-python: 'false'
           cache: true
 
@@ -70,6 +72,7 @@ jobs:
           host: 'linux'
           target: 'android'
           arch: 'android_armv7'
+          dir: '${{ github.workspace }}/qt-install'
           setup-python: 'false'
           cache: true
 
@@ -81,22 +84,33 @@ jobs:
           
           # Debug: Show Qt directory structure
           echo "=== Qt directory structure ==="
-          ls -la ${{ github.workspace }}/Qt/ || true
-          find ${{ github.workspace }}/Qt -maxdepth 3 -type d || true
+          ls -la ${{ github.workspace }}/qt-install/ || true
+          find ${{ github.workspace }}/qt-install -maxdepth 3 -type d || true
           
-          # Find Qt installation paths
-          QT_HOST_PATH="${{ github.workspace }}/Qt/6.5.3/gcc_64"
+          # Set Qt paths - install-qt-action creates Qt/<version>/<arch> structure
+          QT_HOST_PATH="${{ github.workspace }}/qt-install/Qt/6.5.3/gcc_64"
           if [ "${{ matrix.abi }}" == "arm64-v8a" ]; then
-            QT_ANDROID_PATH="${{ github.workspace }}/Qt/6.5.3/android_arm64_v8a"
+            QT_ANDROID_PATH="${{ github.workspace }}/qt-install/Qt/6.5.3/android_arm64_v8a"
           else
-            QT_ANDROID_PATH="${{ github.workspace }}/Qt/6.5.3/android_armv7"
+            QT_ANDROID_PATH="${{ github.workspace }}/qt-install/Qt/6.5.3/android_armv7"
           fi
           
           # Verify paths exist
           echo "Checking QT_HOST_PATH: $QT_HOST_PATH"
-          ls -la "$QT_HOST_PATH" || echo "ERROR: QT_HOST_PATH does not exist!"
+          if [ -d "$QT_HOST_PATH" ]; then
+            echo "✓ QT_HOST_PATH exists"
+            ls -la "$QT_HOST_PATH"
+          else
+            echo "✗ ERROR: QT_HOST_PATH does not exist!"
+          fi
+          
           echo "Checking QT_ANDROID_PATH: $QT_ANDROID_PATH"
-          ls -la "$QT_ANDROID_PATH" || echo "ERROR: QT_ANDROID_PATH does not exist!"
+          if [ -d "$QT_ANDROID_PATH" ]; then
+            echo "✓ QT_ANDROID_PATH exists"
+            ls -la "$QT_ANDROID_PATH"
+          else
+            echo "✗ ERROR: QT_ANDROID_PATH does not exist!"
+          fi
           
           echo "QT_HOST_PATH=$QT_HOST_PATH" >> $GITHUB_ENV
           echo "Qt6_DIR=$QT_ANDROID_PATH" >> $GITHUB_ENV
