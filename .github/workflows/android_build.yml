@@ -81,7 +81,7 @@ jobs:
           cmake --build . --target apk --config Release -j$(nproc)
 
       - name: Upload APK artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: AusweisApp-${{ matrix.abi }}-${{ github.sha }}
           path: build-android/*.apk
@@ -89,7 +89,7 @@ jobs:
 
       - name: Upload build logs on failure
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: build-logs-${{ matrix.abi }}
           path: |
