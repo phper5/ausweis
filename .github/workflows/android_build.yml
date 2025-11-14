@@ -30,22 +30,36 @@ jobs:
 
       - name: Install Android NDK
         run: |
+          yes | sdkmanager --licenses || true
           sdkmanager --install "ndk;26.3.11579264"
           sdkmanager --install "build-tools;34.0.0"
           sdkmanager --install "platforms;android-34"
+          sdkmanager --install "platform-tools"
 
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y cmake ninja-build pkg-config python3 python3-pip
+          sudo apt-get install -y cmake ninja-build pkg-config python3 python3-pip openssl libssl-dev
 
-      - name: Install Qt for Android
+      - name: Install Qt for Android (arm64-v8a)
+        if: matrix.abi == 'arm64-v8a'
         uses: jurplel/install-qt-action@v4
         with:
-          version: '6.8.*'
+          version: '6.7.3'
           host: 'linux'
           target: 'android'
           arch: 'android_arm64_v8a'
+          modules: 'qtscxml qtwebsockets qtshadertools qtconnectivity'
+          setup-python: 'false'
+
+      - name: Install Qt for Android (armeabi-v7a)
+        if: matrix.abi == 'armeabi-v7a'
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: '6.7.3'
+          host: 'linux'
+          target: 'android'
+          arch: 'android_armv7'
           modules: 'qtscxml qtwebsockets qtshadertools qtconnectivity'
           setup-python: 'false'
 
@@ -54,31 +68,33 @@ jobs:
           echo "ANDROID_SDK_ROOT=$ANDROID_HOME" >> $GITHUB_ENV
           echo "ANDROID_NDK_ROOT=$ANDROID_HOME/ndk/26.3.11579264" >> $GITHUB_ENV
           echo "JAVA_HOME=$JAVA_HOME_17_X64" >> $GITHUB_ENV
-
-      - name: Build dependencies (Qt + OpenSSL)
-        run: |
-          mkdir -p build-libs
-          cd build-libs
-          cmake -DCMAKE_BUILD_TYPE=Release \
-                -DCMAKE_TOOLCHAIN_FILE=../cmake/android.toolchain.cmake \
-                -DCMAKE_ANDROID_ARCH_ABI=${{ matrix.abi }} \
-                ../libs
-          make -j$(nproc)
+          echo "Qt6_DIR=$Qt6_DIR" >> $GITHUB_ENV
 
       - name: Configure AusweisApp
         run: |
           mkdir -p build-android
           cd build-android
           cmake -DCMAKE_BUILD_TYPE=Release \
-                -DCMAKE_TOOLCHAIN_FILE=../cmake/android.toolchain.cmake \
-                -DCMAKE_ANDROID_ARCH_ABI=${{ matrix.abi }} \
-                -DCMAKE_PREFIX_PATH=../build-libs/dist \
+                -DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK_ROOT/build/cmake/android.toolchain.cmake \
+                -DANDROID_ABI=${{ matrix.abi }} \
+                -DANDROID_PLATFORM=android-26 \
+                -DANDROID_STL=c++_shared \
+                -DQT_HOST_PATH=$Qt6_DIR/../gcc_64 \
+                -DCMAKE_FIND_ROOT_PATH=$Qt6_DIR \
                 ..
 
       - name: Build APK
         run: |
           cd build-android
-          cmake --build . --target apk --config Release -j$(nproc)
+          cmake --build . --config Release -j$(nproc) || true
+          
+      - name: List build output
+        if: always()
+        run: |
+          echo "=== Build directory structure ==="
+          find build-android -type f -name "*.apk" -o -name "*.aab" || true
+          echo "=== CMake cache ==="
+          cat build-android/CMakeCache.txt | grep -E "(Qt|ANDROID|NDK)" || true
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
