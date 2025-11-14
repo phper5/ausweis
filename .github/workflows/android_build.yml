@@ -78,19 +78,29 @@ jobs:
           echo "ANDROID_SDK_ROOT=$ANDROID_HOME" >> $GITHUB_ENV
           echo "ANDROID_NDK_ROOT=$ANDROID_HOME/ndk/26.3.11579264" >> $GITHUB_ENV
           echo "JAVA_HOME=$JAVA_HOME_17_X64" >> $GITHUB_ENV
+          
+          # Debug: Show Qt directory structure
+          echo "=== Qt directory structure ==="
+          ls -la ${{ github.workspace }}/Qt/ || true
+          find ${{ github.workspace }}/Qt -maxdepth 3 -type d || true
+          
           # Find Qt installation paths
-          QT_ROOT=$(find ${{ github.workspace }}/Qt -type d -name "6.5.3" | head -1)
-          QT_HOST_PATH="$QT_ROOT/gcc_64"
+          QT_HOST_PATH="${{ github.workspace }}/Qt/6.5.3/gcc_64"
           if [ "${{ matrix.abi }}" == "arm64-v8a" ]; then
-            QT_ANDROID_PATH="$QT_ROOT/android_arm64_v8a"
+            QT_ANDROID_PATH="${{ github.workspace }}/Qt/6.5.3/android_arm64_v8a"
           else
-            QT_ANDROID_PATH="$QT_ROOT/android_armv7"
+            QT_ANDROID_PATH="${{ github.workspace }}/Qt/6.5.3/android_armv7"
           fi
+          
+          # Verify paths exist
+          echo "Checking QT_HOST_PATH: $QT_HOST_PATH"
+          ls -la "$QT_HOST_PATH" || echo "ERROR: QT_HOST_PATH does not exist!"
+          echo "Checking QT_ANDROID_PATH: $QT_ANDROID_PATH"
+          ls -la "$QT_ANDROID_PATH" || echo "ERROR: QT_ANDROID_PATH does not exist!"
+          
           echo "QT_HOST_PATH=$QT_HOST_PATH" >> $GITHUB_ENV
           echo "Qt6_DIR=$QT_ANDROID_PATH" >> $GITHUB_ENV
           echo "CMAKE_PREFIX_PATH=$QT_ANDROID_PATH" >> $GITHUB_ENV
-          echo "Qt host path: $QT_HOST_PATH"
-          echo "Qt Android path: $QT_ANDROID_PATH"
 
       - name: Configure AusweisApp
         run: |
