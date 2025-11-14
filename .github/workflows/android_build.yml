@@ -1,0 +1,97 @@
+name: Android Build
+
+on:
+  push:
+    branches: [ community ]
+  pull_request:
+    branches: [ community ]
+  workflow_dispatch:  # 允许手动触发
+
+jobs:
+  build_android:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        abi: [armeabi-v7a, arm64-v8a]  # 支持多架构
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android NDK
+        run: |
+          sdkmanager --install "ndk;26.3.11579264"
+          sdkmanager --install "build-tools;34.0.0"
+          sdkmanager --install "platforms;android-34"
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake ninja-build pkg-config python3 python3-pip
+
+      - name: Install Qt for Android
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: '6.8.*'
+          host: 'linux'
+          target: 'android'
+          arch: 'android_arm64_v8a'
+          modules: 'qtscxml qtwebsockets qtshadertools qtconnectivity'
+          setup-python: 'false'
+
+      - name: Set environment variables
+        run: |
+          echo "ANDROID_SDK_ROOT=$ANDROID_HOME" >> $GITHUB_ENV
+          echo "ANDROID_NDK_ROOT=$ANDROID_HOME/ndk/26.3.11579264" >> $GITHUB_ENV
+          echo "JAVA_HOME=$JAVA_HOME_17_X64" >> $GITHUB_ENV
+
+      - name: Build dependencies (Qt + OpenSSL)
+        run: |
+          mkdir -p build-libs
+          cd build-libs
+          cmake -DCMAKE_BUILD_TYPE=Release \
+                -DCMAKE_TOOLCHAIN_FILE=../cmake/android.toolchain.cmake \
+                -DCMAKE_ANDROID_ARCH_ABI=${{ matrix.abi }} \
+                ../libs
+          make -j$(nproc)
+
+      - name: Configure AusweisApp
+        run: |
+          mkdir -p build-android
+          cd build-android
+          cmake -DCMAKE_BUILD_TYPE=Release \
+                -DCMAKE_TOOLCHAIN_FILE=../cmake/android.toolchain.cmake \
+                -DCMAKE_ANDROID_ARCH_ABI=${{ matrix.abi }} \
+                -DCMAKE_PREFIX_PATH=../build-libs/dist \
+                ..
+
+      - name: Build APK
+        run: |
+          cd build-android
+          cmake --build . --target apk --config Release -j$(nproc)
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: AusweisApp-${{ matrix.abi }}-${{ github.sha }}
+          path: build-android/*.apk
+          retention-days: 30
+
+      - name: Upload build logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-logs-${{ matrix.abi }}
+          path: |
+            build-android/CMakeFiles/*.log
+            build-android/CMakeCache.txt

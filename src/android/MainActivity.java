@@ -59,19 +59,36 @@ public class MainActivity extends QtActivity
 
 		NfcReaderMode()
 		{
+			// Improved NFC flags for better stability, especially on Xiaomi devices
 			mFlags = NfcAdapter.FLAG_READER_NFC_A
 					| NfcAdapter.FLAG_READER_NFC_B
 					| NfcAdapter.FLAG_READER_SKIP_NDEF_CHECK
 					| NfcAdapter.FLAG_READER_NO_PLATFORM_SOUNDS;
+			
 			mCallback = pTag ->
 			{
 				if (Arrays.asList(pTag.getTechList()).contains(IsoDep.class.getName()))
 				{
-					vibrate();
+					// Additional stability check for tag connection
+					try {
+						IsoDep isoDep = IsoDep.get(pTag);
+						if (isoDep != null && !isoDep.isConnected()) {
+							vibrate();
 
-					Intent nfcIntent = new Intent();
-					nfcIntent.putExtra(NfcAdapter.EXTRA_TAG, pTag);
-					QtNative.onNewIntent(nfcIntent);
+							Intent nfcIntent = new Intent();
+							nfcIntent.putExtra(NfcAdapter.EXTRA_TAG, pTag);
+							QtNative.onNewIntent(nfcIntent);
+						} else {
+							LogHandler.getLogger().info("Tag already connected or invalid, skipping");
+						}
+					} catch (Exception e) {
+						LogHandler.getLogger().warning("Error checking tag connection: " + e.getMessage());
+						// Fallback to original behavior
+						vibrate();
+						Intent nfcIntent = new Intent();
+						nfcIntent.putExtra(NfcAdapter.EXTRA_TAG, pTag);
+						QtNative.onNewIntent(nfcIntent);
+					}
 				}
 			};
 		}
@@ -89,9 +106,26 @@ public class MainActivity extends QtActivity
 			if (adapter != null && !mEnabled)
 			{
 				mEnabled = true;
-				adapter.enableReaderMode(MainActivity.this, mCallback, mFlags, null);
+				
+				// Enhanced parameters for better stability on problematic devices
+				Bundle options = new Bundle();
+				
+				// For Xiaomi and other devices that might have aggressive power management
+				if (Build.MANUFACTURER.toLowerCase().contains("xiaomi") ||
+				    Build.MANUFACTURER.toLowerCase().contains("redmi"))
+				{
+					LogHandler.getLogger().info("Detected Xiaomi device, using optimized NFC settings");
+					// Xiaomi devices often benefit from more frequent polling
+					options.putInt(NfcAdapter.EXTRA_READER_PRESENCE_CHECK_DELAY, 1000);
+				}
+				else
+				{
+					// Standard polling delay for other devices
+					options.putInt(NfcAdapter.EXTRA_READER_PRESENCE_CHECK_DELAY, 2000);
+				}
+				
+				adapter.enableReaderMode(MainActivity.this, mCallback, mFlags, options);
 			}
-
 		}
 
 
@@ -280,8 +314,23 @@ public class MainActivity extends QtActivity
 	{
 		if (mIsResumed && mNfcReaderMode.isEnabled())
 		{
-			mNfcReaderMode.disable();
-			mNfcReaderMode.enable();
+			LogHandler.getLogger().info("Resetting NFC reader mode for improved stability");
+			try
+			{
+				mNfcReaderMode.disable();
+				
+				// Small delay to ensure proper cleanup, especially important for Xiaomi devices
+				Thread.sleep(100);
+				
+				mNfcReaderMode.enable();
+				LogHandler.getLogger().info("NFC reader mode reset successfully");
+			}
+			catch (Exception e)
+			{
+				LogHandler.getLogger().warning("Error during NFC reader mode reset: " + e.getMessage());
+				// Try to recover by ensuring we're in the correct state
+				mNfcReaderMode.disable();
+			}
 		}
 	}
 

@@ -59,7 +59,21 @@ void StateDidAuthenticateEac2::onCardCommandDone(QSharedPointer<BaseCardCommand>
 		switch (returnCode)
 		{
 			case CardReturnCode::COMMAND_FAILED:
-				newStatus = GlobalStatus::Code::Workflow_Card_Removed;
+				// Improved error classification: distinguish between card removal and communication issues
+				// Check if the card connection still reports a card present
+				if (getContext()->getCardConnection() && 
+				    getContext()->getCardConnection()->getReaderInfo().hasCard())
+				{
+					// Card is still present according to reader, likely a communication issue
+					qCInfo(statemachine) << "Card still present, treating COMMAND_FAILED as communication issue";
+					newStatus = GlobalStatus::Code::Workflow_Reader_Became_Inaccessible;
+				}
+				else
+				{
+					// Card appears to have been removed
+					qCInfo(statemachine) << "Card no longer detected, treating as card removal";
+					newStatus = GlobalStatus::Code::Workflow_Card_Removed;
+				}
 				break;
 
 			case CardReturnCode::WRONG_LENGTH:
