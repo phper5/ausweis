@@ -48,7 +48,6 @@ jobs:
           host: 'linux'
           target: 'desktop'
           arch: 'gcc_64'
-          modules: 'qtscxml qtwebsockets qtshadertools qtconnectivity'
           setup-python: 'false'
           cache: true
 
@@ -60,7 +59,6 @@ jobs:
           host: 'linux'
           target: 'android'
           arch: 'android_arm64_v8a'
-          modules: 'qtscxml qtwebsockets qtshadertools qtconnectivity'
           setup-python: 'false'
           cache: true
 
@@ -72,7 +70,6 @@ jobs:
           host: 'linux'
           target: 'android'
           arch: 'android_armv7'
-          modules: 'qtscxml qtwebsockets qtshadertools qtconnectivity'
           setup-python: 'false'
           cache: true
 
