@@ -121,7 +121,7 @@ jobs:
           cat build-android/CMakeCache.txt | grep -E "(Qt|ANDROID|NDK)" || true
 
       - name: Upload APK artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: AusweisApp-${{ matrix.abi }}-${{ github.sha }}
           path: build-android/*.apk
@@ -129,7 +129,7 @@ jobs:
 
       - name: Upload build logs on failure
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: build-logs-${{ matrix.abi }}
           path: |
